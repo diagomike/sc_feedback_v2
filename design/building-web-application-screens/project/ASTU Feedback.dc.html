@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#E9EEF4;--panel:#FFFFFF;--panel2:#F3F6FA;--panel3:#E7EEF5;--border:#D2DBE5;--border2:#B7C4D2;--text:#0D1922;--dim:#57697A;--faint:#8496A6;--accent:#0B69B0;--accent2:#1183D6;--soft:#E1EEFA;--sel:#D5E7F7;--top:#0A4E86;--topfg:#DCEAF6;--good:#12735C;--goodbg:#DDF0EA;--warn:#9C5C0B;--warnbg:#FAEEDC;--bad:#A83236;--badbg:#F8E4E5}
+:root[data-theme="dark"]{--bg:#0D131A;--panel:#151D25;--panel2:#111820;--panel3:#1A232C;--border:#26313C;--border2:#37444F;--text:#DCE6EF;--dim:#92A3B3;--faint:#69798A;--accent:#4FA6E8;--accent2:#7CC2F5;--soft:#132B3B;--sel:#1C3446;--top:#0A1720;--topfg:#CFE0EE;--good:#3EAE8E;--goodbg:#122C26;--warn:#D0902F;--warnbg:#2E2314;--bad:#E0696D;--badbg:#31191B}
+:root[data-theme="dark"]{--sel:#1C3446}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent2);text-decoration:underline}
+input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:6px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--faint);background-clip:content-box;border:3px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+</style>
+</helmet>
+
+<div style="height:100vh;width:100%;display:grid;grid-template-rows:38px 1fr 24px;background:var(--bg,#E9EEF4);overflow:hidden">
+
+  <div style="background:var(--top,#0A4E86);color:var(--topfg,#DCEAF6);display:flex;align-items:center;gap:12px;padding:0 10px;flex:none;min-width:0;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1;overflow:hidden">
+      <div style="width:18px;height:18px;background:#FFFFFF;color:#0A4E86;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:-.02em;border-radius:2px">AS</div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:.01em;white-space:nowrap">ASTU <span style="opacity:.6;font-weight:400">Teaching Feedback</span></div>
+    </div>
+
+    <div style="display:flex;align-items:stretch;gap:1px;background:rgba(255,255,255,.14);padding:2px;border-radius:3px">
+      <sc-for list="{{ modes }}" as="m" hint-placeholder-count="4">
+        <button onClick="{{ m.go }}" style="border:0;background:{{ m.bg }};color:{{ m.fg }};font-size:11.5px;font-weight:500;padding:3px 11px;border-radius:2px;letter-spacing:.01em;white-space:nowrap">{{ m.label }}<span style="opacity:.55;margin-left:6px;font-size:10px">{{ m.badge }}</span></button>
+      </sc-for>
+    </div>
+
+    <div style="flex:1;min-width:0;display:flex;justify-content:center;padding:0 8px">
+      <div style="width:100%;min-width:0;max-width:380px;position:relative;display:flex;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:3px;height:24px;padding:0 8px;gap:6px">
+        <span style="font-size:10px;opacity:.6">⌕</span>
+        <input placeholder="Go to campaign, teacher, template…" style="flex:1;background:transparent;border:0;outline:none;font-size:11.5px;color:inherit" />
+        <span style="font-size:9.5px;opacity:.45;font-family:'IBM Plex Mono',monospace;border:1px solid rgba(255,255,255,.25);border-radius:2px;padding:0 4px">⌘K</span>
+      </div>
+    </div>
+
+    <button onClick="{{ toggleTheme }}" title="Toggle theme" style="border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:inherit;height:24px;padding:0 9px;border-radius:3px;font-size:11px;display:flex;align-items:center;gap:5px">{{ themeGlyph }}<span style="opacity:.7">{{ themeLabel }}</span></button>
+
+    <div style="display:flex;align-items:center;gap:7px;padding-left:8px;border-left:1px solid rgba(255,255,255,.18);flex:none">
+      <div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">MA</div>
+      <div style="line-height:1.15;padding-right:4px">
+        <div style="font-size:11px;font-weight:500;white-space:nowrap">Dr. Meron Assefa</div>
+        <div style="font-size:9.5px;opacity:.6;white-space:nowrap">Head, CSE · Teacher</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:236px 1fr;min-height:0;overflow:hidden">
+
+    <div style="background:var(--panel2,#F3F6FA);border-right:1px solid var(--border,#D2DBE5);display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="padding:9px 12px 8px;border-bottom:1px solid var(--border,#D2DBE5);flex:none">
+        <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600">Your scope</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div style="width:6px;height:6px;background:var(--accent,#0B69B0);border-radius:1px;flex:none"></div>
+          <div style="font-size:12px;font-weight:600;line-height:1.2">Computer Science &amp; Eng.</div>
+        </div>
+        <div style="font-size:10.5px;color:var(--dim,#57697A);margin-top:2px;font-family:'IBM Plex Mono',monospace">L2 · leaf · 7 teachers · 352 students</div>
+        <div style="font-size:10px;color:var(--faint,#8496A6);margin-top:5px;line-height:1.35">ASTU <span style="opacity:.5">›</span> School of Electrical Eng. &amp; Computing <span style="opacity:.5">›</span> CSE</div>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 0 10px">
+        <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="4">
+          <div style="margin-bottom:9px">
+            <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;padding:4px 12px 3px">{{ g.label }}</div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+              <button onClick="{{ it.go }}" style="width:100%;text-align:left;border:0;border-left:2px solid {{ it.mark }};background:{{ it.bg }};color:{{ it.fg }};font-size:12px;font-weight:{{ it.weight }};padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;line-height:1.5" style-hover="background:var(--panel3,#E7EEF5)">
+                <span style="width:13px;text-align:center;font-size:10px;opacity:.75;flex:none">{{ it.icon }}</span>
+                <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.label }}</span>
+                <span style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:{{ it.countFg }};background:{{ it.countBg }};padding:0 4px;border-radius:2px">{{ it.count }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="border-top:1px solid var(--border,#D2DBE5);padding:6px 0;flex:none">
+        <button onClick="{{ goDS }}" style="width:100%;text-align:left;border:0;background:transparent;color:var(--dim,#57697A);font-size:11.5px;padding:4px 12px;display:flex;align-items:center;gap:7px" style-hover="background:var(--panel3,#E7EEF5);color:var(--text,#0D1922)">
+          <span style="width:13px;text-align:center;font-size:10px;opacity:.75">◫</span>Design system
+        </button>
+        <button style="width:100%;text-align:left;border:0;background:transparent;color:var(--dim,#57697A);font-size:11.5px;padding:4px 12px;display:flex;align-items:center;gap:7px" style-hover="background:var(--panel3,#E7EEF5);color:var(--text,#0D1922)">
+          <span style="width:13px;text-align:center;font-size:10px;opacity:.75">⏻</span>Sign out
+        </button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel,#FFFFFF);overflow:hidden">
+
+      <div style="height:36px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:10px;padding:0 12px;flex:none;background:var(--panel,#FFFFFF)">
+        <div style="font-size:10.5px;color:var(--faint,#8496A6);white-space:nowrap">{{ crumb }}</div>
+        <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</div>
+        <div style="flex:1"></div>
+        <div style="font-size:10.5px;color:var(--dim,#57697A);white-space:nowrap">{{ subtitle }}</div>
+      </div>
+
+      <div style="flex:1;overflow:auto;min-height:0">
+
+        <sc-if value="{{ isCampaigns }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border,#D2DBE5);position:sticky;top:0;background:var(--panel,#FFFFFF);z-index:2">
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <sc-for list="{{ campaignFilters }}" as="f" hint-placeholder-count="4">
+                  <button onClick="{{ f.go }}" style="border:0;background:{{ f.bg }};color:{{ f.fg }};font-size:11.5px;padding:2px 10px;border-radius:2px;font-weight:500">{{ f.label }} <span style="opacity:.55;font-family:'IBM Plex Mono',monospace;font-size:10px">{{ f.n }}</span></button>
+                </sc-for>
+              </div>
+              <div style="flex:1"></div>
+              <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 10px;border-radius:3px;font-size:11.5px;color:var(--dim,#57697A)">Import results ↓</button>
+              <button onClick="{{ goBuilder }}" style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:24px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">+ New campaign</button>
+            </div>
+
+            <table style="width:100%;min-width:1120px;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5);min-width:260px">Campaign</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:74px">Type</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:210px">Audiences</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:150px">Window</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:190px">Responses</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:132px">Past min-N</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5);width:88px">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ campaignRows }}" as="c" hint-placeholder-count="5">
+                  <tr onClick="{{ c.open }}" style="border-bottom:1px solid var(--border,#D2DBE5);cursor:pointer" style-hover="background:var(--panel2,#F3F6FA)">
+                    <td style="padding:6px 12px">
+                      <div style="font-weight:500;line-height:1.3">{{ c.name }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ c.meta }}</div>
+                    </td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A)">{{ c.type }}</td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A);font-size:11.5px">{{ c.audiences }}</td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A);font-family:'IBM Plex Mono',monospace;font-size:11px">{{ c.window }}</td>
+                    <td style="padding:6px 8px">
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden">
+                          <div style="height:100%;width:{{ c.pct }};background:{{ c.barColor }}"></div>
+                        </div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A);white-space:nowrap;width:74px;text-align:right">{{ c.ratio }}</div>
+                      </div>
+                    </td>
+                    <td style="padding:6px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ c.minNFg }}">{{ c.minN }}</td>
+                    <td style="padding:6px 12px"><span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:{{ c.pillBg }};color:{{ c.pillFg }}">{{ c.status }}</span></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+
+            <div style="padding:9px 12px;font-size:11px;color:var(--faint,#8496A6);border-bottom:1px solid var(--border,#D2DBE5)">Nothing is ever deleted — closed campaigns stay readable and their results stay live.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isMonitor }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--border,#D2DBE5);position:sticky;top:0;background:var(--panel,#FFFFFF);z-index:2">
+              <sc-for list="{{ monitorStats }}" as="s" hint-placeholder-count="4">
+                <div style="padding:8px 14px;border-right:1px solid var(--border,#D2DBE5);min-width:130px">
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">{{ s.label }}</div>
+                  <div style="font-size:19px;font-weight:600;line-height:1.25;font-family:'IBM Plex Mono',monospace;color:{{ s.fg }}">{{ s.value }}</div>
+                  <div style="font-size:10.5px;color:var(--dim,#57697A)">{{ s.sub }}</div>
+                </div>
+              </sc-for>
+              <div style="flex:1"></div>
+              <div style="display:flex;align-items:center;gap:6px;padding:0 12px">
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:25px;padding:0 10px;border-radius:3px;font-size:11.5px">Close early</button>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:25px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">Remind 134 non-respondents</button>
+              </div>
+            </div>
+
+            <table style="width:100%;min-width:1000px;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5);min-width:190px">Teacher</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:230px">Students</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:180px">Peers</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:120px">Head</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:150px">Results will exist</th>
+                  <th style="text-align:right;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5);width:96px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ monitorRows }}" as="t" hint-placeholder-count="7">
+                  <tr style="border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                    <td style="padding:6px 12px;font-weight:500">{{ t.name }}</td>
+                    <td style="padding:6px 8px">
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ t.sPct }};background:{{ t.sColor }}"></div></div>
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A);width:56px;text-align:right">{{ t.sRatio }}</span>
+                      </div>
+                    </td>
+                    <td style="padding:6px 8px">
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ t.pPct }};background:{{ t.pColor }}"></div></div>
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A);width:38px;text-align:right">{{ t.pRatio }}</span>
+                      </div>
+                    </td>
+                    <td style="padding:6px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ t.mFg }}">{{ t.mLabel }}</td>
+                    <td style="padding:6px 8px"><span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:{{ t.gateBg }};color:{{ t.gateFg }}">{{ t.gate }}</span></td>
+                    <td style="padding:6px 12px;text-align:right"><button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:21px;padding:0 8px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Remind</button></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            <div style="padding:9px 12px;font-size:11px;color:var(--faint,#8496A6);border-bottom:1px solid var(--border,#D2DBE5);line-height:1.6">Reminders are manual — there is no scheduler. A reminder re-sends the respondent's existing private link; it does not reveal who has answered.<br />Head feedback is identifiable by design: a teacher has exactly one direct manager, so this column is never anonymous and the form says so.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBuilder }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:186px 1fr;min-height:100%">
+            <div style="border-right:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA);padding:8px 0">
+              <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;padding:2px 12px 6px">Steps</div>
+              <sc-for list="{{ builderSteps }}" as="s" hint-placeholder-count="6">
+                <button onClick="{{ s.go }}" style="width:100%;text-align:left;border:0;border-left:2px solid {{ s.mark }};background:{{ s.bg }};color:{{ s.fg }};padding:5px 12px 5px 10px;display:flex;gap:8px;align-items:flex-start;font-size:12px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:{{ s.numFg }};background:{{ s.numBg }};width:15px;height:15px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px">{{ s.num }}</span>
+                  <span style="flex:1;line-height:1.35">
+                    <span style="display:block;font-weight:{{ s.weight }}">{{ s.label }}</span>
+                    <span style="display:block;font-size:10.5px;color:var(--faint,#8496A6)">{{ s.value }}</span>
+                  </span>
+                </button>
+              </sc-for>
+              <div style="padding:10px 12px;margin-top:6px;border-top:1px solid var(--border,#D2DBE5)">
+                <button style="width:100%;border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:26px;border-radius:3px;font-size:11.5px;font-weight:500">Review &amp; launch</button>
+                <button style="width:100%;border:1px solid var(--border2,#B7C4D2);background:transparent;height:24px;border-radius:3px;font-size:11.5px;color:var(--dim,#57697A);margin-top:5px">Save draft</button>
+              </div>
+            </div>
+
+            <div style="min-width:0">
+              <div style="padding:9px 14px;border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:13px;font-weight:600">Who evaluates whom</div>
+                <div style="font-size:11.5px;color:var(--dim,#57697A);margin-top:2px;max-width:640px">Every teacher × target group pair needs an audience. Use the row of shortcuts to fill the common case in one click, then override only the teachers that differ.</div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--soft,#E1EEFA);border-bottom:1px solid var(--border,#D2DBE5);flex-wrap:wrap">
+                <span style="font-size:11px;font-weight:600;color:var(--accent,#0B69B0);text-transform:uppercase;letter-spacing:.06em">Apply to all 7 teachers</span>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:22px;padding:0 9px;border-radius:3px;font-size:11px;font-weight:500">+ CSE Year 3 · Section A</button>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:22px;padding:0 9px;border-radius:3px;font-size:11px;font-weight:500">+ All CSE teaching staff (peers)</button>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:22px;padding:0 9px;border-radius:3px;font-size:11px;font-weight:500">+ Head of department</button>
+                <div style="flex:1"></div>
+                <span style="font-size:10.5px;color:var(--dim,#57697A)">{{ matrixFilled }}</span>
+              </div>
+
+              <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead>
+                  <tr style="background:var(--panel2,#F3F6FA)">
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px;border-bottom:1px solid var(--border,#D2DBE5);width:196px">Teacher</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5);border-left:1px solid var(--border,#D2DBE5)">Students <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint,#8496A6)">· Student Evaluation 2026</span></th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5);border-left:1px solid var(--border,#D2DBE5);width:250px">Peers <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint,#8496A6)">· Peer Review 2026</span></th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5);border-left:1px solid var(--border,#D2DBE5);width:160px">Head <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint,#8496A6)">· not anonymous</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ matrixRows }}" as="r" hint-placeholder-count="7">
+                    <tr style="border-bottom:1px solid var(--border,#D2DBE5)">
+                      <td style="padding:7px 14px;vertical-align:top">
+                        <div style="font-weight:500">{{ r.name }}</div>
+                        <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ r.courses }}</div>
+                      </td>
+                      <td style="padding:6px 10px;border-left:1px solid var(--border,#D2DBE5);vertical-align:top">
+                        <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+                          <sc-for list="{{ r.students }}" as="chip" hint-placeholder-count="2">
+                            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--soft,#E1EEFA);border:1px solid var(--border,#D2DBE5);color:var(--text,#0D1922);font-size:11px;padding:1px 5px 1px 7px;border-radius:2px;white-space:nowrap">{{ chip.label }}<span style="color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace;font-size:10px">{{ chip.n }}</span><span style="color:var(--faint,#8496A6);cursor:pointer">×</span></span>
+                          </sc-for>
+                          <button style="border:1px dashed var(--border2,#B7C4D2);background:transparent;color:var(--dim,#57697A);font-size:11px;height:21px;padding:0 7px;border-radius:2px">+ group</button>
+                        </div>
+                      </td>
+                      <td style="padding:6px 10px;border-left:1px solid var(--border,#D2DBE5);vertical-align:top">
+                        <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+                          <sc-for list="{{ r.peers }}" as="chip" hint-placeholder-count="2">
+                            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--panel3,#E7EEF5);border:1px solid var(--border,#D2DBE5);font-size:11px;padding:1px 5px 1px 7px;border-radius:2px;white-space:nowrap">{{ chip.label }}<span style="color:var(--faint,#8496A6);cursor:pointer">×</span></span>
+                          </sc-for>
+                          <button style="border:1px dashed var(--border2,#B7C4D2);background:transparent;color:var(--dim,#57697A);font-size:11px;height:21px;padding:0 7px;border-radius:2px">+ peer</button>
+                        </div>
+                      </td>
+                      <td style="padding:6px 10px;border-left:1px solid var(--border,#D2DBE5);vertical-align:top;font-size:11.5px;color:{{ r.headFg }}">{{ r.head }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+
+              <div style="padding:10px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:760px">Students are only asked about lecturers who actually taught them — an unmatched pairing produces junk data and survey fatigue. Rows left empty in a column are simply not surveyed for that target group.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--border,#D2DBE5)">
+              <div style="padding:9px 14px;border-right:1px solid var(--border,#D2DBE5);min-width:168px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Scope composite</div>
+                <div style="display:flex;align-items:baseline;gap:7px">
+                  <div style="font-size:26px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.15">61.4</div>
+                  <div style="font-size:11.5px;color:var(--good,#12735C);font-weight:500">▲ 3.2 vs Spring</div>
+                </div>
+                <div style="font-size:10.5px;color:var(--dim,#57697A)">university median 58.9 · faculty 60.1</div>
+              </div>
+              <div style="padding:9px 14px;border-right:1px solid var(--border,#D2DBE5);min-width:150px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Coverage</div>
+                <div style="font-size:26px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.15">18<span style="color:var(--faint,#8496A6);font-size:15px">/24</span></div>
+                <div style="font-size:10.5px;color:var(--dim,#57697A)">teachers past min-N</div>
+              </div>
+              <div style="padding:9px 14px;border-right:1px solid var(--border,#D2DBE5);min-width:150px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Weakest competency</div>
+                <div style="font-size:15px;font-weight:600;line-height:1.35;margin-top:3px">Assessment Feedback</div>
+                <div style="font-size:10.5px;color:var(--bad,#A83236)">44.1 · lowest in 5 of 6 departments</div>
+              </div>
+              <div style="padding:9px 14px;min-width:190px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Composite vs self-rated gap</div>
+                <div style="font-size:15px;font-weight:600;line-height:1.35;margin-top:3px">3 teachers diverge &gt; 15 pts</div>
+                <div style="font-size:10.5px;color:var(--dim,#57697A)">gut ratings below the computed score</div>
+              </div>
+            </div>
+
+            <div style="padding:10px 14px 4px;display:flex;align-items:center;gap:10px">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Departments × competencies</div>
+              <div style="flex:1;border-top:1px solid var(--border,#D2DBE5)"></div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--faint,#8496A6)">
+                <span>low</span>
+                <span style="width:16px;height:9px;background:#B03235;border-radius:1px"></span>
+                <span style="width:16px;height:9px;background:#D4823F;border-radius:1px"></span>
+                <span style="width:16px;height:9px;background:#D8C462;border-radius:1px"></span>
+                <span style="width:16px;height:9px;background:#7FB07E;border-radius:1px"></span>
+                <span style="width:16px;height:9px;background:#2E8A6A;border-radius:1px"></span>
+                <span>high</span>
+                <span style="width:16px;height:9px;background:var(--panel3,#E7EEF5);border:1px dashed var(--border2,#B7C4D2);border-radius:1px;margin-left:6px"></span>
+                <span>suppressed</span>
+              </div>
+            </div>
+
+            <div style="padding:0 14px 12px;overflow-x:auto">
+              <table style="border-collapse:collapse;font-size:11.5px;min-width:720px;width:100%">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:4px 8px 4px 0;width:240px">Branch</th>
+                    <sc-for list="{{ heatCols }}" as="h" hint-placeholder-count="5">
+                      <th style="font-weight:600;font-size:10px;color:var(--dim,#57697A);padding:4px 3px;text-align:center;line-height:1.2">{{ h }}</th>
+                    </sc-for>
+                    <th style="font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:4px 0 4px 10px;text-align:right;width:78px">Composite</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ heatRows }}" as="row" hint-placeholder-count="6">
+                    <tr style-hover="background:var(--panel2,#F3F6FA)">
+                      <td style="padding:2px 8px 2px 0">
+                        <div style="display:flex;align-items:center;gap:6px;padding-left:{{ row.indent }}">
+                          <span style="font-size:9px;color:var(--faint,#8496A6)">{{ row.glyph }}</span>
+                          <span style="font-weight:{{ row.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.name }}</span>
+                          <span style="font-size:10px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ row.n }}</span>
+                        </div>
+                      </td>
+                      <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+                        <td style="padding:2px 3px">
+                          <div style="height:22px;border-radius:2px;background:{{ cell.bg }};color:{{ cell.fg }};display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;border:{{ cell.border }}">{{ cell.v }}</div>
+                        </td>
+                      </sc-for>
+                      <td style="padding:2px 0 2px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:{{ row.weight }}">{{ row.composite }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border,#D2DBE5)">
+              <div style="border-right:1px solid var(--border,#D2DBE5)">
+                <div style="padding:7px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">Needs attention</div>
+                <sc-for list="{{ outliersLow }}" as="o" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:9px;padding:5px 14px;border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                    <div style="width:3px;height:22px;background:var(--bad,#A83236);border-radius:2px;flex:none"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.name }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ o.where }}</div>
+                    </div>
+                    <div style="font-size:11px;color:var(--dim,#57697A);text-align:right;white-space:nowrap">{{ o.why }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;width:46px;text-align:right">{{ o.score }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div>
+                <div style="padding:7px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">Strongest</div>
+                <sc-for list="{{ outliersHigh }}" as="o" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:9px;padding:5px 14px;border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                    <div style="width:3px;height:22px;background:var(--good,#12735C);border-radius:2px;flex:none"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.name }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ o.where }}</div>
+                    </div>
+                    <div style="font-size:11px;color:var(--dim,#57697A);text-align:right;white-space:nowrap">{{ o.why }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;width:46px;text-align:right">{{ o.score }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:10px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:820px">Quality Assurance scopes are not subtrees — a QA director's rows are a set of branches drawn from several faculties, so this table is a flat list of reachable nodes with indentation as a hint, not a strict tree.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTemplates }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border,#D2DBE5);position:sticky;top:0;background:var(--panel,#FFFFFF);z-index:2">
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <sc-for list="{{ templateTabs }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.go }}" style="border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:11.5px;padding:2px 10px;border-radius:2px;font-weight:500">{{ t.label }} <span style="opacity:.55;font-family:'IBM Plex Mono',monospace;font-size:10px">{{ t.n }}</span></button>
+                </sc-for>
+              </div>
+              <div style="font-size:11px;color:var(--faint,#8496A6);margin-left:4px">Target group</div>
+              <div style="display:flex;gap:4px">
+                <span style="font-size:10.5px;padding:1px 7px;border-radius:2px;border:1px solid var(--border2,#B7C4D2);color:var(--dim,#57697A)">Student</span>
+                <span style="font-size:10.5px;padding:1px 7px;border-radius:2px;border:1px solid var(--border2,#B7C4D2);color:var(--dim,#57697A)">Peer</span>
+                <span style="font-size:10.5px;padding:1px 7px;border-radius:2px;border:1px solid var(--border2,#B7C4D2);color:var(--dim,#57697A)">Manager</span>
+              </div>
+              <div style="flex:1"></div>
+              <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:24px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">+ New template</button>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5)">Template</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:88px">Group</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:170px">Structure</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:180px">Origin</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:120px">Used by</th>
+                  <th style="text-align:right;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 12px;border-bottom:1px solid var(--border,#D2DBE5);width:210px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ templateRows }}" as="t" hint-placeholder-count="4">
+                  <tr style="border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                    <td style="padding:6px 12px">
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <span style="font-weight:500">{{ t.name }}</span>
+                        <span style="font-size:10px;padding:0 5px;border-radius:2px;background:{{ t.lockBg }};color:{{ t.lockFg }};font-family:'IBM Plex Mono',monospace">{{ t.lock }}</span>
+                      </div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ t.id }}</div>
+                    </td>
+                    <td style="padding:6px 8px"><span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:{{ t.grpBg }};color:{{ t.grpFg }}">{{ t.group }}</span></td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A);font-size:11.5px">{{ t.structure }}</td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A);font-size:11.5px">{{ t.origin }}</td>
+                    <td style="padding:6px 8px;color:var(--dim,#57697A);font-size:11.5px">{{ t.used }}</td>
+                    <td style="padding:6px 12px;text-align:right">
+                      <div style="display:flex;gap:5px;justify-content:flex-end">
+                        <button onClick="{{ t.goEdit }}" style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:21px;padding:0 8px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Preview</button>
+                        <button onClick="{{ t.goEdit }}" style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:21px;padding:0 8px;border-radius:3px;font-size:11px;color:{{ t.primaryFg }};font-weight:500">{{ t.primary }}</button>
+                        <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:21px;padding:0 8px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Archive</button>
+                      </div>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            <div style="padding:9px 12px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:820px">A published template can never be edited — the responses already collected against it must keep meaning the same thing. Clone it into a new draft instead; the lineage is kept so results stay comparable.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTBuilder }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:230px minmax(420px,1fr) 300px;min-height:100%;min-width:1000px">
+            <div style="border-right:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA);display:flex;flex-direction:column">
+              <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:6px">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;flex:1">Structure</span>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:19px;padding:0 6px;border-radius:2px;font-size:10.5px;color:var(--dim,#57697A)">+ Section</button>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:4px 0">
+                <sc-for list="{{ tSections }}" as="sec" hint-placeholder-count="5">
+                  <div>
+                    <button onClick="{{ sec.go }}" style="width:100%;text-align:left;border:0;border-left:2px solid {{ sec.mark }};background:{{ sec.bg }};padding:4px 10px 4px 8px;display:flex;align-items:center;gap:6px;font-size:12px;color:{{ sec.fg }}">
+                      <span style="color:var(--faint,#8496A6);font-size:10px;cursor:grab">⠿</span>
+                      <span style="flex:1;font-weight:{{ sec.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sec.title }}</span>
+                      <span style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--faint,#8496A6)">{{ sec.tag }}</span>
+                    </button>
+                    <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="2">
+                      <div style="padding:2px 10px 2px 26px;font-size:11px;color:var(--faint,#8496A6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it }}</div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="border-top:1px solid var(--border,#D2DBE5);padding:8px 10px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:5px">Weight impact on composite</div>
+                <sc-for list="{{ weightBars }}" as="w" hint-placeholder-count="4">
+                  <div style="margin-bottom:4px">
+                    <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim,#57697A)"><span>{{ w.title }}</span><span style="font-family:'IBM Plex Mono',monospace">{{ w.pct }}</span></div>
+                    <div style="height:4px;background:var(--panel3,#E7EEF5);border-radius:2px;overflow:hidden;margin-top:2px"><div style="height:100%;width:{{ w.pct }};background:{{ w.color }}"></div></div>
+                  </div>
+                </sc-for>
+                <div style="font-size:10px;color:var(--faint,#8496A6);line-height:1.5;margin-top:6px">Weights decide every score the university acts on. Effective Delivery currently counts twice as much as Punctuality.</div>
+              </div>
+            </div>
+
+            <div style="min-width:0;display:flex;flex-direction:column">
+              <div style="padding:9px 14px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:10px">
+                <div style="flex:1;min-width:0">
+                  <input value="Effective Delivery" style="border:1px solid transparent;background:transparent;font-size:14px;font-weight:600;padding:1px 4px;margin-left:-4px;width:100%;border-radius:2px" style-hover="border-color:var(--border,#D2DBE5)" style-focus="border-color:var(--accent,#0B69B0);outline:none;background:var(--panel,#FFF)" />
+                  <div style="font-size:10.5px;color:var(--faint,#8496A6);margin-top:1px">Section 2 of 5 · this section is also the competency name shown on every dashboard</div>
+                </div>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Duplicate</button>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Remove</button>
+              </div>
+
+              <div style="display:flex;align-items:flex-end;gap:14px;padding:9px 14px;border-bottom:1px solid var(--border,#D2DBE5);flex-wrap:wrap">
+                <div>
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:3px">Type</div>
+                  <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                    <span style="background:var(--panel,#FFF);font-size:11.5px;padding:2px 9px;border-radius:2px;font-weight:500">Likert grid</span>
+                    <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--dim,#57697A)">Free text</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:3px">Scale</div>
+                  <select style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 6px;border-radius:3px;font-size:11.5px">
+                    <option>Agreement 5-point</option>
+                    <option>Quality 5-point</option>
+                    <option>Frequency 5-point</option>
+                    <option>Agreement 7-point</option>
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:3px">Section weight</div>
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <input value="2.0" style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;width:52px;padding:0 6px;border-radius:3px;font-size:11.5px;font-family:'IBM Plex Mono',monospace" />
+                    <span style="font-size:11px;color:var(--accent,#0B69B0);font-weight:500">= 44% of the composite</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:3px">Holistic</div>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dim,#57697A);height:24px">
+                    <input type="checkbox" style="width:13px;height:13px;accent-color:#0B69B0" />isOverall — excluded from composite
+                  </label>
+                </div>
+              </div>
+
+              <div style="padding:9px 14px 4px;display:flex;align-items:center;gap:8px">
+                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Items</div>
+                <div style="flex:1;border-top:1px solid var(--border,#D2DBE5)"></div>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:21px;padding:0 8px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">+ Item</button>
+              </div>
+
+              <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint,#8496A6);padding:3px 14px;width:26px"></th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint,#8496A6);padding:3px 4px">Statement</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint,#8496A6);padding:3px 8px;width:74px">Weight</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint,#8496A6);padding:3px 8px;width:78px">Required</th>
+                    <th style="padding:3px 14px;width:30px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ tItems }}" as="it" hint-placeholder-count="3">
+                    <tr style="border-top:1px solid var(--border,#D2DBE5)">
+                      <td style="padding:4px 14px;color:var(--faint,#8496A6);font-size:10px;cursor:grab">⠿</td>
+                      <td style="padding:4px 4px"><input value="{{ it.text }}" style="width:100%;border:1px solid transparent;background:transparent;padding:2px 5px;border-radius:2px;font-size:12px" style-hover="border-color:var(--border,#D2DBE5)" style-focus="border-color:var(--accent,#0B69B0);outline:none;background:var(--panel,#FFF)" /></td>
+                      <td style="padding:4px 8px"><input value="{{ it.weight }}" style="width:46px;border:1px solid var(--border,#D2DBE5);background:var(--panel,#FFF);padding:2px 5px;border-radius:2px;font-size:11.5px;font-family:'IBM Plex Mono',monospace" /></td>
+                      <td style="padding:4px 8px"><input type="checkbox" checked="{{ it.required }}" style="width:13px;height:13px;accent-color:#0B69B0" /></td>
+                      <td style="padding:4px 14px;color:var(--faint,#8496A6);text-align:right;cursor:pointer">×</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+
+              <div style="flex:1"></div>
+              <div style="border-top:1px solid var(--border,#D2DBE5);padding:8px 14px;display:flex;align-items:center;gap:10px;background:var(--panel2,#F3F6FA)">
+                <div style="font-size:11px;color:var(--dim,#57697A);flex:1">Draft · autosaved. Publishing freezes this template permanently — responses collected against it must always mean the same thing.</div>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:25px;padding:0 10px;border-radius:3px;font-size:11.5px">Save draft</button>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:25px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">Publish…</button>
+              </div>
+            </div>
+
+            <div style="border-left:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA);display:flex;flex-direction:column;min-width:0">
+              <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:6px">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;flex:1">Respondent preview</span>
+                <span style="font-size:10px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">375px</span>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:10px">
+                <div style="background:var(--panel,#FFF);border:1px solid var(--border,#D2DBE5);border-radius:3px;overflow:hidden">
+                  <div style="padding:8px 10px;border-bottom:1px solid var(--border,#D2DBE5)">
+                    <div style="font-size:12px;font-weight:600">Effective Delivery</div>
+                    <div style="font-size:10.5px;color:var(--faint,#8496A6)">3 statements · Agreement 5-point</div>
+                  </div>
+                  <sc-for list="{{ tItems }}" as="it" hint-placeholder-count="3">
+                    <div style="padding:8px 10px;border-bottom:1px solid var(--border,#D2DBE5)">
+                      <div style="font-size:11.5px;line-height:1.4;margin-bottom:6px">{{ it.text }}</div>
+                      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px">
+                        <sc-for list="{{ scalePoints }}" as="p" hint-placeholder-count="5">
+                          <div style="border:1px solid var(--border,#D2DBE5);border-radius:2px;padding:4px 2px;text-align:center;background:var(--panel,#FFF)">
+                            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--dim,#57697A)">{{ p.value }}</div>
+                            <div style="font-size:8.5px;color:var(--faint,#8496A6);line-height:1.15;margin-top:1px">{{ p.short }}</div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font-size:10.5px;color:var(--faint,#8496A6);line-height:1.5;margin-top:8px">On a phone the grid becomes one card per statement with the scale repeated — column headers never scroll out of reach.</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isScales }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:250px 1fr;min-height:100%">
+            <div style="border-right:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">
+              <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;flex:1">Reusable scales</span>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:19px;padding:0 6px;border-radius:2px;font-size:10.5px;color:var(--dim,#57697A)">+ New</button>
+              </div>
+              <sc-for list="{{ scaleList }}" as="sc" hint-placeholder-count="4">
+                <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);border-left:2px solid {{ sc.mark }};background:{{ sc.bg }}">
+                  <div style="font-size:12px;font-weight:{{ sc.weight }}">{{ sc.name }}</div>
+                  <div style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ sc.meta }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding:12px 14px;max-width:720px">
+              <div style="font-size:14px;font-weight:600">Agreement 5-point</div>
+              <div style="font-size:11.5px;color:var(--dim,#57697A);margin-top:2px;margin-bottom:12px">Used by 6 sections across 3 templates. Editing a scale in use changes future responses only — already-published templates keep their frozen copy.</div>
+
+              <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border,#D2DBE5)">
+                <thead>
+                  <tr style="background:var(--panel2,#F3F6FA)">
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;width:34px"></th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px">Label</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:90px">Value</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:130px">Normalised</th>
+                    <th style="padding:5px 10px;width:34px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ scalePoints }}" as="p" hint-placeholder-count="5">
+                    <tr style="border-top:1px solid var(--border,#D2DBE5)">
+                      <td style="padding:4px 10px;color:var(--faint,#8496A6);font-size:10px;cursor:grab">⠿</td>
+                      <td style="padding:4px 8px"><input value="{{ p.label }}" style="width:100%;border:1px solid var(--border,#D2DBE5);background:var(--panel,#FFF);padding:2px 6px;border-radius:2px;font-size:12px" /></td>
+                      <td style="padding:4px 8px"><input value="{{ p.value }}" style="width:56px;border:1px solid var(--border,#D2DBE5);background:var(--panel,#FFF);padding:2px 6px;border-radius:2px;font-size:11.5px;font-family:'IBM Plex Mono',monospace" /></td>
+                      <td style="padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim,#57697A)">{{ p.norm }}</td>
+                      <td style="padding:4px 10px;color:var(--faint,#8496A6);text-align:right;cursor:pointer">×</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+              <div style="display:flex;gap:6px;margin-top:8px">
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">+ Add point</button>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">Reverse order</button>
+              </div>
+
+              <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin:16px 0 6px">As grid column headers</div>
+              <div style="border:1px solid var(--border,#D2DBE5);border-radius:3px;overflow:hidden">
+                <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                  <thead>
+                    <tr style="background:var(--panel2,#F3F6FA)">
+                      <th style="text-align:left;padding:6px 10px;font-weight:400;color:var(--faint,#8496A6);font-size:10.5px">Statement</th>
+                      <sc-for list="{{ scalePoints }}" as="p" hint-placeholder-count="5">
+                        <th style="padding:6px 4px;font-weight:500;color:var(--dim,#57697A);font-size:10.5px;text-align:center;width:82px;line-height:1.2">{{ p.label }}</th>
+                      </sc-for>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-top:1px solid var(--border,#D2DBE5)">
+                      <td style="padding:7px 10px">Explains difficult concepts clearly</td>
+                      <sc-for list="{{ scalePoints }}" as="p" hint-placeholder-count="5">
+                        <td style="text-align:center;padding:7px 4px"><input type="radio" name="prev1" style="width:14px;height:14px;accent-color:#0B69B0" /></td>
+                      </sc-for>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTasks }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="padding:9px 14px;border-bottom:1px solid var(--border,#D2DBE5);background:var(--soft,#E1EEFA);display:flex;align-items:center;gap:10px">
+              <div style="width:3px;align-self:stretch;background:var(--accent,#0B69B0);border-radius:2px"></div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600">Your answers are never shown to anyone as yours</div>
+                <div style="font-size:11px;color:var(--dim,#57697A);margin-top:1px">The system records that you responded so you are not asked twice. It does not record which answers were yours, and no screen anywhere can link them back to you.</div>
+              </div>
+            </div>
+
+            <div style="padding:8px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Pending · 3</div>
+            <sc-for list="{{ taskRows }}" as="t" hint-placeholder-count="3">
+              <div onClick="{{ t.go }}" style="display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--border,#D2DBE5);cursor:pointer" style-hover="background:var(--panel2,#F3F6FA)">
+                <div style="width:3px;height:30px;background:{{ t.urgencyColor }};border-radius:2px;flex:none"></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:12.5px;font-weight:500">{{ t.teacher }}</div>
+                  <div style="font-size:11px;color:var(--faint,#8496A6)">{{ t.campaign }}</div>
+                </div>
+                <div style="font-size:11px;color:var(--dim,#57697A);width:130px">{{ t.role }}</div>
+                <div style="font-size:11px;color:var(--dim,#57697A);width:96px;font-family:'IBM Plex Mono',monospace">{{ t.length }}</div>
+                <div style="width:120px;text-align:right">
+                  <div style="font-size:11.5px;font-weight:500;color:{{ t.urgencyColor }}">{{ t.due }}</div>
+                  <div style="font-size:10px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ t.closes }}</div>
+                </div>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:23px;padding:0 10px;border-radius:3px;font-size:11.5px;font-weight:500">Start</button>
+              </div>
+            </sc-for>
+
+            <div style="padding:12px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Completed · 5</div>
+            <sc-for list="{{ doneRows }}" as="t" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;padding:6px 14px;border-bottom:1px solid var(--border,#D2DBE5);opacity:.72">
+                <div style="width:3px;height:22px;background:var(--border2,#B7C4D2);border-radius:2px;flex:none"></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:12px">{{ t.teacher }}</div>
+                  <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ t.campaign }}</div>
+                </div>
+                <div style="font-size:11px;color:var(--dim,#57697A);width:130px">{{ t.role }}</div>
+                <div style="font-size:11px;color:var(--good,#12735C);width:120px;text-align:right">✓ submitted {{ t.when }}</div>
+                <div style="width:66px"></div>
+              </div>
+            </sc-for>
+            <div style="padding:10px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:760px">Submitted forms cannot be reopened or amended — a form that could be edited after the fact would let a respondent be identified by comparing versions.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA);position:sticky;top:0;z-index:3">
+              <span style="font-size:10.5px;color:var(--dim,#57697A)">Preview at</span>
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <sc-for list="{{ widthTabs }}" as="w" hint-placeholder-count="2">
+                  <button onClick="{{ w.go }}" style="border:0;background:{{ w.bg }};color:{{ w.fg }};font-size:11px;padding:2px 9px;border-radius:2px;font-weight:500">{{ w.label }}</button>
+                </sc-for>
+              </div>
+              <div style="width:1px;height:16px;background:var(--border,#D2DBE5);margin:0 4px"></div>
+              <span style="font-size:10.5px;color:var(--dim,#57697A)">Respondent</span>
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <sc-for list="{{ groupTabs }}" as="g" hint-placeholder-count="2">
+                  <button onClick="{{ g.go }}" style="border:0;background:{{ g.bg }};color:{{ g.fg }};font-size:11px;padding:2px 9px;border-radius:2px;font-weight:500">{{ g.label }}</button>
+                </sc-for>
+              </div>
+              <div style="flex:1"></div>
+              <span style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">/respond/8f3c…a91 · no login</span>
+            </div>
+
+            <div style="display:flex;justify-content:center;padding:14px;background:var(--bg,#E9EEF4);min-height:100%">
+              <div style="width:100%;max-width:{{ formWidth }};background:var(--panel,#FFFFFF);border:1px solid var(--border,#D2DBE5);border-radius:3px;overflow:hidden">
+
+                <div style="padding:11px 14px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:9px">
+                  <div style="width:20px;height:20px;background:var(--top,#0A4E86);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:2px;flex:none">AS</div>
+                  <div style="min-width:0">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Adama Science and Technology University</div>
+                    <div style="font-size:11px;color:var(--dim,#57697A)">Fall 2026 Student Evaluation — CSE</div>
+                  </div>
+                </div>
+
+                <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border,#D2DBE5)">
+                  <div style="font-size:11px;color:var(--dim,#57697A)">You are giving feedback on</div>
+                  <div style="font-size:17px;font-weight:600;line-height:1.25;margin-top:1px">Dr. Amanuel Bekele</div>
+                  <div style="font-size:11.5px;color:var(--faint,#8496A6);margin-top:1px">Data Structures · Algorithms · CSE Year 3 Section A</div>
+                </div>
+
+                <div style="display:flex;gap:9px;padding:10px 14px;background:{{ trustBg }};border-bottom:1px solid var(--border,#D2DBE5)">
+                  <div style="width:3px;background:{{ trustAccent }};border-radius:2px;flex:none"></div>
+                  <div style="min-width:0">
+                    <div style="font-size:12px;font-weight:600;color:{{ trustAccent }}">{{ trustTitle }}</div>
+                    <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.5;margin-top:2px">{{ trustBody }}</div>
+                    <div style="font-size:10.5px;color:var(--faint,#8496A6);line-height:1.5;margin-top:5px">{{ trustFoot }}</div>
+                  </div>
+                </div>
+
+                <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <sc-for list="{{ formSections }}" as="sec" hint-placeholder-count="4">
+                      <div style="border-bottom:1px solid var(--border,#D2DBE5)">
+                        <div style="padding:10px 14px 6px">
+                          <div style="font-size:13px;font-weight:600">{{ sec.title }}</div>
+                          <div style="font-size:11px;color:var(--faint,#8496A6);margin-top:1px">{{ sec.note }}</div>
+                        </div>
+                        <sc-if value="{{ sec.isGrid }}" hint-placeholder-val="{{ true }}">
+                          <table style="width:100%;border-collapse:collapse;font-size:12px">
+                            <thead>
+                              <tr style="background:var(--panel2,#F3F6FA)">
+                                <th style="text-align:left;padding:5px 14px;font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint,#8496A6)">Statement</th>
+                                <sc-for list="{{ sec.scale }}" as="p" hint-placeholder-count="5">
+                                  <th style="padding:5px 4px;font-weight:500;font-size:10.5px;color:var(--dim,#57697A);text-align:center;width:88px;line-height:1.2">{{ p.label }}</th>
+                                </sc-for>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+                                <tr style="border-top:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                                  <td style="padding:8px 14px;line-height:1.4">{{ it.text }}<span style="color:var(--bad,#A83236)">{{ it.star }}</span></td>
+                                  <sc-for list="{{ sec.scale }}" as="p" hint-placeholder-count="5">
+                                    <td style="text-align:center;padding:8px 4px"><input type="radio" name="{{ it.name }}" style="width:15px;height:15px;accent-color:#0B69B0" /></td>
+                                  </sc-for>
+                                </tr>
+                              </sc-for>
+                            </tbody>
+                          </table>
+                        </sc-if>
+                        <sc-if value="{{ sec.isText }}" hint-placeholder-val="{{ false }}">
+                          <div style="padding:0 14px 12px">
+                            <textarea rows="4" placeholder="Optional. Keep it about what happened in class rather than anything that could identify you." style="width:100%;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:7px 9px;font-size:12px;line-height:1.5;resize:vertical"></textarea>
+                            <div style="font-size:10.5px;color:var(--faint,#8496A6);margin-top:4px;line-height:1.5">Written comments are shown word for word. Specific incidents and distinctive phrasing can identify you even though your name is never stored with the answer.</div>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+                  <div>
+                    <sc-for list="{{ formSections }}" as="sec" hint-placeholder-count="4">
+                      <div style="border-bottom:1px solid var(--border,#D2DBE5)">
+                        <div style="padding:10px 12px 4px;position:sticky;top:0;background:var(--panel,#FFF);border-bottom:1px solid var(--border,#D2DBE5)">
+                          <div style="font-size:13px;font-weight:600">{{ sec.title }}</div>
+                          <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ sec.note }}</div>
+                        </div>
+                        <sc-if value="{{ sec.isGrid }}" hint-placeholder-val="{{ true }}">
+                          <div>
+                            <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+                              <div style="padding:10px 12px;border-bottom:1px solid var(--border,#D2DBE5)">
+                                <div style="font-size:12.5px;line-height:1.4;margin-bottom:8px">{{ it.text }}<span style="color:var(--bad,#A83236)">{{ it.star }}</span></div>
+                                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">
+                                  <sc-for list="{{ sec.scale }}" as="p" hint-placeholder-count="5">
+                                    <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:7px 2px 6px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px" style-hover="border-color:var(--accent,#0B69B0);background:var(--soft,#E1EEFA)">
+                                      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--dim,#57697A)">{{ p.value }}</span>
+                                      <span style="font-size:8.5px;color:var(--faint,#8496A6);line-height:1.1;text-align:center">{{ p.short }}</span>
+                                    </button>
+                                  </sc-for>
+                                </div>
+                              </div>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ sec.isText }}" hint-placeholder-val="{{ false }}">
+                          <div style="padding:10px 12px 12px">
+                            <textarea rows="4" placeholder="Optional. Keep it about what happened in class." style="width:100%;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:7px 9px;font-size:12px;line-height:1.5;resize:vertical"></textarea>
+                            <div style="font-size:10.5px;color:var(--faint,#8496A6);margin-top:4px;line-height:1.5">Distinctive phrasing can identify you even though your name is never stored with the answer.</div>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+
+                <div style="position:sticky;bottom:0;background:var(--panel2,#F3F6FA);border-top:1px solid var(--border,#D2DBE5);padding:9px 14px;display:flex;align-items:center;gap:12px">
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:25%;background:var(--accent,#0B69B0)"></div></div>
+                      <span style="font-size:11px;color:var(--dim,#57697A);white-space:nowrap;font-family:'IBM Plex Mono',monospace">2 / 8</span>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--warn,#9C5C0B);margin-top:3px">6 required items remaining</div>
+                  </div>
+                  <button style="border:1px solid var(--border2,#B7C4D2);background:var(--accent,#0B69B0);color:#fff;height:32px;padding:0 16px;border-radius:3px;font-size:12.5px;font-weight:500;opacity:.45">Submit feedback</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);background:var(--panel,#FFF)">
+              <div style="padding:8px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Terminal states — same chrome, no dead ends</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border,#D2DBE5)">
+                <sc-for list="{{ formStates }}" as="st" hint-placeholder-count="4">
+                  <div style="padding:11px 14px;border-right:1px solid var(--border,#D2DBE5)">
+                    <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:{{ st.codeFg }};background:{{ st.codeBg }};display:inline-block;padding:0 5px;border-radius:2px">{{ st.code }}</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:5px">{{ st.title }}</div>
+                    <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.5;margin-top:3px">{{ st.body }}</div>
+                    <div style="font-size:11px;color:var(--accent,#0B69B0);margin-top:6px">{{ st.action }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border,#D2DBE5);position:sticky;top:0;background:var(--panel,#FFFFFF);z-index:2">
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <sc-for list="{{ resultTabs }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.go }}" style="border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:11.5px;padding:2px 10px;border-radius:2px;font-weight:500">{{ t.label }} <span style="opacity:.55;font-family:'IBM Plex Mono',monospace;font-size:10px">{{ t.n }}</span></button>
+                </sc-for>
+              </div>
+              <span style="font-size:10.5px;color:var(--faint,#8496A6)">Three separate templates — student, peer and head results never blend into one score.</span>
+              <div style="flex:1"></div>
+              <button onClick="{{ toggleSuppressed }}" style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:22px;padding:0 9px;border-radius:3px;font-size:11px;color:var(--dim,#57697A)">{{ suppressLabel }}</button>
+            </div>
+
+            <sc-if value="{{ suppressed }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:16px 14px;max-width:700px">
+                <div style="display:flex;gap:10px;margin-bottom:14px">
+                  <div style="width:3px;background:var(--warn,#9C5C0B);border-radius:2px;flex:none"></div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600">Results are hidden until 5 people have responded</div>
+                    <div style="font-size:11.5px;color:var(--dim,#57697A);line-height:1.55;margin-top:3px;max-width:560px">3 of 5 responses are in. With fewer than five, a single answer can be worked out by elimination — so no score, no breakdown and no comments are shown, not even partially. This is the privacy guarantee doing its job, not a fault.</div>
+                  </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+                  <div style="flex:1;height:7px;background:var(--panel3,#E7EEF5);border-radius:4px;overflow:hidden;max-width:280px"><div style="height:100%;width:60%;background:var(--warn,#9C5C0B)"></div></div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim,#57697A)">3 / 5 responses · 2 more needed</div>
+                </div>
+
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:6px">What will appear here</div>
+                <div style="border:1px solid var(--border,#D2DBE5);border-radius:3px;overflow:hidden">
+                  <sc-for list="{{ ghostRows }}" as="g" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid var(--border,#D2DBE5)">
+                      <div style="width:150px;font-size:12px;color:var(--faint,#8496A6)">{{ g.title }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace;width:52px">{{ g.weight }}</div>
+                      <div style="flex:1;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px"></div>
+                      <div style="width:36px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--faint,#8496A6)">––</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font-size:10.5px;color:var(--faint,#8496A6);line-height:1.55;margin-top:8px">Section titles and weights describe the questionnaire, not any respondent, so they are safe to show. Everything measured stays hidden.</div>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:25px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500;margin-top:12px">Remind the 24 people who have not responded</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ notSuppressed }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--border,#D2DBE5)">
+                  <div style="padding:10px 14px;border-right:1px solid var(--border,#D2DBE5);width:340px;flex:none">
+                    <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Overall composite</div>
+                    <div style="display:flex;align-items:baseline;gap:8px">
+                      <div style="font-size:30px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.1">54.8</div>
+                      <div style="font-size:11.5px;color:var(--bad,#A83236);font-weight:500">−4.1 vs department</div>
+                    </div>
+                    <div style="position:relative;height:26px;margin-top:6px">
+                      <div style="position:absolute;left:0;right:0;top:9px;height:6px;background:linear-gradient(90deg,#B03235,#D4823F,#D8C462,#7FB07E,#2E8A6A);border-radius:3px;opacity:.55"></div>
+                      <div style="position:absolute;left:58.9%;top:5px;width:1px;height:14px;background:var(--dim,#57697A)"></div>
+                      <div style="position:absolute;left:62.8%;top:5px;width:1px;height:14px;background:var(--dim,#57697A)"></div>
+                      <div style="position:absolute;left:54.8%;top:2px;width:3px;height:20px;background:var(--text,#0D1922);border-radius:2px;transform:translateX(-1px)"></div>
+                    </div>
+                    <div style="display:flex;gap:12px;font-size:10px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">
+                      <span>0</span><span style="flex:1"></span><span>dept 58.9</span><span>faculty 62.8</span><span style="flex:1"></span><span>100</span>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--dim,#57697A);margin-top:5px;line-height:1.5">Weighted mean across the four scored competencies. Not a percentage of anything — read it against the department and faculty marks.</div>
+                  </div>
+
+                  <div style="padding:10px 14px;border-right:1px solid var(--border,#D2DBE5);flex:1;min-width:0;background:var(--warnbg,#FAEEDC)">
+                    <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--warn,#9C5C0B);font-weight:600">The gap worth looking at</div>
+                    <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+                      <div>
+                        <div style="font-size:10.5px;color:var(--dim,#57697A)">Computed composite</div>
+                        <div style="font-size:21px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.2">54.8</div>
+                      </div>
+                      <div style="font-size:19px;color:var(--warn,#9C5C0B);font-weight:600">−22.7</div>
+                      <div>
+                        <div style="font-size:10.5px;color:var(--dim,#57697A)">Students' own overall rating</div>
+                        <div style="font-size:21px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.2;color:var(--warn,#9C5C0B)">32.1</div>
+                      </div>
+                    </div>
+                    <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.55;margin-top:6px;max-width:420px">Students rated this lecturer far worse holistically than their answers to the specific competency questions imply. Something the questionnaire does not ask about is driving the judgement — the largest divergence in the department this semester.</div>
+                  </div>
+
+                  <div style="padding:10px 14px;width:190px;flex:none">
+                    <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">Responses</div>
+                    <div style="font-size:21px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.2">7<span style="color:var(--faint,#8496A6);font-size:13px"> of 52 asked</span></div>
+                    <div style="font-size:10.5px;color:var(--good,#12735C);margin-top:2px">✓ past the min-N gate of 5</div>
+                    <div style="font-size:10.5px;color:var(--faint,#8496A6);margin-top:6px;line-height:1.5">13% response rate — low enough that these seven students may not represent the cohort.</div>
+                  </div>
+                </div>
+
+                <div style="padding:9px 14px 4px;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Competencies</div>
+                  <div style="flex:1;border-top:1px solid var(--border,#D2DBE5)"></div>
+                  <div style="font-size:10.5px;color:var(--faint,#8496A6)">Distribution shown because a mean of 50 from all-neutral answers is not the same situation as an even split of 1s and 5s.</div>
+                </div>
+
+                <table style="width:100%;border-collapse:collapse;font-size:12px">
+                  <thead>
+                    <tr style="background:var(--panel2,#F3F6FA)">
+                      <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px">Competency</th>
+                      <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:60px">Weight</th>
+                      <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:220px">Score</th>
+                      <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:150px">How the 7 answered</th>
+                      <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px;width:150px">vs department</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ competencyRows }}" as="c" hint-placeholder-count="4">
+                      <tr style="border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                        <td style="padding:7px 14px">
+                          <div style="font-weight:500">{{ c.title }}</div>
+                          <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ c.sub }}</div>
+                        </td>
+                        <td style="padding:7px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">{{ c.weight }}</td>
+                        <td style="padding:7px 8px">
+                          <div style="display:flex;align-items:center;gap:8px">
+                            <div style="flex:1;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ c.pct }};background:{{ c.color }}"></div></div>
+                            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;width:38px;text-align:right">{{ c.score }}</span>
+                          </div>
+                        </td>
+                        <td style="padding:7px 8px">
+                          <div style="display:flex;align-items:flex-end;gap:2px;height:24px">
+                            <sc-for list="{{ c.dist }}" as="d" hint-placeholder-count="5">
+                              <div style="flex:1;background:{{ d.bg }};height:{{ d.h }};border-radius:1px 1px 0 0;min-height:2px"></div>
+                            </sc-for>
+                          </div>
+                          <div style="font-size:9.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace;margin-top:2px">{{ c.distLabel }}</div>
+                        </td>
+                        <td style="padding:7px 14px;font-size:11.5px;color:{{ c.deltaFg }}">{{ c.delta }}</td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+
+                <div style="border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA);padding:8px 14px 10px">
+                  <div style="font-size:11px;font-weight:600;color:var(--dim,#57697A);margin-bottom:6px">Ethics · per item <span style="font-weight:400;color:var(--faint,#8496A6)">— the competency score is a weighted mean of these</span></div>
+                  <sc-for list="{{ itemDetail }}" as="i" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:10px;padding:3px 0">
+                      <div style="flex:1;font-size:11.5px">{{ i.text }}</div>
+                      <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint,#8496A6);width:44px">w {{ i.w }}</div>
+                      <div style="width:180px;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ i.pct }};background:{{ i.color }}"></div></div>
+                      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;width:38px;text-align:right">{{ i.score }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 320px">
+                  <div style="border-right:1px solid var(--border,#D2DBE5)">
+                    <div style="padding:8px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Comments <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint,#8496A6)">· 4 of 7 respondents wrote something · shown in random order, no author, no timestamp</span></div>
+                    <sc-for list="{{ comments }}" as="c" hint-placeholder-count="4">
+                      <div style="display:flex;gap:9px;padding:7px 14px;border-bottom:1px solid var(--border,#D2DBE5)">
+                        <div style="width:2px;background:var(--border2,#B7C4D2);border-radius:1px;flex:none"></div>
+                        <div style="font-size:12px;line-height:1.55;color:var(--text,#0D1922)">{{ c }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div>
+                    <div style="padding:8px 14px 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Across campaigns</div>
+                    <div style="padding:0 14px 12px">
+                      <sc-for list="{{ trend }}" as="t" hint-placeholder-count="4">
+                        <div style="display:flex;align-items:center;gap:9px;padding:4px 0">
+                          <div style="width:78px;font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ t.when }}</div>
+                          <div style="flex:1;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ t.pct }};background:{{ t.color }}"></div></div>
+                          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;width:36px;text-align:right;font-weight:{{ t.weight }}">{{ t.score }}</div>
+                        </div>
+                      </sc-for>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6);line-height:1.55;margin-top:8px">Comparable only because all four campaigns used a template in the same lineage. A cloned template keeps its ancestry so trends stay honest.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSelf }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border,#D2DBE5);max-width:820px">
+              <div style="font-size:15px;font-weight:600">What your students said this semester</div>
+              <div style="font-size:12px;color:var(--dim,#57697A);line-height:1.6;margin-top:4px">31 of 50 students responded to the Fall 2026 evaluation, which closed on 21 September. This is yours to read first — your head of department sees the same numbers, and nobody sees who wrote what.</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border,#D2DBE5)">
+              <div style="padding:11px 14px;border-right:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--good,#12735C);font-weight:600">Where you are strongest</div>
+                <sc-for list="{{ selfStrong }}" as="x" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:7px">
+                    <div style="flex:1">
+                      <div style="font-size:12.5px;font-weight:500">{{ x.title }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ x.note }}</div>
+                    </div>
+                    <div style="width:130px;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ x.pct }};background:var(--good,#12735C)"></div></div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;width:36px;text-align:right">{{ x.score }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="padding:11px 14px">
+                <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent,#0B69B0);font-weight:600">Where there is most room to move</div>
+                <sc-for list="{{ selfWeak }}" as="x" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:7px">
+                    <div style="flex:1">
+                      <div style="font-size:12.5px;font-weight:500">{{ x.title }}</div>
+                      <div style="font-size:10.5px;color:var(--faint,#8496A6)">{{ x.note }}</div>
+                    </div>
+                    <div style="width:130px;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ x.pct }};background:var(--accent,#0B69B0)"></div></div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;width:36px;text-align:right">{{ x.score }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 340px">
+              <div style="border-right:1px solid var(--border,#D2DBE5)">
+                <div style="padding:9px 14px 5px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">In their words</div>
+                <sc-for list="{{ selfComments }}" as="c" hint-placeholder-count="4">
+                  <div style="padding:9px 14px;border-bottom:1px solid var(--border,#D2DBE5);font-size:12.5px;line-height:1.6;max-width:640px">{{ c }}</div>
+                </sc-for>
+                <div style="padding:10px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:640px">Anonymous comments carry no right of reply, and a sharp one can sit with you longer than it deserves. Four students wrote something; twenty-seven did not. Read them together, not one at a time.</div>
+              </div>
+              <div>
+                <div style="padding:9px 14px 5px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Your own history</div>
+                <div style="padding:0 14px 10px">
+                  <sc-for list="{{ selfTrend }}" as="t" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:9px;padding:4px 0">
+                      <div style="width:78px;font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ t.when }}</div>
+                      <div style="flex:1;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ t.pct }};background:{{ t.color }}"></div></div>
+                      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;width:36px;text-align:right;font-weight:{{ t.weight }}">{{ t.score }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="border-top:1px solid var(--border,#D2DBE5);padding:9px 14px">
+                  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);margin-bottom:6px">Against your colleagues</div>
+                  <div style="position:relative;height:30px">
+                    <div style="position:absolute;left:0;right:0;top:12px;height:6px;background:var(--panel3,#E7EEF5);border-radius:3px"></div>
+                    <div style="position:absolute;left:24%;width:44%;top:12px;height:6px;background:var(--soft,#E1EEFA);border-radius:3px"></div>
+                    <div style="position:absolute;left:66%;top:8px;width:3px;height:14px;background:var(--good,#12735C);border-radius:2px"></div>
+                    <div style="position:absolute;left:66%;top:0;font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--good,#12735C);transform:translateX(-50%)">you</div>
+                  </div>
+                  <div style="font-size:10.5px;color:var(--faint,#8496A6);line-height:1.55">The shaded band is where the middle half of CSE lecturers sit. There is no ranking and no list of names — the point is whether you are inside the normal range, not what position you hold.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isHierarchy }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">
+              <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:22px;padding:0 9px;border-radius:3px;font-size:11px">+ Node</button>
+              <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:22px;padding:0 9px;border-radius:3px;font-size:11px">Draw edge</button>
+              <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:22px;padding:0 9px;border-radius:3px;font-size:11px">Import managers (CSV)</button>
+              <div style="width:1px;height:16px;background:var(--border,#D2DBE5);margin:0 3px"></div>
+              <span style="font-size:11px;color:var(--dim,#57697A)">Edges connect adjacent levels only and grant visibility downward.</span>
+              <div style="flex:1"></div>
+              <div style="display:flex;align-items:center;gap:12px;font-size:10.5px;color:var(--faint,#8496A6)">
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:var(--border2,#B7C4D2)"></span>reporting line</span>
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:0;border-top:2px dashed #6B4E9E"></span>cross-cutting (second parent)</span>
+              </div>
+            </div>
+
+            <div style="overflow:auto;padding:0 0 10px">
+              <div style="position:relative;width:1180px;height:326px">
+                <svg viewBox="0 0 1180 326" style="position:absolute;inset:0;width:1180px;height:326px">
+                  <g stroke="#B7C4D2" stroke-width="1.5" fill="none">
+                    <polyline points="575,62 575,96 255,96 255,132"></polyline>
+                    <polyline points="575,62 575,96 655,96 655,132"></polyline>
+                    <polyline points="575,62 575,96 895,96 895,132"></polyline>
+                    <polyline points="575,62 575,96 1055,96 1055,132"></polyline>
+                    <polyline points="255,178 255,214 95,214 95,254"></polyline>
+                    <polyline points="255,178 255,214 255,214 255,254"></polyline>
+                    <polyline points="255,178 255,214 415,214 415,254"></polyline>
+                    <polyline points="655,178 655,214 575,214 575,254"></polyline>
+                    <polyline points="655,178 655,214 735,214 735,254"></polyline>
+                    <polyline points="895,178 895,214 895,214 895,254"></polyline>
+                  </g>
+                  <g stroke="#6B4E9E" stroke-width="1.5" stroke-dasharray="4 3" fill="none">
+                    <polyline points="1055,178 1055,238 130,238 130,254"></polyline>
+                    <polyline points="1055,178 1055,238 610,238 610,254"></polyline>
+                  </g>
+                </svg>
+
+                <div style="position:absolute;left:14px;top:22px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--faint,#8496A6);text-transform:uppercase;letter-spacing:.08em">Level 0</div>
+                <div style="position:absolute;left:14px;top:112px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--faint,#8496A6);text-transform:uppercase;letter-spacing:.08em">Level 1</div>
+                <div style="position:absolute;left:14px;top:234px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--faint,#8496A6);text-transform:uppercase;letter-spacing:.08em">Level 2 · leaf</div>
+
+                <div style="position:absolute;left:500px;top:16px;width:150px;height:46px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px;border-left:3px solid var(--accent,#0B69B0)">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">ASTU · Academic VP</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Prof. Miftah Shifera</div>
+                  <div style="font-size:9.5px;color:var(--good,#12735C);font-family:'IBM Plex Mono',monospace">registered</div>
+                </div>
+
+                <div style="position:absolute;left:180px;top:132px;width:150px;height:46px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Electrical Eng. &amp; Computing</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Kebede Alemu</div>
+                  <div style="font-size:9.5px;color:var(--good,#12735C);font-family:'IBM Plex Mono',monospace">registered</div>
+                </div>
+                <div style="position:absolute;left:580px;top:132px;width:150px;height:46px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Applied Natural Science</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Almaz Tadesse</div>
+                  <div style="font-size:9.5px;color:var(--warn,#9C5C0B);font-family:'IBM Plex Mono',monospace">invited · 6d left</div>
+                </div>
+                <div style="position:absolute;left:820px;top:132px;width:150px;height:46px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Mechanical &amp; Civil Eng.</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Getachew Bekele</div>
+                  <div style="font-size:9.5px;color:var(--good,#12735C);font-family:'IBM Plex Mono',monospace">registered</div>
+                </div>
+                <div style="position:absolute;left:975px;top:132px;width:160px;height:46px;border:1px solid #6B4E9E;background:#F6F2FB;border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25;color:#4A3570">Quality Assurance Directorate</div>
+                  <div style="font-size:10px;color:#6B4E9E;line-height:1.3">Dr. Rahel Mekonnen</div>
+                  <div style="font-size:9.5px;color:#6B4E9E;font-family:'IBM Plex Mono',monospace">2 cross-cutting edges</div>
+                </div>
+
+                <div style="position:absolute;left:20px;top:254px;width:150px;height:52px;border:1px solid var(--accent,#0B69B0);background:var(--soft,#E1EEFA);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Computer Science &amp; Eng.</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Meron Assefa</div>
+                  <div style="font-size:9.5px;color:#6B4E9E;font-family:'IBM Plex Mono',monospace">2 parents · EE&amp;C + QA</div>
+                </div>
+                <div style="position:absolute;left:180px;top:254px;width:150px;height:52px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Electrical Power &amp; Control</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Solomon Girma</div>
+                  <div style="font-size:9.5px;color:var(--good,#12735C);font-family:'IBM Plex Mono',monospace">registered</div>
+                </div>
+                <div style="position:absolute;left:340px;top:254px;width:150px;height:52px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Software Engineering</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Mr. Dawit Haile</div>
+                  <div style="font-size:9.5px;color:var(--warn,#9C5C0B);font-family:'IBM Plex Mono',monospace">invited · expired</div>
+                </div>
+                <div style="position:absolute;left:500px;top:254px;width:150px;height:52px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Applied Physics</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Sara Negash</div>
+                  <div style="font-size:9.5px;color:#6B4E9E;font-family:'IBM Plex Mono',monospace">2 parents · ANS + QA</div>
+                </div>
+                <div style="position:absolute;left:660px;top:254px;width:150px;height:52px;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25">Applied Mathematics</div>
+                  <div style="font-size:10px;color:var(--dim,#57697A);line-height:1.3">Dr. Yohannes Tola</div>
+                  <div style="font-size:9.5px;color:var(--good,#12735C);font-family:'IBM Plex Mono',monospace">registered</div>
+                </div>
+                <div style="position:absolute;left:820px;top:254px;width:150px;height:52px;border:1px dashed var(--border2,#B7C4D2);background:var(--panel2,#F3F6FA);border-radius:3px;padding:5px 8px">
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.25;color:var(--dim,#57697A)">Mechanical Design</div>
+                  <div style="font-size:10px;color:var(--faint,#8496A6);line-height:1.3">no person assigned</div>
+                  <div style="font-size:9.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">unassigned</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);display:grid;grid-template-columns:1fr 1fr 1fr">
+              <div style="padding:9px 14px;border-right:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);margin-bottom:4px">Why edges, not nesting</div>
+                <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.6">Computer Science reports to its school and is also watched by Quality Assurance. An indented tree would have to print it twice, which reads as two departments. Drawing it once with two incoming edges is the only honest picture.</div>
+              </div>
+              <div style="padding:9px 14px;border-right:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);margin-bottom:4px">Editing vs understanding</div>
+                <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.6">This canvas is for laying the structure out once a year. Everyday "who can see what" questions are answered by the flat, searchable node list — the same graph, read rather than edited.</div>
+              </div>
+              <div style="padding:9px 14px">
+                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);margin-bottom:4px">Registration state</div>
+                <div style="display:flex;gap:14px;font-size:11px;color:var(--dim,#57697A)">
+                  <span><span style="color:var(--good,#12735C)">●</span> 19 registered</span>
+                  <span><span style="color:var(--warn,#9C5C0B)">●</span> 4 invited</span>
+                  <span><span style="color:var(--faint,#8496A6)">●</span> 1 unassigned</span>
+                </div>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:22px;padding:0 9px;border-radius:3px;font-size:11px;margin-top:8px;font-weight:500">Resend to 4 non-registered</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isImport }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px">cse-intake-2026.csv</div>
+              <div style="font-size:11px;color:var(--faint,#8496A6)">214 rows · columns name, email, phone, type</div>
+              <div style="flex:1"></div>
+              <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px">Replace file</button>
+            </div>
+
+            <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--border,#D2DBE5)">
+              <sc-for list="{{ importStats }}" as="st" hint-placeholder-count="4">
+                <div style="padding:8px 14px;border-right:1px solid var(--border,#D2DBE5);min-width:120px">
+                  <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600">{{ st.label }}</div>
+                  <div style="font-size:19px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.25;color:{{ st.fg }}">{{ st.n }}</div>
+                  <div style="font-size:10.5px;color:var(--dim,#57697A)">{{ st.sub }}</div>
+                </div>
+              </sc-for>
+              <div style="flex:1"></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:0 14px">
+                <span style="font-size:11px;color:var(--warn,#9C5C0B)">11 rows still need a decision</span>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:25px;padding:0 10px;border-radius:3px;font-size:11.5px">Skip all bad rows</button>
+                <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:25px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">Commit 203 rows</button>
+              </div>
+            </div>
+
+            <div style="padding:7px 14px;font-size:11px;color:var(--dim,#57697A);border-bottom:1px solid var(--border,#D2DBE5);background:var(--soft,#E1EEFA)">Nothing has been written yet. This is a dry run against the current roster — fix the eleven flagged cells here and commit, or skip them and re-upload just those later.</div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="text-align:right;font-weight:600;font-size:10px;color:var(--faint,#8496A6);padding:5px 8px;width:44px;border-bottom:1px solid var(--border,#D2DBE5)">Row</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:100px;border-bottom:1px solid var(--border,#D2DBE5)">Action</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5)">Name</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5)">Email</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:120px;border-bottom:1px solid var(--border,#D2DBE5)">Phone</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:84px;border-bottom:1px solid var(--border,#D2DBE5)">Type</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px;width:300px;border-bottom:1px solid var(--border,#D2DBE5)">Problem</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ importRows }}" as="r" hint-placeholder-count="8">
+                  <tr style="border-bottom:1px solid var(--border,#D2DBE5);background:{{ r.rowBg }}">
+                    <td style="padding:4px 8px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint,#8496A6)">{{ r.n }}</td>
+                    <td style="padding:4px 8px"><span style="font-size:10.5px;font-weight:500;padding:1px 6px;border-radius:2px;background:{{ r.actBg }};color:{{ r.actFg }}">{{ r.action }}</span></td>
+                    <td style="padding:4px 8px">{{ r.name }}</td>
+                    <td style="padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ r.emailFg }}">{{ r.email }}</td>
+                    <td style="padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">{{ r.phone }}</td>
+                    <td style="padding:4px 8px;color:{{ r.typeFg }}">{{ r.type }}</td>
+                    <td style="padding:4px 14px">
+                      <sc-if value="{{ r.hasProblem }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:center;gap:7px">
+                          <span style="font-size:11px;color:{{ r.problemFg }}">{{ r.problem }}</span>
+                          <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:19px;padding:0 7px;border-radius:2px;font-size:10.5px;color:var(--accent,#0B69B0);font-weight:500">{{ r.fix }}</button>
+                        </div>
+                      </sc-if>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            <div style="padding:9px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:820px">Rows 9–214 continue below. Fixing a cell here re-validates that row on the spot — a single bad email should never cost you a re-upload of two hundred good ones.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPeople }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">
+              <div style="display:flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                <span style="background:var(--panel,#FFF);font-size:11.5px;padding:2px 9px;border-radius:2px;font-weight:500">All 359</span>
+                <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--dim,#57697A)">Teachers 7</span>
+                <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--dim,#57697A)">Students 352</span>
+                <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--warn,#9C5C0B)">Not registered 41</span>
+              </div>
+              <div style="flex:1"></div>
+              <button onClick="{{ goImport }}" style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px">Import CSV</button>
+              <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:23px;padding:0 10px;border-radius:3px;font-size:11.5px;font-weight:500">Resend to 41 non-registered</button>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="padding:5px 12px;width:28px;border-bottom:1px solid var(--border,#D2DBE5)"><input type="checkbox" style="width:13px;height:13px;accent-color:#0B69B0" /></th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5)">Name</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5)">Email</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:96px;border-bottom:1px solid var(--border,#D2DBE5)">Type</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:150px;border-bottom:1px solid var(--border,#D2DBE5)">Groups</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;width:170px;border-bottom:1px solid var(--border,#D2DBE5)">Invitation</th>
+                  <th style="text-align:right;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px;width:150px;border-bottom:1px solid var(--border,#D2DBE5)">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ peopleRows }}" as="p" hint-placeholder-count="8">
+                  <tr style="border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                    <td style="padding:4px 12px"><input type="checkbox" style="width:13px;height:13px;accent-color:#0B69B0" /></td>
+                    <td style="padding:4px 8px;font-weight:500">{{ p.name }}</td>
+                    <td style="padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">{{ p.email }}</td>
+                    <td style="padding:4px 8px;color:var(--dim,#57697A)">{{ p.type }}</td>
+                    <td style="padding:4px 8px;color:var(--dim,#57697A);font-size:11px">{{ p.groups }}</td>
+                    <td style="padding:4px 8px">
+                      <span style="font-size:10.5px;font-weight:500;padding:1px 6px;border-radius:2px;background:{{ p.stBg }};color:{{ p.stFg }}">{{ p.status }}</span>
+                      <span style="font-size:10.5px;color:var(--faint,#8496A6);margin-left:5px;font-family:'IBM Plex Mono',monospace">{{ p.when }}</span>
+                    </td>
+                    <td style="padding:4px 14px;text-align:right">
+                      <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:20px;padding:0 8px;border-radius:2px;font-size:10.5px;color:{{ p.actionFg }}">{{ p.action }}</button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            <div style="padding:9px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:820px">Invitation links expire 14 days after they are sent. Resending issues a fresh link and immediately invalidates the previous one, so a forwarded old email stops working.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isGroups }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:280px 1fr;min-height:100%">
+            <div style="border-right:1px solid var(--border,#D2DBE5);background:var(--panel2,#F3F6FA)">
+              <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint,#8496A6);font-weight:600;flex:1">Student groups</span>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:19px;padding:0 6px;border-radius:2px;font-size:10.5px;color:var(--dim,#57697A)">+ New</button>
+              </div>
+              <sc-for list="{{ groupList }}" as="g" hint-placeholder-count="6">
+                <div style="padding:6px 10px;border-bottom:1px solid var(--border,#D2DBE5);border-left:2px solid {{ g.mark }};background:{{ g.bg }};display:flex;align-items:center;gap:8px">
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:12px;font-weight:{{ g.weight }}">{{ g.name }}</div>
+                    <div style="font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ g.meta }}</div>
+                  </div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim,#57697A)">{{ g.n }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div>
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border,#D2DBE5);display:flex;align-items:center;gap:10px">
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">CSE Year 3 · Section A</div>
+                  <div style="font-size:11px;color:var(--dim,#57697A);margin-top:1px">52 students · used by 2 open campaigns · created 12 Aug 2026</div>
+                </div>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px">Add students</button>
+                <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:23px;padding:0 9px;border-radius:3px;font-size:11px">Archive group</button>
+              </div>
+              <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead>
+                  <tr style="background:var(--panel2,#F3F6FA)">
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 14px;border-bottom:1px solid var(--border,#D2DBE5)">Student</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:230px">Email</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:140px">Registered</th>
+                    <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 8px;border-bottom:1px solid var(--border,#D2DBE5);width:190px">Fall 2026 response</th>
+                    <th style="padding:5px 14px;width:60px;border-bottom:1px solid var(--border,#D2DBE5)"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ memberRows }}" as="m" hint-placeholder-count="6">
+                    <tr style="border-bottom:1px solid var(--border,#D2DBE5)" style-hover="background:var(--panel2,#F3F6FA)">
+                      <td style="padding:4px 14px;font-weight:500">{{ m.name }}</td>
+                      <td style="padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">{{ m.email }}</td>
+                      <td style="padding:4px 8px;color:var(--dim,#57697A);font-size:11px">{{ m.reg }}</td>
+                      <td style="padding:4px 8px;font-size:11px;color:{{ m.respFg }}">{{ m.resp }}</td>
+                      <td style="padding:4px 14px;text-align:right;color:var(--faint,#8496A6);cursor:pointer">×</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+              <div style="padding:9px 14px;font-size:11px;color:var(--faint,#8496A6);line-height:1.6;max-width:820px">"Responded" here means the task was completed — never which answers were given. Removing a student from the group does not remove any feedback they already submitted.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isDS }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 0 24px">
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border,#D2DBE5);max-width:820px">
+              <div style="font-size:15px;font-weight:600">A panel system, not a card system</div>
+              <div style="font-size:12px;color:var(--dim,#57697A);line-height:1.6;margin-top:4px">Everything sits in flush panels divided by one-pixel rules. No drop shadows, no floating cards, no generous padding — the density is deliberate, because a department head reading response rates for seven teachers should see all seven without scrolling. Text never goes below 10px; touch targets on the respondent form never below 44px.</div>
+            </div>
+
+            <div style="padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Colour</div>
+            <div style="padding:0 14px 12px;display:flex;flex-wrap:wrap;gap:10px">
+              <sc-for list="{{ swatches }}" as="sw" hint-placeholder-count="10">
+                <div style="width:118px">
+                  <div style="height:38px;border-radius:3px;border:1px solid var(--border,#D2DBE5);background:{{ sw.value }}"></div>
+                  <div style="font-size:10.5px;font-weight:600;margin-top:3px">{{ sw.name }}</div>
+                  <div style="font-size:9.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ sw.token }}</div>
+                  <div style="font-size:9.5px;color:var(--faint,#8496A6);line-height:1.35">{{ sw.use }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Score colour ramp <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint,#8496A6)">— the only place colour carries meaning on its own, so every use is paired with the number</span></div>
+            <div style="padding:0 14px 12px;display:flex;gap:0;max-width:640px">
+              <sc-for list="{{ ramp }}" as="r" hint-placeholder-count="7">
+                <div style="flex:1">
+                  <div style="height:26px;background:{{ r.bg }};display:flex;align-items:center;justify-content:center;color:{{ r.fg }};font-size:10.5px;font-family:'IBM Plex Mono',monospace">{{ r.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Type</div>
+            <div style="padding:0 14px 12px">
+              <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;align-items:baseline;gap:16px;padding:4px 0;border-bottom:1px solid var(--border,#D2DBE5);max-width:820px">
+                  <div style="width:190px;font-size:10.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace">{{ t.spec }}</div>
+                  <div style="flex:1;font-size:{{ t.size }};font-weight:{{ t.weight }};font-family:{{ t.family }};letter-spacing:{{ t.tracking }};text-transform:{{ t.transform }}">{{ t.sample }}</div>
+                  <div style="width:180px;font-size:10.5px;color:var(--faint,#8496A6)">{{ t.use }}</div>
+                </div>
+              </sc-for>
+              <div style="font-size:11px;color:var(--faint,#8496A6);margin-top:8px;line-height:1.6;max-width:820px">IBM Plex Sans for everything read as language; IBM Plex Mono for everything read as a quantity — scores, counts, ratios, dates, ids. Numbers you might compare down a column are always mono so the digits line up.</div>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Components</div>
+            <div style="padding:0 14px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:0;border-left:1px solid var(--border,#D2DBE5);border-top:1px solid var(--border,#D2DBE5);margin:0 14px 14px;max-width:1100px">
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Buttons · 22–25px tall</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px">
+                  <button style="border:1px solid var(--accent,#0B69B0);background:var(--accent,#0B69B0);color:#fff;height:24px;padding:0 11px;border-radius:3px;font-size:11.5px;font-weight:500">Primary</button>
+                  <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 10px;border-radius:3px;font-size:11.5px">Secondary</button>
+                  <button style="border:1px solid var(--accent,#0B69B0);background:var(--panel,#FFF);color:var(--accent,#0B69B0);height:24px;padding:0 10px;border-radius:3px;font-size:11.5px;font-weight:500">Outline</button>
+                  <button style="border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 10px;border-radius:3px;font-size:11.5px;opacity:.45">Disabled</button>
+                </div>
+                <div style="font-size:10px;color:var(--faint,#8496A6);margin-top:6px;line-height:1.5">No destructive red button exists — nothing in this product is ever deleted, only archived.</div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Status pills</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px">
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:var(--goodbg,#DDF0EA);color:var(--good,#12735C)">Open</span>
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:var(--panel3,#E7EEF5);color:var(--dim,#57697A)">Draft</span>
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:var(--panel3,#E7EEF5);color:var(--faint,#8496A6)">Closed</span>
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:var(--warnbg,#FAEEDC);color:var(--warn,#9C5C0B)">Invited</span>
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:var(--badbg,#F8E4E5);color:var(--bad,#A83236)">Expired</span>
+                  <span style="font-size:10.5px;font-weight:500;padding:1px 7px;border-radius:2px;background:#EDE6F6;color:#6B4E9E">Peer</span>
+                </div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Inputs</div>
+                <input placeholder="Text input" style="width:100%;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 7px;border-radius:3px;font-size:11.5px;margin-bottom:5px" />
+                <select style="width:100%;border:1px solid var(--border2,#B7C4D2);background:var(--panel,#FFF);height:24px;padding:0 6px;border-radius:3px;font-size:11.5px;margin-bottom:5px"><option>Select</option></select>
+                <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dim,#57697A)"><input type="checkbox" style="width:13px;height:13px;accent-color:#0B69B0" />Checkbox</label>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Progress &amp; score bars</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+                  <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:73%;background:var(--good,#12735C)"></div></div>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">38 / 52</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:7px">
+                  <div style="flex:1;height:5px;background:var(--panel3,#E7EEF5);border-radius:3px;overflow:hidden"><div style="height:100%;width:20%;background:var(--bad,#A83236)"></div></div>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim,#57697A)">9 / 46</span>
+                </div>
+                <div style="font-size:10px;color:var(--faint,#8496A6);margin-top:6px;line-height:1.5">5px tall in tables, 6–7px when it is the subject of the panel.</div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Tabs &amp; segmented</div>
+                <div style="display:inline-flex;gap:1px;background:var(--panel3,#E7EEF5);padding:2px;border-radius:3px">
+                  <span style="background:var(--panel,#FFF);font-size:11.5px;padding:2px 9px;border-radius:2px;font-weight:500">Active</span>
+                  <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--dim,#57697A)">Rest</span>
+                  <span style="font-size:11.5px;padding:2px 9px;border-radius:2px;color:var(--dim,#57697A)">Rest</span>
+                </div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Audience chips</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px">
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--soft,#E1EEFA);border:1px solid var(--border,#D2DBE5);font-size:11px;padding:1px 5px 1px 7px;border-radius:2px">CSE Y3 · Sec A<span style="color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace;font-size:10px">52</span><span style="color:var(--faint,#8496A6)">×</span></span>
+                  <button style="border:1px dashed var(--border2,#B7C4D2);background:transparent;color:var(--dim,#57697A);font-size:11px;height:21px;padding:0 7px;border-radius:2px">+ group</button>
+                </div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Rating control · 44px minimum</div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">
+                  <sc-for list="{{ scalePoints }}" as="p" hint-placeholder-count="5">
+                    <div style="border:1px solid var(--border2,#B7C4D2);border-radius:3px;padding:7px 2px 6px;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--dim,#57697A)">{{ p.value }}</span>
+                      <span style="font-size:8.5px;color:var(--faint,#8496A6);line-height:1.1;text-align:center">{{ p.short }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint,#8496A6);font-weight:600;margin-bottom:7px">Distribution sparkbars</div>
+                <div style="display:flex;align-items:flex-end;gap:2px;height:24px;width:120px">
+                  <div style="flex:1;background:#B03235;height:8px;border-radius:1px 1px 0 0"></div>
+                  <div style="flex:1;background:#D4823F;height:22px;border-radius:1px 1px 0 0"></div>
+                  <div style="flex:1;background:#D8C462;height:15px;border-radius:1px 1px 0 0"></div>
+                  <div style="flex:1;background:#7FB07E;height:8px;border-radius:1px 1px 0 0"></div>
+                  <div style="flex:1;background:var(--panel3,#E7EEF5);height:2px;border-radius:1px 1px 0 0"></div>
+                </div>
+                <div style="font-size:9.5px;color:var(--faint,#8496A6);font-family:'IBM Plex Mono',monospace;margin-top:2px">1 · 3 · 2 · 1 · 0</div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Global states</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));border-top:1px solid var(--border,#D2DBE5);border-left:1px solid var(--border,#D2DBE5);margin:0 14px 14px;max-width:1100px">
+              <sc-for list="{{ globalStates }}" as="g" hint-placeholder-count="5">
+                <div style="padding:10px;border-right:1px solid var(--border,#D2DBE5);border-bottom:1px solid var(--border,#D2DBE5)">
+                  <div style="font-size:12px;font-weight:600">{{ g.title }}</div>
+                  <div style="font-size:11px;color:var(--dim,#57697A);line-height:1.55;margin-top:3px">{{ g.body }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-top:1px solid var(--border,#D2DBE5);padding:11px 14px 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A)">Data these designs need that the API does not return yet</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;max-width:1100px;margin:0 14px">
+              <thead>
+                <tr style="background:var(--panel2,#F3F6FA)">
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5);width:190px">Screen</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5);width:230px">Field wanted</th>
+                  <th style="text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim,#57697A);padding:5px 10px;border-bottom:1px solid var(--border,#D2DBE5)">Why the design needs it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="6">
+                  <tr style="border-bottom:1px solid var(--border,#D2DBE5)">
+                    <td style="padding:5px 10px;color:var(--dim,#57697A)">{{ g.screen }}</td>
+                    <td style="padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent,#0B69B0)">{{ g.field }}</td>
+                    <td style="padding:5px 10px;color:var(--dim,#57697A);line-height:1.5">{{ g.why }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </sc-if>
+
+        <div data-screens-end="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--top,#0A4E86);color:var(--topfg,#DCEAF6);display:flex;align-items:center;gap:12px;padding:0 10px;font-size:10.5px;flex:none;min-width:0;overflow:hidden">
+    <span style="opacity:.85;white-space:nowrap;flex:none">{{ statusScope }}</span>
+    <span style="opacity:.45;white-space:nowrap;flex:none">|</span>
+    <span style="opacity:.85;white-space:nowrap;flex:none">min-N {{ minN }}</span>
+    <span style="opacity:.45;white-space:nowrap;flex:none">|</span>
+    <span style="opacity:.85;white-space:nowrap;flex:none">{{ statusCampaign }}</span>
+    <div style="flex:1;min-width:8px"></div>
+    <span style="opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">Responses are anonymous to every viewer · identities stored only for de-duplication</span>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#0B69B0&quot;,&quot;#146C94&quot;,&quot;#1E5F8C&quot;,&quot;#0F766E&quot;],&quot;default&quot;:&quot;#0B69B0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;minN&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:2,&quot;max&quot;:15,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Privacy&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;campaigns&quot;,&quot;monitor&quot;,&quot;builder&quot;,&quot;overview&quot;,&quot;results&quot;,&quot;tasks&quot;,&quot;form&quot;,&quot;selfview&quot;,&quot;templates&quot;,&quot;tbuilder&quot;,&quot;scales&quot;,&quot;people&quot;,&quot;groups&quot;,&quot;import&quot;,&quot;hierarchy&quot;,&quot;ds&quot;],&quot;default&quot;:&quot;campaigns&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const HEAT = [
+  ["#B03235","#FFFFFF"],["#C05A38","#FFFFFF"],["#D4823F","#2A1A08"],["#D8C462","#2A2408"],["#A8BC70","#1C2410"],["#7FB07E","#10231A"],["#2E8A6A","#FFFFFF"]
+];
+function heatCell(v){
+  if(v==null) return {v:"—",bg:"transparent",fg:"var(--faint,#8496A6)",border:"1px dashed var(--border2,#B7C4D2)"};
+  const i=Math.max(0,Math.min(6,Math.floor((v-30)/10)));
+  return {v:v.toFixed(1),bg:HEAT[i][0],fg:HEAT[i][1],border:"0"};
+}
+function barColor(p){ return p>=70?"var(--good,#12735C)":p>=45?"var(--warn,#9C5C0B)":"var(--bad,#A83236)"; }
+
+const CAMPAIGNS=[
+  {id:"c1",name:"Fall 2026 Student Evaluation — CSE",meta:"CMP-2026-F-01 · 7 teachers · Student Evaluation 2026",type:"Email",audiences:"4 student groups · peers · head",window:"01 Sep → 21 Sep 2026",done:218,total:352,minN:"4 of 7 teachers",minNOk:false,status:"Open"},
+  {id:"c2",name:"Peer Teaching Review 2026 — CSE",meta:"CMP-2026-F-02 · 7 teachers · Peer Review 2026",type:"Email",audiences:"CSE teaching staff",window:"01 Sep → 30 Sep 2026",done:19,total:42,minN:"1 of 7 teachers",minNOk:false,status:"Open"},
+  {id:"c3",name:"Head's Assessment 2026 — CSE",meta:"CMP-2026-F-03 · 7 teachers · Head's Assessment 2026",type:"Email",audiences:"Head of department only",window:"01 Sep → 30 Sep 2026",done:5,total:7,minN:"n/a — identified",minNOk:true,status:"Open"},
+  {id:"c4",name:"Guest Lecture Series — instant",meta:"CMP-2026-F-04 · 2 teachers · public link · cap 120",type:"Instant",audiences:"Public link · guests allowed",window:"not scheduled",done:0,total:120,minN:"not started",minNOk:true,status:"Draft"},
+  {id:"c5",name:"Spring 2026 Student Evaluation — CSE",meta:"CMP-2026-S-01 · 7 teachers · Student Evaluation 2025",type:"Email",audiences:"4 student groups",window:"04 Mar → 24 Mar 2026",done:301,total:340,minN:"7 of 7 teachers",minNOk:true,status:"Closed"}
+];
+
+const MONITOR=[
+  {name:"Dr. Amanuel Bekele",s:[38,52],p:[3,5],m:"submitted",mOk:true},
+  {name:"Dr. Hanna Girma",s:[44,48],p:[5,5],m:"submitted",mOk:true},
+  {name:"Mr. Yonas Tesfaye",s:[9,46],p:[1,5],m:"pending",mOk:false},
+  {name:"Dr. Selam Wolde",s:[31,50],p:[4,5],m:"submitted",mOk:true},
+  {name:"Mr. Bekele Dinku",s:[3,44],p:[0,5],m:"pending",mOk:false},
+  {name:"Dr. Tigist Alemu",s:[52,62],p:[5,5],m:"submitted",mOk:true},
+  {name:"Mr. Robel Kassa",s:[41,50],p:[1,5],m:"submitted",mOk:true}
+];
+
+const MATRIX=[
+  {name:"Dr. Amanuel Bekele",courses:"Data Structures · Algorithms",students:[{label:"CSE Year 3 · Sec A",n:"52"}],peers:[{label:"Dr. Hanna Girma"},{label:"Dr. Selam Wolde"}],head:"Dr. Meron Assefa",headSet:true},
+  {name:"Dr. Hanna Girma",courses:"Operating Systems",students:[{label:"CSE Year 3 · Sec A",n:"52"},{label:"CSE Year 3 · Sec B",n:"48"}],peers:[{label:"Dr. Amanuel Bekele"},{label:"Mr. Robel Kassa"}],head:"Dr. Meron Assefa",headSet:true},
+  {name:"Mr. Yonas Tesfaye",courses:"Web Programming",students:[{label:"CSE Year 2 · Sec A",n:"46"}],peers:[{label:"Dr. Tigist Alemu"}],head:"Dr. Meron Assefa",headSet:true},
+  {name:"Dr. Selam Wolde",courses:"Databases · Info Systems",students:[{label:"CSE Year 3 · Sec B",n:"48"}],peers:[{label:"Dr. Hanna Girma"}],head:"Dr. Meron Assefa",headSet:true},
+  {name:"Mr. Bekele Dinku",courses:"Computer Networks",students:[{label:"CSE Year 4 · Sec A",n:"44"}],peers:[],head:"not assigned",headSet:false},
+  {name:"Dr. Tigist Alemu",courses:"Machine Learning · AI",students:[{label:"CSE Year 4 · Sec A",n:"44"},{label:"CSE Year 4 · Sec B",n:"39"}],peers:[{label:"Mr. Yonas Tesfaye"},{label:"Dr. Amanuel Bekele"}],head:"Dr. Meron Assefa",headSet:true},
+  {name:"Mr. Robel Kassa",courses:"Software Engineering",students:[{label:"CSE Year 4 · Sec B",n:"39"}],peers:[{label:"Dr. Hanna Girma"}],head:"Dr. Meron Assefa",headSet:true}
+];
+
+const HEAT_COLS=["Punctuality","Effective Delivery","Ethics","Assessment Feedback","Course Design"];
+const HEAT_ROWS=[
+  {name:"School of Electrical Eng. & Computing",n:"482",lvl:0,open:true,cells:[64.2,66.8,71.4,47.3,60.1],composite:"62.8"},
+  {name:"Computer Science & Engineering",n:"218",lvl:1,cells:[58.6,66.7,64.1,44.9,59.2],composite:"58.9"},
+  {name:"Electrical Power & Control Eng.",n:"141",lvl:1,cells:[70.1,68.2,74.6,49.8,61.4],composite:"65.7"},
+  {name:"Software Engineering",n:"123",lvl:1,cells:[66.4,64.9,76.2,null,60.3],composite:"66.8"},
+  {name:"School of Applied Natural Science",n:"274",lvl:0,open:true,cells:[59.8,57.2,68.9,41.2,55.6],composite:"57.4"},
+  {name:"Applied Physics",n:"96",lvl:1,cells:[61.2,55.8,70.4,38.7,54.1],composite:"56.9"},
+  {name:"Applied Mathematics",n:"178",lvl:1,cells:[58.9,58.1,67.8,43.0,56.6],composite:"57.8"}
+];
+
+const OUT_LOW=[
+  {name:"Mr. Bekele Dinku",where:"Computer Science & Eng.",why:"Assessment Feedback 31.2",score:"41.6"},
+  {name:"Applied Physics",where:"School of Applied Natural Science",why:"−7.4 vs last semester",score:"56.9"},
+  {name:"Mr. Yonas Tesfaye",where:"Computer Science & Eng.",why:"self-rated 22 pts below composite",score:"49.3"},
+  {name:"Assessment Feedback",where:"across all 6 departments",why:"lowest competency in 5 of 6",score:"44.1"}
+];
+const OUT_HIGH=[
+  {name:"Dr. Tigist Alemu",where:"Computer Science & Eng.",why:"top quartile in 4 of 5",score:"82.4"},
+  {name:"Software Engineering",where:"School of Electrical Eng. & Computing",why:"+5.1 vs last semester",score:"66.8"},
+  {name:"Dr. Hanna Girma",where:"Computer Science & Eng.",why:"Ethics 88.6",score:"78.1"},
+  {name:"Electrical Power & Control",where:"School of Electrical Eng. & Computing",why:"most consistent spread",score:"65.7"}
+];
+
+const NAV={
+  manage:[
+    {label:"Campaigns",items:[
+      {key:"campaigns",label:"All campaigns",icon:"▤",count:"5"},
+      {key:"monitor",label:"Fall 2026 · monitor",icon:"◉",count:"62%"},
+      {key:"builder",label:"New campaign",icon:"＋",count:""}
+    ]},
+    {label:"Templates",items:[
+      {key:"templates",label:"Template library",icon:"▣",count:"9"},
+      {key:"tbuilder",label:"Student Evaluation 2027",icon:"✎",count:"draft"},
+      {key:"scales",label:"Likert scales",icon:"⋮",count:"4"}
+    ]},
+    {label:"People",items:[
+      {key:"people",label:"Teachers & students",icon:"◍",count:"359"},
+      {key:"groups",label:"Student groups",icon:"⬚",count:"6"},
+      {key:"import",label:"CSV import",icon:"↥",count:""}
+    ]},
+    {label:"Structure",items:[
+      {key:"hierarchy",label:"Hierarchy",icon:"⌗",count:"24"}
+    ]}
+  ],
+  analyse:[
+    {label:"Overview",items:[
+      {key:"overview",label:"Scope overview",icon:"▦",count:""},
+      {key:"results",label:"Teacher results",icon:"◔",count:"24"}
+    ]},
+    {label:"Compare",items:[
+      {key:"compare",label:"Across campaigns",icon:"⇄",count:""}
+    ]}
+  ],
+  respond:[
+    {label:"Assigned to you",items:[
+      {key:"tasks",label:"Pending forms",icon:"◷",count:"3"},
+      {key:"form",label:"Dr. Amanuel Bekele",icon:"✎",count:"due 4d"},
+      {key:"done",label:"Completed",icon:"✓",count:"5"}
+    ]}
+  ],
+  me:[
+    {label:"About you",items:[
+      {key:"selfview",label:"My feedback",icon:"◕",count:"2"},
+      {key:"profile",label:"Profile & password",icon:"◌",count:""}
+    ]}
+  ]
+};
+
+const SCREEN_MODE={campaigns:"manage",monitor:"manage",builder:"manage",templates:"manage",tbuilder:"manage",scales:"manage",people:"manage",groups:"manage",import:"manage",hierarchy:"manage",overview:"analyse",results:"analyse",compare:"analyse",tasks:"respond",form:"respond",done:"respond",selfview:"me",profile:"me",ds:"manage"};
+
+const META={
+  campaigns:["Manage ›","Campaigns","5 campaigns · 3 open"],
+  monitor:["Manage › Campaigns ›","Fall 2026 Student Evaluation — CSE","Open · closes in 6 days · 21 Sep 2026"],
+  builder:["Manage › Campaigns ›","New campaign — draft","Step 3 of 6 · autosaved 2 min ago"],
+  templates:["Manage ›","Template library","9 templates · 3 inherited from Academic VP"],
+  tbuilder:["Manage › Templates ›","Student Evaluation 2027 — draft","4 sections · 9 items · not published"],
+  scales:["Manage › Templates ›","Likert scales","4 reusable scales"],
+  people:["Manage ›","Teachers & students","359 people · 41 not yet registered"],
+  groups:["Manage ›","Student groups","6 groups · 352 students"],
+  import:["Manage › People ›","CSV import — dry run","214 rows read · nothing committed yet"],
+  hierarchy:["Manage ›","University hierarchy","24 nodes · 3 levels · 2 multi-parent"],
+  overview:["Analyse ›","Scope overview","Fall 2026 · 6 departments · 756 responses"],
+  results:["Analyse › Teachers ›","Dr. Amanuel Bekele","Fall 2026 Student Evaluation · 7 responses"],
+  compare:["Analyse ›","Compare","Fall 2026 vs Spring 2026"],
+  tasks:["Respond ›","Your feedback tasks","3 pending · 5 completed"],
+  form:["Respond › Pending ›","Feedback for Dr. Amanuel Bekele","Fall 2026 Student Evaluation · closes in 4 days"],
+  done:["Respond ›","Completed","5 forms submitted"],
+  selfview:["Me ›","Your feedback","Fall 2026 · closed 21 Sep · 7 responses"],
+  profile:["Me ›","Profile & password",""],
+  ds:["","Design system","Colour · type · density · components"]
+};
+
+class Component extends DCLogic {
+  state = { screen: "campaigns", theme: "light", filter: "All", step: 3, tgroup: "STUDENT", suppressed: false, answers: {}, mobile: false, tab: "Published", sec: 1 };
+
+  componentDidMount(){
+    const t = this.props.defaultTheme || "light";
+    this.setState({theme:t});
+    document.documentElement.setAttribute("data-theme", t);
+    if(this.props.accentColor) document.documentElement.style.setProperty("--accent", this.props.accentColor);
+    if(this.props.startScreen) this.setState({screen:this.props.startScreen});
+  }
+  go(k){ return () => this.setState({screen:k}); }
+  toggle(){ const t = this.state.theme==="light"?"dark":"light"; this.setState({theme:t}); document.documentElement.setAttribute("data-theme", t); }
+
+  renderVals(){
+    const s = this.state, screen = s.screen, mode = SCREEN_MODE[screen] || "manage";
+    const minN = this.props.minN ?? 5;
+
+    const modes = [["manage","Manage",""],["analyse","Analyse",""],["respond","Respond","3"],["me","Me","2"]].map(([k,label,badge])=>({
+      label, badge, go: () => this.setState({screen: NAV[k][0].items[0].key}),
+      bg: mode===k?"rgba(255,255,255,.92)":"transparent",
+      fg: mode===k?"#0A4E86":"rgba(255,255,255,.82)"
+    }));
+
+    const navGroups = (NAV[mode]||[]).map(g=>({
+      label:g.label,
+      items:g.items.map(it=>{
+        const on = it.key===screen;
+        return {label:it.label, icon:it.icon, count:it.count, go:this.go(it.key),
+          mark: on?"var(--accent,#0B69B0)":"transparent",
+          bg: on?"var(--sel,#D5E7F7)":"transparent",
+          fg: on?"var(--text,#0D1922)":"var(--dim,#57697A)",
+          weight: on?"600":"400",
+          countFg: on?"var(--accent,#0B69B0)":"var(--faint,#8496A6)",
+          countBg: on?"rgba(255,255,255,.55)":"transparent"};
+      })
+    }));
+
+    const m = META[screen] || ["","",""];
+
+    const campaignRows = CAMPAIGNS.filter(c=>s.filter==="All"||c.status===s.filter).map(c=>{
+      const pct = Math.round(c.done/c.total*100);
+      const pill = c.status==="Open" ? ["var(--goodbg,#DDF0EA)","var(--good,#12735C)"] : c.status==="Draft" ? ["var(--panel3,#E7EEF5)","var(--dim,#57697A)"] : ["var(--panel3,#E7EEF5)","var(--faint,#8496A6)"];
+      return {...c, open:this.go("monitor"), pct:pct+"%", ratio:c.done+" / "+c.total, barColor:barColor(pct),
+        minNFg: c.minNOk?"var(--dim,#57697A)":"var(--warn,#9C5C0B)", pillBg:pill[0], pillFg:pill[1]};
+    });
+    const counts = {All:CAMPAIGNS.length, Draft:1, Open:3, Closed:1};
+    const campaignFilters = ["All","Draft","Open","Closed"].map(f=>({
+      label:f, n:counts[f], go:()=>this.setState({filter:f}),
+      bg: s.filter===f?"var(--panel,#FFF)":"transparent",
+      fg: s.filter===f?"var(--text,#0D1922)":"var(--dim,#57697A)"
+    }));
+
+    const monitorRows = MONITOR.map(t=>{
+      const sp = Math.round(t.s[0]/t.s[1]*100), pp = Math.round(t.p[0]/t.p[1]*100);
+      const ok = t.s[0] >= minN;
+      return {name:t.name, sPct:sp+"%", sRatio:t.s[0]+" / "+t.s[1], sColor:barColor(sp),
+        pPct:pp+"%", pRatio:t.p[0]+" / "+t.p[1], pColor:barColor(pp),
+        mLabel:t.m, mFg: t.mOk?"var(--dim,#57697A)":"var(--warn,#9C5C0B)",
+        gate: ok?"yes · "+t.s[0]+" ≥ "+minN : (minN-t.s[0])+" more needed",
+        gateBg: ok?"var(--goodbg,#DDF0EA)":"var(--warnbg,#FAEEDC)",
+        gateFg: ok?"var(--good,#12735C)":"var(--warn,#9C5C0B)"};
+    });
+
+    const monitorStats = [
+      {label:"Response rate",value:"62%",sub:"218 of 352 asked",fg:"var(--text,#0D1922)"},
+      {label:"Past min-N",value:"4/7",sub:"teachers with results",fg:"var(--warn,#9C5C0B)"},
+      {label:"Closes in",value:"6d",sub:"21 Sep 2026, 23:59",fg:"var(--text,#0D1922)"},
+      {label:"Last reminder",value:"4d",sub:"sent 08 Sep · 134 people",fg:"var(--dim,#57697A)"}
+    ];
+
+    const stepDefs=[["Type","Email campaign"],["Teachers","7 selected"],["Audiences","19 of 21 pairs set"],["Templates","3 assigned"],["Window","01 → 21 Sep 2026"],["Review","not launched"]];
+    const builderSteps = stepDefs.map((d,i)=>{
+      const n=i+1, on=n===s.step, past=n<s.step;
+      return {num:n, label:d[0], value:d[1], go:()=>this.setState({step:n}),
+        mark:on?"var(--accent,#0B69B0)":"transparent",
+        bg:on?"var(--sel,#D5E7F7)":"transparent",
+        fg:on?"var(--text,#0D1922)":"var(--dim,#57697A)",
+        weight:on?"600":"500",
+        numBg: past?"var(--good,#12735C)":on?"var(--accent,#0B69B0)":"var(--panel3,#E7EEF5)",
+        numFg: (past||on)?"#fff":"var(--faint,#8496A6)"};
+    });
+
+    const matrixRows = MATRIX.map(r=>({...r, headFg: r.headSet?"var(--dim,#57697A)":"var(--warn,#9C5C0B)"}));
+
+    const heatRows = HEAT_ROWS.map(r=>({
+      name:r.name, n:r.n, composite:r.composite,
+      indent: r.lvl===0?"0px":"16px",
+      glyph: r.lvl===0?"▾":"·",
+      weight: r.lvl===0?"600":"400",
+      cells: r.cells.map(heatCell)
+    }));
+
+    return {
+      modes, navGroups, minN,
+      crumb:m[0], title:m[1], subtitle:m[2],
+      themeGlyph: s.theme==="light"?"◐":"◑", themeLabel: s.theme==="light"?"Light":"Dark",
+      toggleTheme: () => this.toggle(),
+      goDS: this.go("ds"), goBuilder: this.go("builder"),
+      isCampaigns: screen==="campaigns", isMonitor: screen==="monitor", isBuilder: screen==="builder", isOverview: screen==="overview",
+      campaignRows, campaignFilters, monitorRows, monitorStats,
+      builderSteps, matrixRows, matrixFilled:"19 of 21 pairs assigned · 2 rows left empty on purpose",
+      heatCols:HEAT_COLS, heatRows, outliersLow:OUT_LOW, outliersHigh:OUT_HIGH,
+      statusScope:"Computer Science & Engineering · level 2 · leaf",
+      statusCampaign:"Fall 2026 Student Evaluation — Open",
+      ...this.templateVals()
+    };
+  }
+
+  templateVals(){
+    const s=this.state, screen=s.screen;
+    const tabCounts={Draft:2,Published:5,Archived:2};
+    const templateTabs=["Draft","Published","Archived"].map(t=>({
+      label:t, n:tabCounts[t], go:()=>this.setState({tab:t}),
+      bg: s.tab===t?"var(--panel,#FFF)":"transparent",
+      fg: s.tab===t?"var(--text,#0D1922)":"var(--dim,#57697A)"
+    }));
+    const GRP={STUDENT:["var(--soft,#E1EEFA)","var(--accent,#0B69B0)"],PEER:["#EDE6F6","#6B4E9E"],MANAGER:["var(--warnbg,#FAEEDC)","var(--warn,#9C5C0B)"]};
+    const templateRows=(TEMPLATES[s.tab]||[]).map(t=>({
+      ...t,
+      grpBg:GRP[t.group][0], grpFg:GRP[t.group][1],
+      lockBg: t.lock==="locked"?"var(--panel3,#E7EEF5)":"var(--goodbg,#DDF0EA)",
+      lockFg: t.lock==="locked"?"var(--faint,#8496A6)":"var(--good,#12735C)",
+      primary: t.lock==="locked"?"Clone →":"Continue",
+      primaryFg:"var(--accent,#0B69B0)",
+      goEdit:()=>this.setState({screen:"tbuilder"})
+    }));
+
+    const tSections=TSECS.map((sec,i)=>{
+      const on=i===s.sec;
+      return {title:sec.title, tag:sec.tag, items:sec.items.map(x=>x.text), go:()=>this.setState({sec:i}),
+        mark:on?"var(--accent,#0B69B0)":"transparent",
+        bg:on?"var(--sel,#D5E7F7)":"transparent",
+        fg:on?"var(--text,#0D1922)":"var(--dim,#57697A)",
+        weight:on?"600":"400"};
+    });
+    const total=TSECS.filter(x=>x.weight>0).reduce((a,b)=>a+b.weight,0);
+    const weightBars=TSECS.filter(x=>x.weight>0).map(x=>({
+      title:x.title, pct:Math.round(x.weight/total*100)+"%",
+      color: x.title==="Effective Delivery"?"var(--accent,#0B69B0)":"var(--border2,#B7C4D2)"
+    }));
+
+    return {
+      isTemplates: screen==="templates", isTBuilder: screen==="tbuilder", isScales: screen==="scales",
+      ...this.respondVals(),
+      ...this.analyticsVals(),
+      ...this.adminVals(),
+      isDS: screen==="ds",
+      swatches:[
+        {name:"App background",token:"--bg #E9EEF4",value:"#E9EEF4",use:"behind panels only"},
+        {name:"Panel",token:"--panel #FFFFFF",value:"#FFFFFF",use:"every surface"},
+        {name:"Rail / header",token:"--panel2 #F3F6FA",value:"#F3F6FA",use:"sidebars, table heads"},
+        {name:"Track",token:"--panel3 #E7EEF5",value:"#E7EEF5",use:"bar tracks, segmented"},
+        {name:"Rule",token:"--border #D2DBE5",value:"#D2DBE5",use:"the 1px everything"},
+        {name:"ASTU blue",token:"--accent #0B69B0",value:"#0B69B0",use:"primary action, selection"},
+        {name:"Selected",token:"--sel #D5E7F7",value:"#D5E7F7",use:"active nav row"},
+        {name:"Chrome",token:"--top #0A4E86",value:"#0A4E86",use:"title bar, status bar"},
+        {name:"Good",token:"--good #12735C",value:"#12735C",use:"met thresholds"},
+        {name:"Warning",token:"--warn #9C5C0B",value:"#9C5C0B",use:"below min-N, expiring"},
+        {name:"Bad",token:"--bad #A83236",value:"#A83236",use:"blocked rows, weak scores"},
+        {name:"Cross-cutting",token:"#6B4E9E",value:"#6B4E9E",use:"QA edges, peer group"}
+      ],
+      ramp:[
+        {bg:"#B03235",fg:"#fff",label:"< 40"},{bg:"#C05A38",fg:"#fff",label:"40"},{bg:"#D4823F",fg:"#2A1A08",label:"50"},
+        {bg:"#D8C462",fg:"#2A2408",label:"60"},{bg:"#A8BC70",fg:"#1C2410",label:"70"},{bg:"#7FB07E",fg:"#10231A",label:"80"},{bg:"#2E8A6A",fg:"#fff",label:"90+"}
+      ],
+      typeScale:[
+        {spec:"30 / 600 · Plex Mono",size:"30px",weight:"600",family:"'IBM Plex Mono',monospace",tracking:"0",transform:"none",sample:"54.8",use:"the one number a screen is about"},
+        {spec:"19 / 600 · Plex Mono",size:"19px",weight:"600",family:"'IBM Plex Mono',monospace",tracking:"0",transform:"none",sample:"62%",use:"stat strip figures"},
+        {spec:"15 / 600 · Plex Sans",size:"15px",weight:"600",family:"'IBM Plex Sans',sans-serif",tracking:"0",transform:"none",sample:"What your students said this semester",use:"screen headline"},
+        {spec:"13.5 / 600 · Plex Sans",size:"13.5px",weight:"600",family:"'IBM Plex Sans',sans-serif",tracking:"0",transform:"none",sample:"Fall 2026 Student Evaluation — CSE",use:"title bar"},
+        {spec:"12 / 400 · Plex Sans",size:"12px",weight:"400",family:"'IBM Plex Sans',sans-serif",tracking:"0",transform:"none",sample:"Explains difficult concepts clearly",use:"body, table cells"},
+        {spec:"11 / 400 · Plex Sans",size:"11px",weight:"400",family:"'IBM Plex Sans',sans-serif",tracking:"0",transform:"none",sample:"Weighted mean across the four scored competencies",use:"secondary and explanatory"},
+        {spec:"10 / 600 · .07em · upper",size:"10px",weight:"600",family:"'IBM Plex Sans',sans-serif",tracking:".07em",transform:"uppercase",sample:"Competency",use:"column and section labels"}
+      ],
+      globalStates:[
+        {title:"Session check",body:"Chrome renders immediately with the sidebar in place; only the content pane shows a quiet 'checking your session' line. Never a full-page spinner — the shell is known before the user is."},
+        {title:"Loading a panel",body:"The panel keeps its header and column labels and greys the rows. The user learns what is coming while it comes."},
+        {title:"Empty",body:"Says what would be here and offers the single action that creates the first one. 'No campaigns yet' plus a New campaign button, never an illustration."},
+        {title:"Permission denied",body:"Names the node you tried to reach and the scope you actually have, so a dean who clicked into another faculty understands it is a boundary, not a bug."},
+        {title:"Min-N suppressed",body:"Shows the competencies that will appear, greyed, plus progress toward the threshold. The emptiness is the guarantee working, and it reads as anticipation rather than failure."},
+        {title:"Error",body:"The API's own message in plain text with a retry, inside the panel that failed. The rest of the screen keeps working."}
+      ],
+      gaps:[
+        {screen:"Results dashboard",field:"sections[].distribution",why:"Counts per scale point. Without it only the mean can be drawn, and a mean hides whether a cohort was neutral or bitterly split."},
+        {screen:"Results dashboard",field:"departmentAverage, facultyAverage",why:"The anchor that turns 54.8 from a number nobody can read into a position. Currently the score has no context at all."},
+        {screen:"Results / self-view",field:"GET /analytics/history?teacherId",why:"Composite per closed campaign, so trend over time and the teacher's own history can be drawn."},
+        {screen:"Results dashboard",field:"sections[].items[].score",why:"Per-item detail inside a competency — 'Ethics 44.6' is not actionable until you can see it is the grading-fairness item dragging it down."},
+        {screen:"Manager overview",field:"GET /analytics/scope-rollup",why:"Aggregate per descendant branch. Only per-teacher analytics exist today, so the senior manager's landing screen has no data source."},
+        {screen:"Manager overview",field:"reachableNodes[] for the viewer",why:"QA scope is a set of branches, not a subtree. The UI needs the resolved reachable set rather than inferring it from a parent id."},
+        {screen:"Campaign monitor",field:"responseRate per (teacher, targetGroup)",why:"Progress toward min-N per teacher is the number that decides whether results exist. It is currently computable only after the fact."},
+        {screen:"Feedback form",field:"sections[].scale on every grid section",why:"Already returned — noted only because the design assumes different sections can carry different scales in one form, which the mobile layout depends on."}
+      ],
+      templateTabs, templateRows, tSections, weightBars,
+      tItems: TSECS[s.sec] ? TSECS[s.sec].items : [],
+      scalePoints: SCALE,
+      scaleList: SCALES.map((x,i)=>({name:x.name, meta:x.meta,
+        mark:i===0?"var(--accent,#0B69B0)":"transparent",
+        bg:i===0?"var(--sel,#D5E7F7)":"transparent",
+        weight:i===0?"600":"400"}))
+    };
+  }
+
+  adminVals(){
+    const screen=this.state.screen;
+    const ACT={create:["var(--goodbg,#DDF0EA)","var(--good,#12735C)"],update:["var(--soft,#E1EEFA)","var(--accent,#0B69B0)"],skip:["var(--panel3,#E7EEF5)","var(--dim,#57697A)"],error:["var(--badbg,#F8E4E5)","var(--bad,#A83236)"]};
+    const IMPORT=[
+      {n:1,action:"create",name:"Abel Tesfaye",email:"abel.tesfaye@astu.edu.et",phone:"+251 91 234 5678",type:"student"},
+      {n:2,action:"create",name:"Bethlehem Girma",email:"bethlehem.g@astu.edu.et",phone:"+251 91 887 2211",type:"student"},
+      {n:3,action:"error",name:"Chala Regassa",email:"chala.regassa@astu",phone:"+251 92 118 4402",type:"student",problem:"Not a valid email address",fix:"Edit cell"},
+      {n:4,action:"update",name:"Dagim Wolde",email:"dagim.wolde@astu.edu.et",phone:"+251 93 442 8890",type:"student",problem:"Already registered — phone will be updated",fix:"Keep existing"},
+      {n:5,action:"error",name:"Eden Mulugeta",email:"eden.mulugeta@astu.edu.et",phone:"",type:"lecturer",problem:"Unknown type 'lecturer' — expected student or teacher",fix:"Set to teacher"},
+      {n:6,action:"skip",name:"Fikir Assefa",email:"fikir.assefa@astu.edu.et",phone:"+251 91 663 0021",type:"student",problem:"Duplicate of row 42 in this file",fix:"Use row 42"},
+      {n:7,action:"create",name:"Gemechu Bayissa",email:"gemechu.b@astu.edu.et",phone:"+251 94 220 7745",type:"teacher"},
+      {n:8,action:"error",name:"",email:"hanna.desta@astu.edu.et",phone:"+251 91 004 3312",type:"student",problem:"Name is required",fix:"Edit cell"}
+    ];
+    const importRows=IMPORT.map(r=>({
+      ...r, hasProblem: !!r.problem, problem:r.problem||"", fix:r.fix||"",
+      actBg:ACT[r.action][0], actFg:ACT[r.action][1],
+      action: r.action==="create"?"will create":r.action==="update"?"will update":r.action==="skip"?"skipped":"blocked",
+      rowBg: r.action==="error"?"var(--badbg,#F8E4E5)":"transparent",
+      emailFg: r.problem && r.problem.indexOf("email")>=0 ? "var(--bad,#A83236)" : "var(--dim,#57697A)",
+      typeFg: r.type==="lecturer" ? "var(--bad,#A83236)" : "var(--dim,#57697A)",
+      problemFg: r.action==="error"?"var(--bad,#A83236)":"var(--dim,#57697A)",
+      name: r.name || "— missing —"
+    }));
+    const ST={registered:["var(--goodbg,#DDF0EA)","var(--good,#12735C)"],invited:["var(--warnbg,#FAEEDC)","var(--warn,#9C5C0B)"],expired:["var(--badbg,#F8E4E5)","var(--bad,#A83236)"],never:["var(--panel3,#E7EEF5)","var(--dim,#57697A)"]};
+    const PEOPLE=[
+      {name:"Dr. Amanuel Bekele",email:"amanuel.bekele@astu.edu.et",type:"Teacher",groups:"—",status:"registered",when:"12 Aug"},
+      {name:"Dr. Hanna Girma",email:"hanna.girma@astu.edu.et",type:"Teacher",groups:"—",status:"registered",when:"12 Aug"},
+      {name:"Mr. Bekele Dinku",email:"bekele.dinku@astu.edu.et",type:"Teacher",groups:"—",status:"invited",when:"sent 04 Sep · 6d left"},
+      {name:"Mr. Robel Kassa",email:"robel.kassa@astu.edu.et",type:"Teacher",groups:"—",status:"expired",when:"sent 14 Aug · expired"},
+      {name:"Abel Tesfaye",email:"abel.tesfaye@astu.edu.et",type:"Student",groups:"CSE Y3 · Sec A",status:"registered",when:"18 Aug"},
+      {name:"Bethlehem Girma",email:"bethlehem.g@astu.edu.et",type:"Student",groups:"CSE Y3 · Sec A",status:"registered",when:"18 Aug"},
+      {name:"Chala Regassa",email:"chala.regassa@astu.edu.et",type:"Student",groups:"CSE Y3 · Sec B",status:"invited",when:"sent 06 Sep · 8d left"},
+      {name:"Dagim Wolde",email:"dagim.wolde@astu.edu.et",type:"Student",groups:"CSE Y4 · Sec A",status:"never",when:"not invited"}
+    ];
+    const peopleRows=PEOPLE.map(p=>({
+      ...p, stBg:ST[p.status][0], stFg:ST[p.status][1],
+      status: p.status==="never"?"no invite":p.status,
+      action: p.status==="registered"?"Reset password":p.status==="never"?"Invite":"Resend link",
+      actionFg: p.status==="registered"?"var(--dim,#57697A)":"var(--accent,#0B69B0)"
+    }));
+    const GROUPS=[
+      {name:"CSE Year 3 · Section A",meta:"used by 2 campaigns",n:"52"},
+      {name:"CSE Year 3 · Section B",meta:"used by 2 campaigns",n:"48"},
+      {name:"CSE Year 2 · Section A",meta:"used by 1 campaign",n:"46"},
+      {name:"CSE Year 4 · Section A",meta:"used by 2 campaigns",n:"44"},
+      {name:"CSE Year 4 · Section B",meta:"used by 1 campaign",n:"39"},
+      {name:"CSE Postgraduate · MSc",meta:"not yet used",n:"18"}
+    ];
+    return {
+      isHierarchy: screen==="hierarchy", isImport: screen==="import", isPeople: screen==="people", isGroups: screen==="groups",
+      goImport: ()=>this.setState({screen:"import"}),
+      importStats:[
+        {label:"Will create",n:"181",sub:"new people",fg:"var(--good,#12735C)"},
+        {label:"Will update",n:"22",sub:"phone or name changed",fg:"var(--accent,#0B69B0)"},
+        {label:"Skipped",n:"0",sub:"duplicates in file",fg:"var(--dim,#57697A)"},
+        {label:"Blocked",n:"11",sub:"must be fixed or skipped",fg:"var(--bad,#A83236)"}
+      ],
+      importRows, peopleRows,
+      groupList: GROUPS.map((g,i)=>({...g,
+        mark:i===0?"var(--accent,#0B69B0)":"transparent",
+        bg:i===0?"var(--sel,#D5E7F7)":"transparent",
+        weight:i===0?"600":"400"})),
+      memberRows:[
+        {name:"Abel Tesfaye",email:"abel.tesfaye@astu.edu.et",reg:"18 Aug 2026",resp:"responded",respFg:"var(--good,#12735C)"},
+        {name:"Bethlehem Girma",email:"bethlehem.g@astu.edu.et",reg:"18 Aug 2026",resp:"responded",respFg:"var(--good,#12735C)"},
+        {name:"Chala Regassa",email:"chala.regassa@astu.edu.et",reg:"not yet",resp:"2 of 3 forms pending",respFg:"var(--warn,#9C5C0B)"},
+        {name:"Dagim Wolde",email:"dagim.wolde@astu.edu.et",reg:"21 Aug 2026",resp:"3 of 3 forms pending",respFg:"var(--warn,#9C5C0B)"},
+        {name:"Eden Mulugeta",email:"eden.mulugeta@astu.edu.et",reg:"19 Aug 2026",resp:"responded",respFg:"var(--good,#12735C)"},
+        {name:"Fikir Assefa",email:"fikir.assefa@astu.edu.et",reg:"19 Aug 2026",resp:"1 of 3 forms pending",respFg:"var(--warn,#9C5C0B)"}
+      ]
+    };
+  }
+
+  analyticsVals(){
+    const s=this.state, screen=s.screen;
+    const sup = this.props.suppressed ?? s.suppressed;
+    const resultTabs=[["STUDENT","Students","7"],["PEER","Peers","3"],["MANAGER","Head","1"]].map(([k,label,n])=>({
+      label, n, go:()=>this.setState({tgroup:k}),
+      bg:s.tgroup===k?"var(--panel,#FFF)":"transparent",
+      fg:s.tgroup===k?"var(--text,#0D1922)":"var(--dim,#57697A)"
+    }));
+    const dist=(counts)=>{
+      const max=Math.max(...counts);
+      const cols=["#B03235","#D4823F","#D8C462","#7FB07E","#2E8A6A"];
+      return counts.map((c,i)=>({h:Math.round(c/max*22)+"px",bg:c===0?"var(--panel3,#E7EEF5)":cols[i]}));
+    };
+    const COMP=[
+      {title:"Punctuality",sub:"2 statements · Agreement 5-point",weight:"1.0",score:"46.4",pct:"46.4%",counts:[1,3,2,1,0],delta:"−12.2 below dept 58.6",down:true},
+      {title:"Effective Delivery",sub:"3 statements · Agreement 5-point",weight:"2.0",score:"66.7",pct:"66.7%",counts:[0,1,2,3,1],delta:"= level with dept 66.7",down:false},
+      {title:"Ethics",sub:"2 statements · Agreement 5-point",weight:"1.5",score:"44.6",pct:"44.6%",counts:[2,1,1,2,1],delta:"−19.5 below dept 64.1",down:true},
+      {title:"Course Design",sub:"2 statements · Agreement 5-point",weight:"1.0",score:"59.2",pct:"59.2%",counts:[0,2,2,2,1],delta:"= level with dept 59.2",down:false}
+    ];
+    const competencyRows=COMP.map(c=>({
+      ...c, color: parseFloat(c.score)>=60?"var(--good,#12735C)":parseFloat(c.score)>=45?"var(--warn,#9C5C0B)":"var(--bad,#A83236)",
+      dist:dist(c.counts), distLabel:c.counts.join(" · "),
+      deltaFg: c.down?"var(--bad,#A83236)":"var(--dim,#57697A)"
+    }));
+    const trendRow=(when,score,cur)=>({when,score:score.toFixed(1),pct:score+"%",weight:cur?"600":"400",color:cur?"var(--text,#0D1922)":"var(--border2,#B7C4D2)"});
+    return {
+      isResults: screen==="results"||screen==="compare", isSelf: screen==="selfview"||screen==="profile",
+      resultTabs, suppressed:sup, notSuppressed:!sup,
+      suppressLabel: sup ? "Show populated state" : "Show min-N suppressed state",
+      toggleSuppressed: ()=>this.setState({suppressed:!s.suppressed}),
+      ghostRows:[{title:"Punctuality",weight:"w 1.0"},{title:"Effective Delivery",weight:"w 2.0"},{title:"Ethics",weight:"w 1.5"},{title:"Course Design",weight:"w 1.0"},{title:"Comments",weight:"unscored"}],
+      competencyRows,
+      itemDetail:[
+        {text:"Treats all students with respect",w:"1.0",score:"53.6",pct:"53.6%",color:"var(--warn,#9C5C0B)"},
+        {text:"Grades fairly and transparently",w:"1.0",score:"35.7",pct:"35.7%",color:"var(--bad,#A83236)"}
+      ],
+      comments:[
+        "Great teacher, very engaging lectures.",
+        "The lectures are good but marks come back weeks late and we never find out what we got wrong.",
+        "Sometimes starts fifteen minutes after the hour, which makes the last part rushed.",
+        "Knows the subject extremely well. Would be much better with clearer marking criteria published in advance."
+      ],
+      trend:[trendRow("Fall 2024",61.2),trendRow("Spring 2025",58.4),trendRow("Fall 2025",57.9),trendRow("Spring 2026",59.1),trendRow("Fall 2026",54.8,true)],
+      selfStrong:[
+        {title:"Effective Delivery",score:"74.2",pct:"74.2%",note:"your highest, and above the department's 66.7"},
+        {title:"Course Design",score:"68.5",pct:"68.5%",note:"steady across the last three semesters"}
+      ],
+      selfWeak:[
+        {title:"Assessment Feedback",score:"41.8",pct:"41.8%",note:"the lowest competency across the whole department too"},
+        {title:"Punctuality",score:"52.3",pct:"52.3%",note:"three comments mention late starts"}
+      ],
+      selfComments:[
+        "Explains hard material better than anyone else I have had. I actually understand pointers now.",
+        "Marks take too long to come back and we do not get told what we lost marks for.",
+        "Class often starts late but always runs the full time, so it eats into the next lecture.",
+        "Approachable and patient when you ask questions after class."
+      ],
+      selfTrend:[trendRow("Fall 2024",58.9),trendRow("Spring 2025",60.2),trendRow("Fall 2025",62.4),trendRow("Spring 2026",63.1),trendRow("Fall 2026",64.7,true)]
+    };
+  }
+
+  respondVals(){
+    const s=this.state, screen=s.screen, narrow=s.mobile;
+    const widthTabs=[["desktop","Desktop"],["phone","Phone · 375px"]].map(([k,label])=>({
+      label, go:()=>this.setState({mobile:k==="phone"}),
+      bg:(narrow===(k==="phone"))?"var(--panel,#FFF)":"transparent",
+      fg:(narrow===(k==="phone"))?"var(--text,#0D1922)":"var(--dim,#57697A)"
+    }));
+    const groupTabs=[["STUDENT","Student"],["MANAGER","Head of dept."]].map(([k,label])=>({
+      label, go:()=>this.setState({tgroup:k}),
+      bg:s.tgroup===k?"var(--panel,#FFF)":"transparent",
+      fg:s.tgroup===k?"var(--text,#0D1922)":"var(--dim,#57697A)"
+    }));
+    const identified = s.tgroup==="MANAGER";
+    const QUALITY=[{label:"Poor",short:"Poor",value:1},{label:"Fair",short:"Fair",value:2},{label:"Good",short:"Good",value:3},{label:"Very good",short:"Very good",value:4},{label:"Excellent",short:"Excellent",value:5}];
+    const formSections=TSECS.map((sec,i)=>({
+      title:sec.title,
+      note: sec.tag==="free text" ? "Optional · not scored" : (sec.title==="Overall" ? "One holistic judgement · Quality 5-point · reported separately from the composite" : sec.items.length+" statements · Agreement 5-point"),
+      isGrid: sec.tag!=="free text",
+      isText: sec.tag==="free text",
+      scale: sec.title==="Overall" ? QUALITY : SCALE,
+      items: sec.items.map((it,j)=>({text:it.text, star: it.required?" *":"", name:"s"+i+"i"+j}))
+    }));
+    return {
+      isTasks: screen==="tasks"||screen==="done", isForm: screen==="form",
+      widthTabs, groupTabs, narrow, wide: !narrow,
+      formWidth: narrow ? "375px" : "760px",
+      trustBg: identified ? "var(--warnbg,#FAEEDC)" : "var(--soft,#E1EEFA)",
+      trustAccent: identified ? "var(--warn,#9C5C0B)" : "var(--accent,#0B69B0)",
+      trustTitle: identified ? "This feedback is not anonymous" : "Nobody will ever know these answers were yours",
+      trustBody: identified
+        ? "A teacher has exactly one direct manager, so Dr. Amanuel Bekele will know this assessment came from you. We would rather say that plainly than imply a privacy the system cannot deliver."
+        : "Your name is stored only so you are not asked twice. It is never stored with your answers, and no screen in this system — not the lecturer's, not the dean's — can link a response to a person.",
+      trustFoot: identified
+        ? "Your assessment is shown to the teacher after the campaign closes, alongside the anonymous student and peer results."
+        : "Results stay hidden entirely until at least 5 students have responded, so nobody can be identified by elimination. Dr. Amanuel Bekele sees nothing until the campaign closes.",
+      formSections,
+      taskRows:[
+        {teacher:"Dr. Amanuel Bekele",campaign:"Fall 2026 Student Evaluation — CSE",role:"As a student",length:"8 items · ~2 min",due:"closes in 4 days",closes:"21 Sep 2026",urgencyColor:"var(--warn,#9C5C0B)",go:()=>this.setState({screen:"form"})},
+        {teacher:"Dr. Hanna Girma",campaign:"Peer Teaching Review 2026 — CSE",role:"As a peer teacher",length:"7 items · ~2 min",due:"closes in 13 days",closes:"30 Sep 2026",urgencyColor:"var(--dim,#57697A)",go:()=>this.setState({screen:"form"})},
+        {teacher:"Mr. Yonas Tesfaye",campaign:"Head's Assessment 2026 — CSE",role:"As head of department",length:"8 items · ~3 min",due:"closes in 13 days",closes:"30 Sep 2026",urgencyColor:"var(--dim,#57697A)",go:()=>this.setState({screen:"form"})}
+      ],
+      doneRows:[
+        {teacher:"Dr. Tigist Alemu",campaign:"Peer Teaching Review 2026 — CSE",role:"As a peer teacher",when:"11 Sep"},
+        {teacher:"Dr. Selam Wolde",campaign:"Head's Assessment 2026 — CSE",role:"As head of department",when:"09 Sep"},
+        {teacher:"Mr. Robel Kassa",campaign:"Head's Assessment 2026 — CSE",role:"As head of department",when:"09 Sep"}
+      ],
+      formStates:[
+        {code:"409",title:"You have already responded",body:"Your feedback for Dr. Amanuel Bekele was recorded on 11 Sep. Answers cannot be changed once submitted.",action:"See your other pending forms →",codeBg:"var(--goodbg,#DDF0EA)",codeFg:"var(--good,#12735C)"},
+        {code:"410",title:"This campaign has closed",body:"Fall 2026 Student Evaluation closed on 21 Sep 2026. Nothing you enter now would reach the department.",action:"See your other pending forms →",codeBg:"var(--panel3,#E7EEF5)",codeFg:"var(--dim,#57697A)"},
+        {code:"404",title:"This link is invalid or expired",body:"Private links are single-purpose and expire with the campaign. If you still have the email, use the most recent one.",action:"Request a new link →",codeBg:"var(--badbg,#F8E4E5)",codeFg:"var(--bad,#A83236)"},
+        {code:"cap",title:"This form has reached its limit",body:"Instant campaigns accept a fixed number of responses. This one reached 120 of 120 and stopped accepting new answers.",action:"Back to the department page →",codeBg:"var(--warnbg,#FAEEDC)",codeFg:"var(--warn,#9C5C0B)"}
+      ]
+    };
+  }
+}
+
+const TEMPLATES={
+  Published:[
+    {id:"TPL-2026-STU-01",name:"Student Evaluation 2026",group:"STUDENT",structure:"5 sections · 9 items · 2 scales",origin:"Cloned from Student Evaluation 2025",used:"2 campaigns",lock:"locked"},
+    {id:"TPL-2026-PEER-01",name:"Peer Teaching Review 2026",group:"PEER",structure:"3 sections · 7 items · 1 scale",origin:"Own · CSE Department",used:"1 campaign",lock:"locked"},
+    {id:"TPL-2026-MGR-01",name:"Head's Assessment 2026",group:"MANAGER",structure:"4 sections · 8 items · 1 scale",origin:"Own · CSE Department",used:"1 campaign",lock:"locked"},
+    {id:"TPL-UNI-STU-V3",name:"University Core Student Template v3",group:"STUDENT",structure:"6 sections · 14 items · 2 scales",origin:"Inherited · Academic VP (L0)",used:"14 campuses",lock:"locked"},
+    {id:"TPL-UNI-PEER-V2",name:"University Peer Observation v2",group:"PEER",structure:"4 sections · 10 items · 1 scale",origin:"Inherited · Academic VP (L0)",used:"9 departments",lock:"locked"}
+  ],
+  Draft:[
+    {id:"TPL-2027-STU-D1",name:"Student Evaluation 2027",group:"STUDENT",structure:"5 sections · 9 items · 2 scales",origin:"Cloned from Student Evaluation 2026",used:"—",lock:"draft"},
+    {id:"TPL-2027-PEER-D1",name:"Peer Review 2027 — pilot",group:"PEER",structure:"2 sections · 4 items · 1 scale",origin:"Own · CSE Department",used:"—",lock:"draft"}
+  ],
+  Archived:[
+    {id:"TPL-2025-STU-01",name:"Student Evaluation 2025",group:"STUDENT",structure:"4 sections · 8 items · 1 scale",origin:"Own · CSE Department",used:"3 campaigns",lock:"locked"},
+    {id:"TPL-2024-STU-01",name:"Student Evaluation 2024",group:"STUDENT",structure:"4 sections · 7 items · 1 scale",origin:"Own · CSE Department",used:"2 campaigns",lock:"locked"}
+  ]
+};
+
+const TSECS=[
+  {title:"Punctuality",tag:"w 1.0",weight:1.0,items:[{text:"Arrives to class on time",weight:"1.0",required:true},{text:"Uses the full scheduled period",weight:"1.0",required:true}]},
+  {title:"Effective Delivery",tag:"w 2.0",weight:2.0,items:[{text:"Explains difficult concepts clearly",weight:"1.5",required:true},{text:"Uses examples that aid understanding",weight:"1.0",required:true},{text:"Encourages questions during class",weight:"1.0",required:false}]},
+  {title:"Ethics",tag:"w 1.5",weight:1.5,items:[{text:"Treats all students with respect",weight:"1.0",required:true},{text:"Grades fairly and transparently",weight:"1.0",required:true}]},
+  {title:"Overall",tag:"isOverall",weight:0,items:[{text:"Overall, how would you rate this instructor?",weight:"1.0",required:true}]},
+  {title:"Comments",tag:"free text",weight:0,items:[{text:"Anything else you would like the department to know?",weight:"0",required:false}]}
+];
+
+const SCALE=[
+  {label:"Strongly disagree",short:"Strongly disagree",value:1,norm:"0"},
+  {label:"Disagree",short:"Disagree",value:2,norm:"25"},
+  {label:"Neutral",short:"Neutral",value:3,norm:"50"},
+  {label:"Agree",short:"Agree",value:4,norm:"75"},
+  {label:"Strongly agree",short:"Strongly agree",value:5,norm:"100"}
+];
+
+const SCALES=[
+  {name:"Agreement 5-point",meta:"5 points · 1–5 · used ×6"},
+  {name:"Quality 5-point",meta:"5 points · 1–5 · used ×3"},
+  {name:"Frequency 5-point",meta:"5 points · 1–5 · used ×1"},
+  {name:"Agreement 7-point",meta:"7 points · 1–7 · unused"}
+];
+</script>
+</body>
+</html>
