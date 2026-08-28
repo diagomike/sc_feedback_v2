@@ -4,7 +4,7 @@ import { prisma } from "@/server/db";
 import { ownDepartmentNode } from "@/server/scope";
 import { sendMail } from "@/server/mail/mail";
 import { campaignInviteEmail } from "@/server/mail/templates";
-import { DEFAULT_WEB_ORIGIN } from "@/lib/config";
+import { getWebOrigin } from "@/lib/config";
 import { generateRawToken, hashToken } from "@/server/auth/token";
 import { semesterLabel } from "@/lib/semester";
 import {
@@ -456,7 +456,7 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
   ]);
   const respondentById = new Map(respondents.map((r) => [r.id, r]));
   const teacherNameById = new Map(teachers.map((t) => [t.id, t.name]));
-  const webOrigin = process.env.WEB_ORIGIN ?? DEFAULT_WEB_ORIGIN;
+  const webOrigin = await getWebOrigin();
 
   // Sequential, not Promise.all — see v1's note (campaigns.service.ts): firing hundreds
   // of sends at once opens that many concurrent SMTP connections and times a chunk out.
@@ -580,7 +580,7 @@ async function monitorInstant(campaign: {
   const countByTeacher = new Map(counts.map((c) => [c.teacherId, c._count._all]));
   const totalResponses = await prisma.response.count({ where: { campaignId: campaign.id } });
 
-  const webOrigin = process.env.WEB_ORIGIN ?? DEFAULT_WEB_ORIGIN;
+  const webOrigin = await getWebOrigin();
   const perTeacher = teacherIds
     .map((teacherId) => {
       const responses = countByTeacher.get(teacherId) ?? 0;
@@ -619,7 +619,7 @@ export async function remindCampaign(requestingUserId: string, campaignId: strin
   });
   if (tasks.length === 0) return { count: 0 };
 
-  const webOrigin = process.env.WEB_ORIGIN ?? DEFAULT_WEB_ORIGIN;
+  const webOrigin = await getWebOrigin();
   for (const t of tasks) {
     const raw = generateRawToken();
     await prisma.responseTask.update({ where: { id: t.id }, data: { tokenHash: hashToken(raw), lastEmailedAt: new Date() } });

@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 import { sendMail } from "@/server/mail/mail";
 import { registrationEmail } from "@/server/mail/templates";
 import { generateRawToken, hashToken } from "./token";
-import { DEFAULT_WEB_ORIGIN } from "@/lib/config";
+import { getWebOrigin } from "@/lib/config";
 import * as argon2 from "argon2";
 import type { RoleKind } from "@prisma/client";
 
@@ -81,7 +81,7 @@ async function issueAndSend(params: {
     },
   });
 
-  const link = `${process.env.WEB_ORIGIN ?? DEFAULT_WEB_ORIGIN}/register/${raw}`;
+  const link = `${await getWebOrigin()}/register/${raw}`;
   const { subject, html } = registrationEmail({ name: params.name, link, role: params.role });
   await sendMail({ to: params.email, subject, html });
 }
