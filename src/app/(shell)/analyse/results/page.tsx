@@ -1,5 +1,11 @@
 import { requireUser } from "@/server/auth/session";
-import { listAnalyticsCampaigns, listTeachers, getDashboard } from "@/server/analytics/analytics";
+import {
+  listAnalyticsCampaigns,
+  listTeachers,
+  getDashboard,
+  getCourseBreakdown,
+  type CourseBreakdownRow,
+} from "@/server/analytics/analytics";
 import SelectNav from "@/components/analyse/SelectNav";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,8 +28,19 @@ export default async function ResultsPage({
   const targetGroup = (sp.targetGroup as "STUDENT" | "PEER" | "MANAGER" | undefined) ?? campaign.targetGroups[0];
 
   if (sp.teacherId && targetGroup) {
-    const dashboard = await getDashboard({ campaignId: campaign.id, teacherId: sp.teacherId, targetGroup, requestingUserId: user.id });
-    return <TeacherDashboard campaigns={campaigns} campaignId={campaign.id} dashboard={dashboard} targetGroup={targetGroup} />;
+    const [dashboard, courses] = await Promise.all([
+      getDashboard({ campaignId: campaign.id, teacherId: sp.teacherId, targetGroup, requestingUserId: user.id }),
+      getCourseBreakdown({ campaignId: campaign.id, teacherId: sp.teacherId, targetGroup, requestingUserId: user.id }),
+    ]);
+    return (
+      <TeacherDashboard
+        campaigns={campaigns}
+        campaignId={campaign.id}
+        dashboard={dashboard}
+        courses={courses}
+        targetGroup={targetGroup}
+      />
+    );
   }
 
   const teachers = await listTeachers({ campaignId: campaign.id, requestingUserId: user.id });
@@ -76,7 +93,19 @@ export default async function ResultsPage({
 type Dashboard = Awaited<ReturnType<typeof getDashboard>>;
 type CampaignRow = Awaited<ReturnType<typeof listAnalyticsCampaigns>>[number];
 
-function TeacherDashboard({ campaigns, campaignId, dashboard, targetGroup }: { campaigns: CampaignRow[]; campaignId: string; dashboard: Dashboard; targetGroup: string }) {
+function TeacherDashboard({
+  campaigns,
+  campaignId,
+  dashboard,
+  courses,
+  targetGroup,
+}: {
+  campaigns: CampaignRow[];
+  campaignId: string;
+  dashboard: Dashboard;
+  courses: CourseBreakdownRow[];
+  targetGroup: string;
+}) {
   return (
     <div className="p-16 flex flex-col gap-14 max-w-1000">
       <Link href={`/analyse/results?campaignId=${campaignId}`} className="text-11 text-accent w-fit">
@@ -131,6 +160,43 @@ function TeacherDashboard({ campaigns, campaignId, dashboard, targetGroup }: { c
               ))}
             </TableBody>
           </Table>
+
+          {courses.length > 0 && (
+            <div>
+              <div className="text-11 font-semibold mb-6">By course</div>
+              <div className="text-10.5 text-faint mb-6 leading-relaxed">
+                The same responses, split by the course each one was about. Min-N is applied per course,
+                not once for the teacher &mdash; a small elective stays suppressed even when the
+                teacher&rsquo;s overall count clears the gate.
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Course</TableHead>
+                    <TableHead>Section</TableHead>
+                    <TableHead>Responses</TableHead>
+                    <TableHead>Score</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {courses.map((c) => (
+                    <TableRow key={c.offeringId}>
+                      <TableCell className="font-medium">
+                        {c.courseTitle} <span className="font-mono text-10 text-faint">{c.courseCode}</span>
+                      </TableCell>
+                      <TableCell className="text-10.5">{c.sectionName}</TableCell>
+                      <TableCell className="font-mono text-10.5">
+                        {c.responseCount}/{c.asked}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {c.suppressed ? <span className="text-faint">suppressed</span> : (c.score?.toFixed(1) ?? "—")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
 
           {dashboard.comments.length > 0 && (
             <div>

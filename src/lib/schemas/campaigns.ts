@@ -10,6 +10,10 @@ export type CreateCampaignInput = z.infer<typeof createCampaignSchema>;
 export const assignmentInputSchema = z.object({
   teacherId: z.string(),
   studentGroupIds: z.array(z.string()),
+  /** Course offerings this teacher gave in the campaign's semester. Defaulted rather than
+   *  required so an older client (or a guest/INSTANT campaign, which has no courses) still
+   *  submits a valid payload. */
+  offeringIds: z.array(z.string()).default([]),
   peerIds: z.array(z.string()),
   headIncluded: z.boolean(),
 });

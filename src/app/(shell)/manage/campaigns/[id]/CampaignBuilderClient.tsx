@@ -31,6 +31,7 @@ interface GroupOption {
 interface RowState {
   teacherId: string;
   studentGroupIds: Set<string>;
+  offeringIds: Set<string>;
   peerIds: Set<string>;
   headIncluded: boolean;
 }
@@ -71,6 +72,7 @@ export default function CampaignBuilderClient({
     campaign.assignments.map((a) => ({
       teacherId: a.teacherId,
       studentGroupIds: new Set(a.studentGroups.map((g) => g.id)),
+      offeringIds: new Set(a.offeringIds),
       peerIds: new Set(a.peers.map((p) => p.id)),
       headIncluded: a.headIncluded,
     })),
@@ -83,13 +85,59 @@ export default function CampaignBuilderClient({
   const teacherName = (id: string) => teachers.find((t) => t.id === id)?.name ?? "?";
   const unassignedTeachers = teachers.filter((t) => !rows.some((r) => r.teacherId === t.id));
 
+  // What this teacher actually taught in this campaign's semester, straight from the
+  // registry import. Assigning one of these is what reaches its enrolled students — and
+  // is also the only way to reach a section another department owns.
+  const offeringsFor = (teacherId: string) => campaign.availableOfferings.filter((o) => o.teacherId === teacherId);
+
   function addRow() {
     if (!addTeacherId) return;
-    setRows((prev) => [...prev, { teacherId: addTeacherId, studentGroupIds: new Set(), peerIds: new Set(), headIncluded: false }]);
+    setRows((prev) => [
+      ...prev,
+      { teacherId: addTeacherId, studentGroupIds: new Set(), offeringIds: new Set(), peerIds: new Set(), headIncluded: false },
+    ]);
     setAddTeacherId("");
   }
   function removeRow(teacherId: string) {
     setRows((prev) => prev.filter((r) => r.teacherId !== teacherId));
+  }
+  function toggleOffering(teacherId: string, offeringId: string) {
+    setRows((prev) =>
+      prev.map((r) => {
+        if (r.teacherId !== teacherId) return r;
+        const next = new Set(r.offeringIds);
+        next.has(offeringId) ? next.delete(offeringId) : next.add(offeringId);
+        return { ...r, offeringIds: next };
+      }),
+    );
+  }
+  function setAllOfferings(teacherId: string, on: boolean) {
+    setRows((prev) =>
+      prev.map((r) =>
+        r.teacherId === teacherId
+          ? { ...r, offeringIds: on ? new Set(offeringsFor(teacherId).map((o) => o.id)) : new Set<string>() }
+          : r,
+      ),
+    );
+  }
+  /** Assign every teacher who taught anything this semester, every course they gave. This
+   *  is the whole point of importing the registry: the mapping is already known, so the
+   *  default action is to accept it, not to rebuild it by hand. */
+  function assignEverythingTaught() {
+    const byTeacher = new Map<string, Set<string>>();
+    for (const o of campaign.availableOfferings) {
+      const set = byTeacher.get(o.teacherId) ?? new Set<string>();
+      set.add(o.id);
+      byTeacher.set(o.teacherId, set);
+    }
+    setRows((prev) => {
+      const next = prev.map((r) => ({ ...r, offeringIds: new Set([...r.offeringIds, ...(byTeacher.get(r.teacherId) ?? [])]) }));
+      for (const [teacherId, offeringIds] of byTeacher) {
+        if (next.some((r) => r.teacherId === teacherId)) continue;
+        next.push({ teacherId, studentGroupIds: new Set(), offeringIds, peerIds: new Set(), headIncluded: false });
+      }
+      return next;
+    });
   }
   function toggleGroup(teacherId: string, groupId: string) {
     setRows((prev) =>
@@ -132,6 +180,7 @@ export default function CampaignBuilderClient({
         assignments: rows.map((r) => ({
           teacherId: r.teacherId,
           studentGroupIds: [...r.studentGroupIds],
+          offeringIds: [...r.offeringIds],
           peerIds: [...r.peerIds],
           headIncluded: r.headIncluded,
         })),
@@ -262,7 +311,25 @@ export default function CampaignBuilderClient({
       </div>
 
       <div className="flex flex-col gap-8">
-        <div className="text-11 font-semibold">Audience — teacher by teacher</div>
+        <div className="flex items-center gap-10 flex-wrap">
+          <div className="text-11 font-semibold">Audience — teacher by teacher</div>
+          {editable && !isInstant && campaign.availableOfferings.length > 0 && (
+            <>
+              <Button size="sm" variant="outline" onClick={assignEverythingTaught}>
+                Select all {campaign.availableOfferings.length} offerings
+              </Button>
+              <span className="text-10 text-faint">
+                from the registry import for {campaign.semesterLabel}
+              </span>
+            </>
+          )}
+        </div>
+        {editable && !isInstant && campaign.availableOfferings.length === 0 && (
+          <div className="text-10.5 text-warn leading-relaxed">
+            No course offerings are loaded for {campaign.semesterLabel}. Import them under
+            Manage › CSV import, or assign student groups directly below.
+          </div>
+        )}
         {editable && (
           <div className="flex items-center gap-8">
             <Select value={addTeacherId} onChange={(e) => setAddTeacherId(e.target.value)} className="w-260">
@@ -292,7 +359,47 @@ export default function CampaignBuilderClient({
 
             {!isInstant && (
               <div className="mt-8 flex flex-col gap-6">
-                <div className="text-10 uppercase tracking-label text-faint font-semibold">Student groups</div>
+                {offeringsFor(r.teacherId).length > 0 && (
+                  <>
+                    <div className="flex items-center gap-8">
+                      <div className="text-10 uppercase tracking-label text-faint font-semibold">
+                        Courses taught · {campaign.semesterLabel}
+                      </div>
+                      {editable && (
+                        <div className="flex gap-4">
+                          <Button size="sm" variant="ghost" onClick={() => setAllOfferings(r.teacherId, true)}>
+                            all
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setAllOfferings(r.teacherId, false)}>
+                            none
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {offeringsFor(r.teacherId).map((o) => (
+                        <label key={o.id} className="flex items-center gap-6 text-10.5">
+                          <Checkbox
+                            checked={r.offeringIds.has(o.id)}
+                            disabled={!editable}
+                            onChange={() => toggleOffering(r.teacherId, o.id)}
+                          />
+                          <span className="font-medium">{o.courseTitle}</span>
+                          <span className="font-mono text-9.5 text-faint">{o.courseCode}</span>
+                          <span className="text-faint">· {o.sectionName}</span>
+                          <span className="text-faint">· {o.enrolledCount} students</span>
+                          {o.sectionNodeId !== campaign.departmentNodeId && (
+                            <Badge variant="warn">{o.sectionNodeName}</Badge>
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <div className="text-10 uppercase tracking-label text-faint font-semibold mt-4">
+                  Student groups (no course)
+                </div>
                 <div className="flex flex-wrap gap-8">
                   {groups.map((g) => (
                     <label key={g.id} className="flex items-center gap-4 text-10.5">

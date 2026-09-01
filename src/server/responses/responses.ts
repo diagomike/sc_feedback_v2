@@ -11,6 +11,7 @@ export class ConflictError extends Error {}
 const taskInclude = {
   teacher: true,
   campaign: true,
+  offering: { include: { course: true, studentGroup: { select: { name: true } } } },
   template: {
     include: {
       sections: {
@@ -34,12 +35,18 @@ function toFormDto(task: LoadedTask) {
     targetGroup: task.targetGroup,
     completed: task.completedAt != null,
     closesAt: task.campaign.closesAt,
+    // The ASTU paper form's own header line. Null for peer and head forms, which are about
+    // the person rather than a course.
+    courseCode: task.offering?.course.code ?? null,
+    courseTitle: task.offering?.course.title ?? null,
+    sectionName: task.offering?.studentGroup.name ?? null,
     sections: task.template.sections.map((s) => ({
       id: s.id,
       title: s.title,
       description: s.description,
       type: s.type,
       isOverall: s.isOverall,
+      allowNotApplicable: s.allowNotApplicable,
       order: s.order,
       scale: s.scale ? s.scale.points.map((p) => ({ id: p.id, label: p.label, value: p.value, order: p.order })) : null,
       items: s.items.map((i) => ({ id: i.id, text: i.text, required: i.required, order: i.order })),
@@ -86,16 +93,28 @@ async function completeTask(task: LoadedTask, answers: AnswerInput[]): Promise<{
           templateId: task.templateId,
           respondentKind: task.targetGroup,
           respondentUserId: task.respondentId,
+          courseOfferingId: task.courseOfferingId,
+          offeringKey: task.offeringKey,
         },
       });
       await tx.answer.createMany({
-        data: answers.map((a) => ({ responseId: response.id, itemId: a.itemId, pointValue: a.pointValue ?? null, text: a.text ?? null })),
+        data: answers.map((a) => ({
+          responseId: response.id,
+          itemId: a.itemId,
+          pointValue: a.notApplicable ? null : (a.pointValue ?? null),
+          notApplicable: a.notApplicable ?? false,
+          text: a.text ?? null,
+        })),
       });
       await tx.responseTask.update({ where: { id: task.id }, data: { completedAt: new Date() } });
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      throw new ConflictError("You have already submitted feedback for this teacher");
+      throw new ConflictError(
+        task.courseOfferingId
+          ? "You have already submitted feedback for this teacher on this course"
+          : "You have already submitted feedback for this teacher",
+      );
     }
     throw err;
   }
@@ -121,13 +140,18 @@ export async function getMyTasks(userId: string) {
       include: {
         teacher: { select: { name: true } },
         campaign: { select: { name: true, closesAt: true } },
+        offering: { select: { course: { select: { code: true, title: true } } } },
         template: { include: { sections: { include: { items: { select: { id: true } } } } } },
       },
       orderBy: [{ campaign: { closesAt: "asc" } }, { createdAt: "asc" }],
     }),
     prisma.responseTask.findMany({
       where: { respondentId: userId, completedAt: { not: null } },
-      include: { teacher: { select: { name: true } }, campaign: { select: { name: true } } },
+      include: {
+        teacher: { select: { name: true } },
+        campaign: { select: { name: true } },
+        offering: { select: { course: { select: { code: true, title: true } } } },
+      },
       orderBy: { completedAt: "desc" },
     }),
   ]);
@@ -139,6 +163,10 @@ export async function getMyTasks(userId: string) {
       teacherName: t.teacher.name,
       campaignName: t.campaign.name,
       targetGroup: t.targetGroup,
+      // Without this a student with six pending forms sees the same teacher name twice and
+      // cannot tell which course each row is for.
+      courseCode: t.offering?.course.code ?? null,
+      courseTitle: t.offering?.course.title ?? null,
       itemCount,
       estimatedMinutes: Math.max(1, Math.round((itemCount * 15) / 60)),
       closesAt: t.campaign.closesAt,
@@ -150,6 +178,8 @@ export async function getMyTasks(userId: string) {
     teacherName: t.teacher.name,
     campaignName: t.campaign.name,
     targetGroup: t.targetGroup,
+    courseCode: t.offering?.course.code ?? null,
+    courseTitle: t.offering?.course.title ?? null,
     completedAt: t.completedAt!,
   }));
 

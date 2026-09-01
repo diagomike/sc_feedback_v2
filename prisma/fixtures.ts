@@ -139,51 +139,22 @@ export interface ScaleFixture {
   points: { label: string; short: string; value: number }[];
 }
 
+/**
+ * ONE scale, because the university publishes one. The ASTU staff-evaluation forms all use
+ * the same 1-5 band ("1 = Very Low ... 5 = Very High") plus a "not applicable" mark, which
+ * is not a sixth point on the scale but the absence of a rating — see
+ * TemplateSection.allowNotApplicable in schema.prisma.
+ */
 export const SCALES: ScaleFixture[] = [
   {
-    key: "agree5",
-    name: "Agreement 5-point",
+    key: "astu5",
+    name: "ASTU 1-5",
     points: [
-      { label: "Strongly disagree", short: "Strongly disagree", value: 1 },
-      { label: "Disagree", short: "Disagree", value: 2 },
-      { label: "Neutral", short: "Neutral", value: 3 },
-      { label: "Agree", short: "Agree", value: 4 },
-      { label: "Strongly agree", short: "Strongly agree", value: 5 },
-    ],
-  },
-  {
-    key: "quality5",
-    name: "Quality 5-point",
-    points: [
-      { label: "Poor", short: "Poor", value: 1 },
-      { label: "Fair", short: "Fair", value: 2 },
-      { label: "Good", short: "Good", value: 3 },
-      { label: "Very good", short: "Very good", value: 4 },
-      { label: "Excellent", short: "Excellent", value: 5 },
-    ],
-  },
-  {
-    key: "freq5",
-    name: "Frequency 5-point",
-    points: [
-      { label: "Never", short: "Never", value: 1 },
-      { label: "Rarely", short: "Rarely", value: 2 },
-      { label: "Sometimes", short: "Sometimes", value: 3 },
-      { label: "Often", short: "Often", value: 4 },
-      { label: "Always", short: "Always", value: 5 },
-    ],
-  },
-  {
-    key: "agree7",
-    name: "Agreement 7-point",
-    points: [
-      { label: "Strongly disagree", short: "Str. disagree", value: 1 },
-      { label: "Disagree", short: "Disagree", value: 2 },
-      { label: "Slightly disagree", short: "Sl. disagree", value: 3 },
-      { label: "Neutral", short: "Neutral", value: 4 },
-      { label: "Slightly agree", short: "Sl. agree", value: 5 },
-      { label: "Agree", short: "Agree", value: 6 },
-      { label: "Strongly agree", short: "Str. agree", value: 7 },
+      { label: "Very Low", short: "Very low", value: 1 },
+      { label: "Low", short: "Low", value: 2 },
+      { label: "Moderate", short: "Moderate", value: 3 },
+      { label: "High", short: "High", value: 4 },
+      { label: "Very High", short: "Very high", value: 5 },
     ],
   },
 ];
@@ -194,154 +165,215 @@ export interface SectionFixture {
   scaleKey?: string;
   weight: number;
   isOverall?: boolean;
+  /** The forms' "If the teacher does not apply, put a check" column. */
+  allowNotApplicable?: boolean;
   items: { text: string; weight: number; required: boolean }[];
 }
 
 /**
- * The five scored competencies. The prototype's own results table shows Course Design and
- * its heatmap columns add Assessment Feedback, neither of which appear in its template
- * fixture — so the seeded template carries the full set and both screens render truthfully.
+ * THE THREE REAL ASTU QUESTIONNAIRES.
+ *
+ * Transcribed from the university's own forms as captured in
+ * D:\py_yaddessa\real_data — `Feedback.md` (the student form, Amharic and English side by
+ * side) and the three transcriptions used by the departmental simulator,
+ * `feeback_ts/app.py`, `feeback_ts/colleague_eval_app.py`, `feeback_ts/hod_eval_app.py`.
+ *
+ * Two deliberate properties, both consequences of transcribing faithfully rather than
+ * designing:
+ *
+ *  - EQUAL WEIGHTS. The ASTU legislation names no per-competency weight, so every section
+ *    and item carries 1.0 and a competency's share of the composite is simply its share of
+ *    the questionnaire. (The one weighting the legislation DOES define - student 50%,
+ *    peer 15%, head 35% - lives in scoring.ts's OFFICIAL_WEIGHTS and is untouched.)
+ *  - NO HOLISTIC "OVERALL" ITEM. None of the three paper forms has one, so no section is
+ *    flagged isOverall and `selfRatedOverall` is null throughout. The composite-vs-holistic
+ *    gap panel on the results screen therefore renders its empty state. Adding a question
+ *    to an official questionnaire is not an implementation detail; if the university does
+ *    want that judgement captured, it is one appended isOverall section here.
  */
+
+const LIKERT = {
+  type: "LIKERT_GRID" as const,
+  scaleKey: "astu5",
+  weight: 1.0,
+  allowNotApplicable: true,
+};
+
+function items(...texts: string[]) {
+  return texts.map((text) => ({ text, weight: 1.0, required: true }));
+}
+
+/** The two free-text prompts every ASTU form ends with. */
+const NARRATIVE: SectionFixture = {
+  title: "Comments",
+  type: "FREE_TEXT",
+  weight: 0,
+  items: [
+    { text: "Strengths and exemplary aspects", weight: 0, required: false },
+    { text: "What the teacher should improve", weight: 0, required: false },
+  ],
+};
+
+/** Staff Evaluation (to be filled by Students) - 20 items across four competencies. */
 export const STUDENT_SECTIONS: SectionFixture[] = [
   {
-    title: "Punctuality",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.0,
-    items: [
-      { text: "Arrives to class on time", weight: 1.0, required: true },
-      { text: "Uses the full scheduled period", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Core Competency",
+    items: items(
+      "Clearly communicates the course purpose and content; prepares, presents and distributes the course outline according to the timetable",
+      "Prepares and presents the course in accordance with the course content",
+      "Prepares and brings the written material necessary for the course",
+      "Prepares a list of reference books available in the library that are useful for the subject, and gives it to students",
+      "Provides practical training as needed (workshop, laboratory, field visit, case study, etc.)",
+      "Has basic and sufficient knowledge of the subject taught",
+    ),
   },
   {
-    title: "Effective Delivery",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 2.0,
-    items: [
-      { text: "Explains difficult concepts clearly", weight: 1.5, required: true },
-      { text: "Uses examples that aid understanding", weight: 1.0, required: true },
-      { text: "Encourages questions during class", weight: 1.0, required: false },
-    ],
+    ...LIKERT,
+    title: "Professional Competency",
+    items: items(
+      "Presents the subject clearly, in a way students understand, using the language of instruction",
+      "Teaches using various educational aids and instructional materials",
+      "Provides exercises useful for the subject; corrects class work, homework and quizzes and gives feedback",
+      "Teaches using cooperative learning or group work, applying participatory teaching methods in the classroom",
+      "Implements continuous assessment accurately and appropriately, and gives feedback on the results within a short time",
+      "Gives re-tests to students who scored low on the basis of continuous assessment results",
+      "Provides tutorials to female students, students from developing regions, students needing support, and students whose assessment results are low",
+      "Sets exam questions in line with the content taught, covers all topics, includes different types of assessment, and gives fair weight to each question",
+    ),
   },
   {
-    title: "Ethics",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.5,
-    items: [
-      { text: "Treats all students with respect", weight: 1.0, required: true },
-      { text: "Grades fairly and transparently", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Ethical Competence",
+    items: items(
+      "Gives due respect to students",
+      "Accepts and handles students' questions appropriately, and lets students express their thoughts and opinions about the lesson freely",
+      "Is a role model in respecting the rules, in courtesy, and in the sincerity and initiative shown in imparting knowledge",
+      "Does not discriminate on the basis of ethnicity, religion or gender, and treats everyone equally",
+    ),
   },
   {
-    title: "Assessment Feedback",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.5,
-    items: [
-      { text: "Returns marked work within a reasonable time", weight: 1.0, required: true },
-      { text: "Explains what was lost marks and why", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Time Management",
+    items: items(
+      "Respects the assigned class time and uses the period properly for teaching",
+      "Schedules and announces consultation time, and seeks solutions to the academic problems students raise during it",
+    ),
   },
-  {
-    title: "Course Design",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.0,
-    items: [
-      { text: "The course materials are well organised", weight: 1.0, required: true },
-      { text: "Assessment matches what was taught", weight: 1.0, required: true },
-    ],
-  },
-  {
-    title: "Overall",
-    type: "LIKERT_GRID",
-    scaleKey: "quality5",
-    weight: 1.0,
-    isOverall: true,
-    items: [{ text: "Overall, how would you rate this instructor?", weight: 1.0, required: true }],
-  },
-  {
-    title: "Comments",
-    type: "FREE_TEXT",
-    weight: 0,
-    items: [{ text: "Anything else you would like the department to know?", weight: 0, required: false }],
-  },
+  NARRATIVE,
 ];
 
+/** Staff Evaluation (to be filled by Colleagues) - 20 items across five competencies. */
 export const PEER_SECTIONS: SectionFixture[] = [
   {
-    title: "Subject Mastery",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 2.0,
-    items: [
-      { text: "Demonstrates current command of the subject", weight: 1.0, required: true },
-      { text: "Course content reflects the state of the field", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Core Competency - Subject Matter",
+    items: items(
+      "Contribution in preparing and searching for teaching materials",
+      "Continuous update of the subject matter",
+      "Delivering seminars that are relevant to his/her teaching subject",
+      "Level of his/her subject matter knowledge and skill",
+    ),
   },
   {
-    title: "Collegiality",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.0,
-    items: [
-      { text: "Shares teaching materials and approaches", weight: 1.0, required: true },
-      { text: "Contributes constructively to curriculum discussions", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Core Competency - Research & Community Service",
+    items: items(
+      "Willingness and level of engagement in community service and volunteer activities",
+      "Participation in seminars and workshops at department, faculty or institution level during the year",
+      "Identifying priority areas in one's discipline and pursuing research in that area, and willingness to help colleagues identify areas of research and develop proposals",
+    ),
   },
   {
-    title: "Overall",
-    type: "LIKERT_GRID",
-    scaleKey: "quality5",
-    weight: 1.0,
-    isOverall: true,
-    items: [{ text: "Overall assessment of this colleague's teaching", weight: 1.0, required: true }],
+    ...LIKERT,
+    title: "Professional Competency",
+    items: items(
+      "Guidance and counselling role to students",
+      "Contributing constructive ideas and activities that improve the teaching-learning process",
+      "Participation in problem identification and solving at department, college or institution level",
+      "Participation in Comprehensive Continuous Professional Development (CCPD), HDP and ELIP",
+      "Willingness to actively participate in cooperative learning and team teaching, and preparedness to implement change tools",
+    ),
   },
   {
-    title: "Comments",
-    type: "FREE_TEXT",
-    weight: 0,
-    items: [{ text: "Observations you would want a colleague to hear", weight: 0, required: false }],
+    ...LIKERT,
+    title: "Ethical Competency",
+    items: items(
+      "Willingness to participate and level of commitment in committee works",
+      "Willingness to share university resources with other colleagues",
+      "Showing cordiality to others and respecting the ideas of others",
+      "Having a positive attitude to working with others (team spirit)",
+      "Level of respect for the rules, regulations and guidelines of the institution",
+      "His/her discipline (dressing, addictions, personality, etc.)",
+    ),
   },
+  {
+    ...LIKERT,
+    title: "Time Management",
+    items: items(
+      "Time management in department affairs and in teaching-learning activities",
+      "Time utilisation for consultation hours",
+    ),
+  },
+  NARRATIVE,
 ];
 
+/** Staff Evaluation (to be filled by the Head of Department) - 20 items. */
 export const MANAGER_SECTIONS: SectionFixture[] = [
   {
-    title: "Professional Conduct",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 1.5,
-    items: [
-      { text: "Meets departmental deadlines and obligations", weight: 1.0, required: true },
-      { text: "Responds constructively to feedback", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Core Competency",
+    items: items(
+      "Efforts of self-development in his/her specialisation",
+      "Adequacy of subject matter knowledge",
+      "Professional skill and teaching methodology",
+      "Willingness to accept additional teaching assignments when a compelling situation arises in the department",
+      "Effectiveness as a mentor in cooperative learning, internship, etc.",
+      "Active participation in improving the teaching-learning process, in seminars, workshops and symposia, and in reviewing teaching materials (curriculum)",
+      "Participation in community service affairs and volunteer activities, and willingness to participate in activities other than regular teaching (mentorship)",
+      "Identifying priority areas in one's discipline and pursuing research in that area",
+      "Participation in research projects and project proposal development",
+      "Performance as an academic advisor",
+    ),
   },
   {
-    title: "Teaching Contribution",
-    type: "LIKERT_GRID",
-    scaleKey: "agree5",
-    weight: 2.0,
-    items: [
-      { text: "Carries a fair share of the teaching load", weight: 1.0, required: true },
-      { text: "Supports curriculum development", weight: 1.0, required: true },
-    ],
+    ...LIKERT,
+    title: "Professional Competence",
+    items: items(
+      "Participation in problem identification and solving at department, college or institution level",
+      "Participation in Comprehensive Continuous Professional Development (CCPD), HDP and ELIP",
+      "Continuous assessment implementation",
+      "Providing and reporting tutorial activities designed for the students",
+    ),
   },
   {
-    title: "Overall",
-    type: "LIKERT_GRID",
-    scaleKey: "quality5",
-    weight: 1.0,
-    isOverall: true,
-    items: [{ text: "Overall assessment for this review period", weight: 1.0, required: true }],
+    ...LIKERT,
+    title: "Time Management",
+    items: items(
+      "Executing assigned classes and invigilation on time",
+      "Notifying and implementing consultation hours, and giving timely feedback to students",
+      "Meeting deadlines (reporting, SIMS result feeding, submission of grades and documents, etc.)",
+    ),
   },
   {
-    title: "Comments",
-    type: "FREE_TEXT",
-    weight: 0,
-    items: [{ text: "Notes for the record", weight: 0, required: false }],
+    ...LIKERT,
+    title: "Ethical Competence",
+    items: items(
+      "Showing concern for the use of the resources of the department and the University",
+      "Willingness and participation in committee work at department and University level, and having a positive attitude to working with others and team spirit",
+      "His/her professional ethics and being a role model (dressing, hair style, personality, addiction)",
+    ),
   },
+  NARRATIVE,
+];
+
+/** The one published questionnaire per audience. Titles are what a manager sees in the
+ *  template library, so they name the form, not a year - these are re-published as the
+ *  university revises them, not re-issued per round. */
+export const OFFICIAL_TEMPLATES = [
+  { targetGroup: "STUDENT" as const, title: "ASTU Staff Evaluation - Students", sections: STUDENT_SECTIONS },
+  { targetGroup: "PEER" as const, title: "ASTU Staff Evaluation - Colleagues", sections: PEER_SECTIONS },
+  { targetGroup: "MANAGER" as const, title: "ASTU Staff Evaluation - Head of Department", sections: MANAGER_SECTIONS },
 ];
 
 export const STUDENT_COMMENTS = [

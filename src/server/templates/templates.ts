@@ -106,6 +106,7 @@ function toDetailDto(template: LoadedTemplate, ownNodeId: string) {
     scaleName: s.scale?.name ?? null,
     weight: s.weight,
     isOverall: s.isOverall,
+    allowNotApplicable: s.allowNotApplicable,
     order: s.order,
     compositeShare: shares.get(s.id) ?? 0,
     items: s.items.map((it) => ({ id: it.id, text: it.text, weight: it.weight, required: it.required, order: it.order })),
@@ -176,6 +177,7 @@ export interface UpdateSectionInput {
   scaleId: string | null;
   weight: number;
   isOverall: boolean;
+  allowNotApplicable: boolean;
   items: { text: string; weight: number; required: boolean }[];
 }
 
@@ -212,6 +214,7 @@ export async function updateTemplate(
             scaleId: s.type === "LIKERT_GRID" ? s.scaleId : null,
             weight: s.weight,
             isOverall: s.isOverall,
+            allowNotApplicable: s.type === "LIKERT_GRID" ? s.allowNotApplicable : false,
             order: i + 1,
             items: { create: s.items.map((it, j) => ({ text: it.text, weight: it.weight, required: it.required, order: j + 1 })) },
           })),
@@ -242,6 +245,7 @@ export async function cloneTemplate(requestingUserId: string, templateId: string
           scaleId: s.scaleId,
           weight: s.weight,
           isOverall: s.isOverall,
+          allowNotApplicable: s.allowNotApplicable,
           order: i + 1,
           items: { create: s.items.map((it, j) => ({ text: it.text, weight: it.weight, required: it.required, order: j + 1 })) },
         })),

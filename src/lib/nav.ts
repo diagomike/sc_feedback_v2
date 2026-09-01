@@ -76,6 +76,7 @@ export const NAV: Record<Mode, NavGroup[]> = {
         { key: "people", label: "Teachers & students", icon: "◍", path: "/manage/people", roles: MANAGER, deptOnly: true },
         { key: "groups", label: "Student groups", icon: "⬚", path: "/manage/groups", roles: MANAGER, deptOnly: true },
         { key: "import", label: "CSV import", icon: "↥", path: "/manage/import", roles: MANAGER, deptOnly: true },
+        { key: "offerings", label: "Course offerings", icon: "▥", path: "/manage/offerings", roles: MANAGER, deptOnly: true },
       ],
     },
     {
@@ -86,15 +87,12 @@ export const NAV: Record<Mode, NavGroup[]> = {
     },
     {
       // Only the system admin lays out the org chart and the university's semester
-      // calendar. Personnel/Offices/Colleges/Departments are the CRUD surfaces;
-      // Structure is purely the drag-and-drop shape.
+      // calendar. Org structure is ONE screen: canvas, inspector and a filterable list, in
+      // place of the five it replaced (Personnel/Offices/Colleges/Departments/Structure) —
+      // they were four views of one listGraph() payload plus a shape editor.
       label: "Structure",
       items: [
-        { key: "personnel", label: "Personnel", icon: "◍", path: "/manage/personnel", roles: ADMIN },
-        { key: "offices", label: "Offices", icon: "▣", path: "/manage/offices", roles: ADMIN },
-        { key: "colleges", label: "Colleges", icon: "▤", path: "/manage/colleges", roles: ADMIN },
-        { key: "departments", label: "Departments", icon: "⬚", path: "/manage/departments", roles: ADMIN },
-        { key: "hierarchy", label: "Structure", icon: "⌗", path: "/manage/hierarchy", roles: ADMIN },
+        { key: "structure", label: "Org structure", icon: "⌗", path: "/manage/structure", roles: ADMIN },
         { key: "semesters", label: "Semesters", icon: "◷", path: "/manage/semesters", roles: ADMIN },
       ],
     },
@@ -144,11 +142,8 @@ export const META: Record<string, [string, string, string]> = {
   groups: ["Manage ›", "Student groups", ""],
   import: ["Manage › People ›", "CSV import — dry run", "nothing committed yet"],
   letters: ["Manage ›", "Evaluation letters", ""],
-  personnel: ["Manage ›", "Personnel", ""],
-  offices: ["Manage ›", "Offices", ""],
-  colleges: ["Manage ›", "Colleges", ""],
-  departments: ["Manage ›", "Departments", ""],
-  hierarchy: ["Manage ›", "Structure", ""],
+  structure: ["Manage ›", "Org structure", ""],
+  offerings: ["Manage ›", "Course offerings", ""],
   semesters: ["Manage ›", "Semesters", ""],
   overview: ["Analyse ›", "Scope overview", ""],
   results: ["Analyse ›", "Teacher results", ""],

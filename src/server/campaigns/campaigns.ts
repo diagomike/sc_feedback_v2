@@ -8,11 +8,15 @@ import { getWebOrigin } from "@/lib/config";
 import { generateRawToken, hashToken } from "@/server/auth/token";
 import { semesterLabel } from "@/lib/semester";
 import {
+  authorizeBareStudentGroups,
+  authorizeOfferings,
   campaignMinNGate,
   teacherMinNGate,
   validateWindow,
   validateAudienceMinimums,
 } from "./campaign-logic";
+import { listOfferingsForTeachers, type OfferingRow } from "@/server/courses/courses";
+import { offeringKeyOf } from "@/server/courses/course-logic";
 import { validateSemesterUniqueness } from "./semester-logic";
 import type { TargetGroup } from "@prisma/client";
 
@@ -64,10 +68,15 @@ export async function listCampaigns(requestingUserId: string) {
   }
 
   const rows = campaigns.map((c) => {
-    const studentGroups = new Set(c.assignments.filter((a) => a.targetGroup === "STUDENT").map((a) => a.studentGroupId));
+    const studentAssignments = c.assignments.filter((a) => a.targetGroup === "STUDENT");
+    const offeringCount = new Set(studentAssignments.map((a) => a.courseOfferingId).filter(Boolean)).size;
+    const studentGroups = new Set(
+      studentAssignments.filter((a) => !a.courseOfferingId).map((a) => a.studentGroupId).filter(Boolean),
+    );
     const hasPeers = c.assignments.some((a) => a.targetGroup === "PEER");
     const hasManager = c.assignments.some((a) => a.targetGroup === "MANAGER");
     const parts: string[] = [];
+    if (offeringCount > 0) parts.push(`${offeringCount} course${offeringCount === 1 ? "" : "s"}`);
     if (studentGroups.size > 0) parts.push(`${studentGroups.size} student group${studentGroups.size === 1 ? "" : "s"}`);
     if (hasPeers) parts.push("peers");
     if (hasManager) parts.push("head");
@@ -160,9 +169,15 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
     return {
       teacherId,
       teacherName: teacherNameById.get(teacherId) ?? "?",
+      // A group assigned WITHOUT an offering — the hand-built cohort path. Offering-backed
+      // student reach is reported separately as offeringIds so the builder can show the
+      // course, which is what the respondent actually sees on their form.
       studentGroups: own
-        .filter((a) => a.targetGroup === "STUDENT" && a.studentGroup)
+        .filter((a) => a.targetGroup === "STUDENT" && a.studentGroup && !a.courseOfferingId)
         .map((a) => ({ id: a.studentGroup!.id, name: a.studentGroup!.name, program: a.studentGroup!.program, memberCount: 0 })),
+      offeringIds: own
+        .filter((a) => a.targetGroup === "STUDENT" && a.courseOfferingId)
+        .map((a) => a.courseOfferingId!),
       peers: own.filter((a) => a.targetGroup === "PEER" && a.respondent).map((a) => ({ id: a.respondentUserId!, name: a.respondent!.name })),
       headIncluded: own.some((a) => a.targetGroup === "MANAGER"),
     };
@@ -174,6 +189,19 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
     const countByGroup = new Map(counts.map((c) => [c.groupId, c._count._all]));
     for (const a of assignments) for (const g of a.studentGroups) g.memberCount = countByGroup.get(g.id) ?? 0;
   }
+
+  // Everything this department's teachers actually taught in this campaign's semester —
+  // the builder's checkbox list, and the only student reach that needs no further
+  // authorisation (see authorizeOfferings in campaign-logic.ts).
+  const departmentTeachers = await prisma.membership.findMany({
+    where: { nodeId: node.id, kind: "TEACHER" },
+    select: { userId: true, user: { select: { name: true } } },
+    orderBy: { user: { name: "asc" } },
+  });
+  const availableOfferings = await listOfferingsForTeachers(
+    campaign.semesterId,
+    departmentTeachers.map((t) => t.userId),
+  );
 
   return {
     id: campaign.id,
@@ -192,6 +220,9 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
     minTeachers: campaign.minTeachers,
     minStudents: campaign.minStudents,
     headName: headUser?.name ?? null,
+    departmentNodeId: node.id,
+    departmentTeachers: departmentTeachers.map((t) => ({ id: t.userId, name: t.user.name })),
+    availableOfferings,
     templates: TARGET_GROUPS.map((targetGroup) => {
       const ct = campaign.campaignTemplates.find((c) => c.targetGroup === targetGroup);
       return { targetGroup, templateId: ct?.templateId ?? null, templateTitle: ct?.template.title ?? null };
@@ -221,7 +252,10 @@ export async function createCampaign(requestingUserId: string, input: { name: st
 
 export interface AssignmentInput {
   teacherId: string;
+  /** Groups assigned directly, with no course behind them — the hand-built cohort case. */
   studentGroupIds: string[];
+  /** Course offerings this teacher gave; each becomes one form per enrolled student. */
+  offeringIds: string[];
   peerIds: string[];
   headIncluded: boolean;
 }
@@ -267,22 +301,73 @@ export async function updateCampaign(requestingUserId: string, campaignId: strin
 
   const groupIds = [...new Set(input.assignments.flatMap((a) => a.studentGroupIds))];
   const peerIds = [...new Set(input.assignments.flatMap((a) => a.peerIds))];
-  if (groupIds.length > 0) {
-    const groups = await prisma.studentGroup.findMany({ where: { id: { in: groupIds }, nodeId: node.id } });
-    if (groups.length !== groupIds.length) throw new Error("One or more groups are not in your department");
-  }
-  if (peerIds.length > 0) {
-    const peers = await prisma.membership.findMany({ where: { userId: { in: peerIds }, nodeId: node.id, kind: "TEACHER" } });
-    if (peers.length !== peerIds.length) throw new Error("One or more peers are not teachers in your department");
-  }
+  const offeringIds = [...new Set(input.assignments.flatMap((a) => a.offeringIds ?? []))];
+
+  // Teachers first: everything else is authorised RELATIVE to who this department employs.
   const teacherIds = [...new Set(input.assignments.map((a) => a.teacherId))];
   if (teacherIds.length > 0) {
     const validTeachers = await prisma.membership.findMany({ where: { userId: { in: teacherIds }, nodeId: node.id, kind: "TEACHER" } });
     if (validTeachers.length !== teacherIds.length) throw new Error("One or more teachers are not in your department");
   }
+  const ownTeacherIds = (
+    await prisma.membership.findMany({ where: { nodeId: node.id, kind: "TEACHER" }, select: { userId: true } })
+  ).map((m) => m.userId);
+
+  // A bare group (no offering) still has to be ours. An offering-backed one does not, and
+  // that asymmetry is the point — see authorizeOfferings.
+  if (groupIds.length > 0) {
+    const groups = await prisma.studentGroup.findMany({ where: { id: { in: groupIds } }, select: { id: true, nodeId: true } });
+    const missing = groupIds.filter((id) => !groups.some((g) => g.id === id));
+    if (missing.length > 0) throw new Error("One or more student groups no longer exist");
+    const { errors } = authorizeBareStudentGroups(node.id, groups);
+    if (errors.length > 0) throw new Error(errors[0]);
+  }
+
+  const offeringById = new Map<string, { teacherId: string; studentGroupId: string }>();
+  if (offeringIds.length > 0) {
+    const offerings = await prisma.courseOffering.findMany({
+      where: { id: { in: offeringIds } },
+      select: { id: true, teacherId: true, semesterId: true, studentGroupId: true, studentGroup: { select: { nodeId: true } } },
+    });
+    const { errors } = authorizeOfferings({
+      campaignNodeId: node.id,
+      campaignSemesterId: campaign.semesterId,
+      ownTeacherIds,
+      requestedOfferingIds: offeringIds,
+      knownOfferings: offerings.map((o) => ({
+        id: o.id,
+        teacherId: o.teacherId,
+        semesterId: o.semesterId,
+        sectionNodeId: o.studentGroup.nodeId,
+      })),
+    });
+    if (errors.length > 0) throw new Error(errors[0]);
+    for (const o of offerings) offeringById.set(o.id, { teacherId: o.teacherId, studentGroupId: o.studentGroupId });
+  }
+
+  if (peerIds.length > 0) {
+    const peers = await prisma.membership.findMany({ where: { userId: { in: peerIds }, nodeId: node.id, kind: "TEACHER" } });
+    if (peers.length !== peerIds.length) throw new Error("One or more peers are not teachers in your department");
+  }
+
+  for (const a of input.assignments) {
+    for (const offeringId of a.offeringIds ?? []) {
+      const offering = offeringById.get(offeringId);
+      if (offering && offering.teacherId !== a.teacherId) {
+        throw new Error("A course offering was assigned under the wrong teacher");
+      }
+    }
+  }
 
   const assignmentRows = input.assignments.flatMap((a) => [
     ...a.studentGroupIds.map((studentGroupId) => ({ campaignId, teacherId: a.teacherId, targetGroup: "STUDENT" as const, studentGroupId })),
+    ...(a.offeringIds ?? []).map((courseOfferingId) => ({
+      campaignId,
+      teacherId: a.teacherId,
+      targetGroup: "STUDENT" as const,
+      courseOfferingId,
+      studentGroupId: offeringById.get(courseOfferingId)?.studentGroupId ?? null,
+    })),
     ...a.peerIds.map((respondentUserId) => ({ campaignId, teacherId: a.teacherId, targetGroup: "PEER" as const, respondentUserId })),
     ...(a.headIncluded && node.userId ? [{ campaignId, teacherId: a.teacherId, targetGroup: "MANAGER" as const, respondentUserId: node.userId }] : []),
   ]);
@@ -379,7 +464,12 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
     where: { id: campaignId, nodeId: node.id },
     include: {
       campaignTemplates: true,
-      assignments: { include: { studentGroup: { include: { members: true } } } },
+      assignments: {
+        include: {
+          studentGroup: { include: { members: true } },
+          offering: { include: { enrollments: { select: { userId: true } }, course: { select: { code: true, title: true } } } },
+        },
+      },
       semester: true,
     },
   });
@@ -416,7 +506,13 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
 
   const teacherIds = [...new Set(campaign.assignments.map((a) => a.teacherId))];
   const studentIds = new Set(
-    campaign.assignments.filter((a) => a.targetGroup === "STUDENT").flatMap((a) => a.studentGroup?.members.map((m) => m.userId) ?? []),
+    campaign.assignments
+      .filter((a) => a.targetGroup === "STUDENT")
+      .flatMap((a) =>
+        a.offering
+          ? a.offering.enrollments.map((e) => e.userId)
+          : (a.studentGroup?.members.map((m) => m.userId) ?? []),
+      ),
   );
   const usesStudentGroup = campaign.assignments.some((a) => a.targetGroup === "STUDENT");
   const audienceError = validateAudienceMinimums(teacherIds.length, studentIds.size, usesStudentGroup, campaign.minTeachers, campaign.minStudents);
@@ -429,15 +525,45 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
     await assertTemplatePublished(templateId);
   }
 
-  type NewTask = { campaignId: string; teacherId: string; targetGroup: TargetGroup; respondentId: string; templateId: string };
+  type NewTask = {
+    campaignId: string;
+    teacherId: string;
+    targetGroup: TargetGroup;
+    respondentId: string;
+    templateId: string;
+    courseOfferingId: string | null;
+    offeringKey: string;
+    courseLabel: string | null;
+  };
   const byTeacher = new Map<string, Map<string, NewTask>>();
 
   for (const a of campaign.assignments) {
     const templateId = templateByGroup.get(a.targetGroup)!;
-    const respondentIds = a.targetGroup === "STUDENT" ? (a.studentGroup?.members.map((m) => m.userId) ?? []) : a.respondentUserId ? [a.respondentUserId] : [];
+    const respondentIds =
+      a.targetGroup === "STUDENT"
+        ? a.offering
+          ? a.offering.enrollments.map((e) => e.userId)
+          : (a.studentGroup?.members.map((m) => m.userId) ?? [])
+        : a.respondentUserId
+          ? [a.respondentUserId]
+          : [];
+    const offeringKey = offeringKeyOf(a.courseOfferingId);
+    const courseLabel = a.offering ? `${a.offering.course.title} (${a.offering.course.code})` : null;
     const forTeacher = byTeacher.get(a.teacherId) ?? new Map<string, NewTask>();
     for (const respondentId of respondentIds) {
-      forTeacher.set(respondentId, { campaignId, teacherId: a.teacherId, targetGroup: a.targetGroup, respondentId, templateId });
+      // Keyed by respondent AND offering: a student taking two of this teacher's courses
+      // gets two forms (the ASTU form is per course), while a student reachable twice
+      // through the same offering still gets one.
+      forTeacher.set(`${respondentId}::${offeringKey}`, {
+        campaignId,
+        teacherId: a.teacherId,
+        targetGroup: a.targetGroup,
+        respondentId,
+        templateId,
+        courseOfferingId: a.courseOfferingId,
+        offeringKey,
+        courseLabel,
+      });
     }
     byTeacher.set(a.teacherId, forTeacher);
   }
@@ -445,7 +571,12 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
   const tasks = [...byTeacher.values()].flatMap((m) => [...m.values()]);
   const rawTokenByIndex = tasks.map(() => generateRawToken());
 
-  await prisma.responseTask.createMany({ data: tasks.map((t, i) => ({ ...t, tokenHash: hashToken(rawTokenByIndex[i]) })) });
+  await prisma.responseTask.createMany({
+    data: tasks.map((t, i) => {
+      const { courseLabel: _courseLabel, ...row } = t;
+      return { ...row, tokenHash: hashToken(rawTokenByIndex[i]) };
+    }),
+  });
   await prisma.campaign.update({ where: { id: campaignId }, data: { status: "OPEN", opensAt: campaign.opensAt ?? new Date() } });
 
   const respondentIds = [...new Set(tasks.map((t) => t.respondentId))];
@@ -467,6 +598,7 @@ export async function launchCampaign(requestingUserId: string, campaignId: strin
     const { subject, html } = campaignInviteEmail({
       name: respondent.name,
       teacherName: teacherNameById.get(t.teacherId) ?? "a teacher",
+      courseLabel: t.courseLabel,
       link: `${webOrigin}/respond/${rawTokenByIndex[i]}`,
     });
     await sendMail({ to: respondent.email, subject, html });
@@ -615,7 +747,11 @@ export async function remindCampaign(requestingUserId: string, campaignId: strin
 
   const tasks = await prisma.responseTask.findMany({
     where: { campaignId, completedAt: null, ...(teacherId ? { teacherId } : {}) },
-    include: { respondent: { select: { id: true, name: true, email: true } }, teacher: { select: { name: true } } },
+    include: {
+      respondent: { select: { id: true, name: true, email: true } },
+      teacher: { select: { name: true } },
+      offering: { select: { course: { select: { code: true, title: true } } } },
+    },
   });
   if (tasks.length === 0) return { count: 0 };
 
@@ -623,7 +759,12 @@ export async function remindCampaign(requestingUserId: string, campaignId: strin
   for (const t of tasks) {
     const raw = generateRawToken();
     await prisma.responseTask.update({ where: { id: t.id }, data: { tokenHash: hashToken(raw), lastEmailedAt: new Date() } });
-    const { subject, html } = campaignInviteEmail({ name: t.respondent.name, teacherName: t.teacher.name, link: `${webOrigin}/respond/${raw}` });
+    const { subject, html } = campaignInviteEmail({
+      name: t.respondent.name,
+      teacherName: t.teacher.name,
+      courseLabel: t.offering ? `${t.offering.course.title} (${t.offering.course.code})` : null,
+      link: `${webOrigin}/respond/${raw}`,
+    });
     await sendMail({ to: t.respondent.email, subject, html });
   }
   return { count: tasks.length };

@@ -329,3 +329,75 @@ describe("officialOverall (evaluation-letter weighting)", () => {
     expect(OFFICIAL_WEIGHTS.student).toBe(0.5); // untouched
   });
 });
+
+/**
+ * "Not applicable" is stored as an Answer row with a null pointValue and notApplicable
+ * true (see schema.prisma). computeDashboard never sees the flag — it only sees the null —
+ * so these cases pin down that an N/A can never be read as a rating of any kind. Getting
+ * this wrong is not a cosmetic bug: treating N/A as the bottom of the scale would push a
+ * teacher's composite down for questions the university itself says do not apply to them.
+ */
+describe("computeDashboard with 'not applicable' answers", () => {
+  const section: ScoringSection = {
+    id: "sec",
+    title: "Core Competency",
+    type: "LIKERT_GRID",
+    isOverall: false,
+    weight: 1,
+    scaleMin: 1,
+    scaleMax: 5,
+    scalePoints: [1, 2, 3, 4, 5],
+    items: [
+      { id: "i1", text: "Provides practical training as needed", weight: 1 },
+      { id: "i2", text: "Has sufficient knowledge of the subject", weight: 1 },
+    ],
+  };
+
+  it("excludes an N/A from the item mean rather than scoring it as the scale minimum", () => {
+    // Two respondents rate i1 5; a third marks it not applicable. The mean must stay 100,
+    // not fall to 66.7 as it would if the null were read as a 1.
+    const answers: ScoringAnswer[] = [
+      { itemId: "i1", pointValue: 5, text: null },
+      { itemId: "i1", pointValue: 5, text: null },
+      { itemId: "i1", pointValue: null, text: null },
+      { itemId: "i2", pointValue: 3, text: null },
+    ];
+    const result = computeDashboard([section], answers);
+    const i1 = result.sections[0].items.find((i) => i.itemId === "i1")!;
+    expect(i1.score).toBeCloseTo(100);
+  });
+
+  it("leaves an N/A out of the distribution counts", () => {
+    const answers: ScoringAnswer[] = [
+      { itemId: "i1", pointValue: 4, text: null },
+      { itemId: "i1", pointValue: null, text: null },
+      { itemId: "i2", pointValue: null, text: null },
+    ];
+    const result = computeDashboard([section], answers);
+    // Exactly one rating was given across both items; the two N/As add nothing anywhere.
+    expect(result.sections[0].distribution).toEqual([0, 0, 0, 1, 0]);
+  });
+
+  it("scores an item every respondent marked N/A as null, not as zero", () => {
+    const answers: ScoringAnswer[] = [
+      { itemId: "i1", pointValue: null, text: null },
+      { itemId: "i1", pointValue: null, text: null },
+      { itemId: "i2", pointValue: 4, text: null },
+    ];
+    const result = computeDashboard([section], answers);
+    const i1 = result.sections[0].items.find((i) => i.itemId === "i1")!;
+    expect(i1.score).toBeNull();
+    // The section still scores, on the item that was actually rated — a wholly N/A item
+    // must not drag the section down, and must not blank it either.
+    expect(result.sections[0].score).toBeCloseTo(75);
+  });
+
+  it("returns a null composite when every item on the form was marked N/A", () => {
+    const answers: ScoringAnswer[] = [
+      { itemId: "i1", pointValue: null, text: null },
+      { itemId: "i2", pointValue: null, text: null },
+    ];
+    const result = computeDashboard([section], answers);
+    expect(result.overallScore).toBeNull();
+  });
+});

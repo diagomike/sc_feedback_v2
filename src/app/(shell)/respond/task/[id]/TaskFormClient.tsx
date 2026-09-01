@@ -17,6 +17,10 @@ export default function TaskFormClient({ taskId, form }: { taskId: string; form:
   const [submitting, setSubmitting] = useState(false);
 
   const onLikert = (itemId: string, pointValue: number) => setAnswers((p) => ({ ...p, [itemId]: { itemId, pointValue } }));
+  // Selecting N/A clears any rating: the two are mutually exclusive on the paper form, and
+  // response-validation.ts refuses a payload that claims both.
+  const onNotApplicable = (itemId: string) =>
+    setAnswers((p) => ({ ...p, [itemId]: { itemId, pointValue: null, notApplicable: true } }));
   const onText = (itemId: string, text: string) => setAnswers((p) => ({ ...p, [itemId]: { itemId, text } }));
 
   async function onSubmit() {
@@ -52,7 +56,7 @@ export default function TaskFormClient({ taskId, form }: { taskId: string; form:
   return (
     <div className="flex justify-center px-0 md:px-14 md:py-14 bg-bg min-h-full">
       <div className="w-full md:max-w-[760px] bg-panel md:border md:border-border md:rounded-3 overflow-hidden self-start">
-        <FormBody form={form} answers={answers} onLikert={onLikert} onText={onText} onSubmit={onSubmit} submitting={submitting} error={error} />
+        <FormBody form={form} answers={answers} onLikert={onLikert} onNotApplicable={onNotApplicable} onText={onText} onSubmit={onSubmit} submitting={submitting} error={error} />
       </div>
     </div>
   );

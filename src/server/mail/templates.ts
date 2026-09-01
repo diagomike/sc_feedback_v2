@@ -12,12 +12,22 @@ export function registrationEmail(params: { name: string; link: string; role: st
   };
 }
 
-export function campaignInviteEmail(params: { name: string; teacherName: string; link: string }) {
+/** `courseLabel` is what keeps two invitations for the same teacher distinguishable — a
+ *  student taking two of their courses gets two separate forms, and without the course in
+ *  the subject line both mails read identically in an inbox. Null for peer and head
+ *  invitations, which are about the person rather than a course. */
+export function campaignInviteEmail(params: {
+  name: string;
+  teacherName: string;
+  courseLabel?: string | null;
+  link: string;
+}) {
+  const about = params.courseLabel ? `${params.teacherName} — ${params.courseLabel}` : params.teacherName;
   return {
-    subject: `Feedback requested: ${params.teacherName}`,
+    subject: `Feedback requested: ${about}`,
     html: `
       <p>Hello ${params.name},</p>
-      <p>Please share your feedback on ${params.teacherName}.</p>
+      <p>Please share your feedback on ${about}.</p>
       <p><a href="${params.link}">Give feedback</a></p>
     `,
   };

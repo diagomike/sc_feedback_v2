@@ -106,6 +106,7 @@ export async function startBallot(slug: string, teacherId: string, ipHash: strin
         description: s.description,
         type: s.type,
         isOverall: s.isOverall,
+        allowNotApplicable: s.allowNotApplicable,
         order: s.order,
         scale: s.scale ? s.scale.points.map((p) => ({ id: p.id, label: p.label, value: p.value, order: p.order })) : null,
         items: s.items.map((i) => ({ id: i.id, text: i.text, required: i.required, order: i.order })),
@@ -145,7 +146,13 @@ export async function submitBallot(rawToken: string, answers: AnswerInput[]): Pr
         },
       });
       await tx.answer.createMany({
-        data: answers.map((a) => ({ responseId: response.id, itemId: a.itemId, pointValue: a.pointValue ?? null, text: a.text ?? null })),
+        data: answers.map((a) => ({
+          responseId: response.id,
+          itemId: a.itemId,
+          pointValue: a.notApplicable ? null : (a.pointValue ?? null),
+          notApplicable: a.notApplicable ?? false,
+          text: a.text ?? null,
+        })),
       });
       await tx.ballot.update({ where: { id: ballot.id }, data: { consumedAt: new Date() } });
     });

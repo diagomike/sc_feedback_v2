@@ -50,6 +50,10 @@ export default function GuestFormClient({ slug, info }: { slug: string; info: Ca
   }, []);
 
   const onLikert = (itemId: string, pointValue: number) => setAnswers((p) => ({ ...p, [itemId]: { itemId, pointValue } }));
+  // Selecting N/A clears any rating: the two are mutually exclusive on the paper form, and
+  // response-validation.ts refuses a payload that claims both.
+  const onNotApplicable = (itemId: string) =>
+    setAnswers((p) => ({ ...p, [itemId]: { itemId, pointValue: null, notApplicable: true } }));
   const onText = (itemId: string, text: string) => setAnswers((p) => ({ ...p, [itemId]: { itemId, text } }));
 
   async function onSubmit() {
@@ -107,6 +111,7 @@ export default function GuestFormClient({ slug, info }: { slug: string; info: Ca
               form={renderableForm}
               answers={answers}
               onLikert={onLikert}
+              onNotApplicable={onNotApplicable}
               onText={onText}
               onSubmit={onSubmit}
               submitting={submitting}

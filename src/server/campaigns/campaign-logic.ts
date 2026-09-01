@@ -87,3 +87,82 @@ export function validateAudienceMinimums(
   }
   return null;
 }
+
+export interface AssignableOffering {
+  id: string;
+  teacherId: string;
+  semesterId: string;
+  /** The department that OWNS the section, which need not be the campaign's own node. */
+  sectionNodeId: string;
+}
+
+export interface OfferingAuthorizationInput {
+  /** The node running the campaign — always the teachers' own department. */
+  campaignNodeId: string;
+  campaignSemesterId: string;
+  /** Teachers who are TEACHER members of campaignNodeId. */
+  ownTeacherIds: string[];
+  requestedOfferingIds: string[];
+  knownOfferings: AssignableOffering[];
+}
+
+/**
+ * Which of the requested offerings this campaign may actually assign.
+ *
+ * The rule, and the reason it is not simply "the section must belong to my department":
+ * in the real 2025/26 registry export, 16 instructors from Applied Maths, Social Science,
+ * Electrical and Process Engineering teach CSE and SE sections. Their own department is
+ * the one that evaluates them — its head writes the MANAGER form, its members write the
+ * PEER forms — but the students who can speak to their teaching sit in a section another
+ * department owns. So a campaign reaches outside its own roster exactly when one of its
+ * own teachers actually taught there, and THE OFFERING IS THAT PROOF. Nothing else grants
+ * it: an unknown id, another department's teacher, or a different semester's offering are
+ * each refused by name so the builder can say which row is wrong.
+ *
+ * Note this only governs the STUDENT audience. Peer and head assignments never consult
+ * this — they resolve inside the campaign's own node and are unchanged.
+ */
+export function authorizeOfferings(input: OfferingAuthorizationInput): { ok: string[]; errors: string[] } {
+  const byId = new Map(input.knownOfferings.map((o) => [o.id, o]));
+  const ownTeachers = new Set(input.ownTeacherIds);
+  const ok: string[] = [];
+  const errors: string[] = [];
+
+  for (const id of new Set(input.requestedOfferingIds)) {
+    const offering = byId.get(id);
+    if (!offering) {
+      errors.push(`Unknown course offering ${id}`);
+      continue;
+    }
+    if (!ownTeachers.has(offering.teacherId)) {
+      errors.push(`Course offering ${id} is taught by someone outside this department`);
+      continue;
+    }
+    if (offering.semesterId !== input.campaignSemesterId) {
+      errors.push(`Course offering ${id} belongs to a different semester`);
+      continue;
+    }
+    ok.push(id);
+  }
+
+  return { ok, errors };
+}
+
+/**
+ * Whether a bare student group — one assigned with no offering behind it — is in reach.
+ * Kept strict: without an offering there is no evidence this department taught those
+ * students at all, so only its own sections qualify. This is the fallback path for a
+ * hand-built group (a mixed cohort, a pilot), not for cross-department reach.
+ */
+export function authorizeBareStudentGroups(
+  campaignNodeId: string,
+  requested: { id: string; nodeId: string }[],
+): { ok: string[]; errors: string[] } {
+  const ok: string[] = [];
+  const errors: string[] = [];
+  for (const g of requested) {
+    if (g.nodeId === campaignNodeId) ok.push(g.id);
+    else errors.push(`Student group ${g.id} is not in your department — assign it through a course offering instead`);
+  }
+  return { ok, errors };
+}

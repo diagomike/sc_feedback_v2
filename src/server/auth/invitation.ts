@@ -6,6 +6,7 @@ import { generateRawToken, hashToken } from "./token";
 import { getWebOrigin } from "@/lib/config";
 import * as argon2 from "argon2";
 import type { RoleKind } from "@prisma/client";
+import { createUninvitedUser as createUninvitedUserWithDb } from "./create-user";
 
 const INVITATION_TTL_DAYS = 14;
 
@@ -50,6 +51,12 @@ export async function inviteNewUser(params: {
   });
 
   return { userId: user.id };
+}
+
+/** Re-exported so existing server callers keep one import site. The implementation lives
+ *  in create-user.ts, which is free of `server-only` so the real-data loader can share it. */
+export async function createUninvitedUser(params: { name: string; email: string; role: RoleKind }) {
+  return createUninvitedUserWithDb(prisma, params);
 }
 
 /** A fresh link immediately invalidates the previous one — enforced by deleting any

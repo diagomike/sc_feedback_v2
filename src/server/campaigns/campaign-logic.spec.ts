@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { campaignMinNGate, teacherMinNGate, validateWindow, validateAudienceMinimums } from "./campaign-logic";
+import {
+  authorizeBareStudentGroups,
+  authorizeOfferings,
+  campaignMinNGate,
+  teacherMinNGate,
+  validateAudienceMinimums,
+  validateWindow,
+  type AssignableOffering,
+} from "./campaign-logic";
 
 describe("campaignMinNGate", () => {
   it("is n/a when the only target group is MANAGER — a teacher has exactly one direct manager", () => {
@@ -113,5 +121,95 @@ describe("validateAudienceMinimums", () => {
 
   it("passes once both floors clear", () => {
     expect(validateAudienceMinimums(2, 10, true, 1, 5)).toBeNull();
+  });
+});
+
+describe("authorizeOfferings (cross-department student reach)", () => {
+  const CSE = "node_cse";
+  const SPRING = "sem_spring";
+
+  // Asnake Emana is an Applied Maths lecturer who teaches Discrete Mathematics to CSE
+  // Year 2 — the real shape of the 2025/26 export, and the case the whole rule exists for.
+  const mathsTeacherOwnOffering: AssignableOffering = {
+    id: "off_maths_in_cse",
+    teacherId: "t_asnake",
+    semesterId: SPRING,
+    sectionNodeId: CSE,
+  };
+  const ownOffering: AssignableOffering = {
+    id: "off_cse_own",
+    teacherId: "t_meron",
+    semesterId: SPRING,
+    sectionNodeId: CSE,
+  };
+
+  it("lets a department reach another department's section through its own teacher's offering", () => {
+    const result = authorizeOfferings({
+      campaignNodeId: "node_maths",
+      campaignSemesterId: SPRING,
+      ownTeacherIds: ["t_asnake"],
+      requestedOfferingIds: ["off_maths_in_cse"],
+      knownOfferings: [mathsTeacherOwnOffering],
+    });
+    expect(result.ok).toEqual(["off_maths_in_cse"]);
+    expect(result.errors).toEqual([]);
+  });
+
+  it("refuses an offering taught by someone outside the department", () => {
+    const result = authorizeOfferings({
+      campaignNodeId: "node_maths",
+      campaignSemesterId: SPRING,
+      ownTeacherIds: ["t_asnake"],
+      requestedOfferingIds: ["off_cse_own"],
+      knownOfferings: [ownOffering],
+    });
+    expect(result.ok).toEqual([]);
+    expect(result.errors[0]).toContain("outside this department");
+  });
+
+  it("refuses an offering from another semester, so last term's roster can't be re-asked", () => {
+    const result = authorizeOfferings({
+      campaignNodeId: CSE,
+      campaignSemesterId: "sem_fall",
+      ownTeacherIds: ["t_meron"],
+      requestedOfferingIds: ["off_cse_own"],
+      knownOfferings: [ownOffering],
+    });
+    expect(result.ok).toEqual([]);
+    expect(result.errors[0]).toContain("different semester");
+  });
+
+  it("names an unknown id rather than silently dropping it", () => {
+    const result = authorizeOfferings({
+      campaignNodeId: CSE,
+      campaignSemesterId: SPRING,
+      ownTeacherIds: ["t_meron"],
+      requestedOfferingIds: ["off_ghost"],
+      knownOfferings: [ownOffering],
+    });
+    expect(result.ok).toEqual([]);
+    expect(result.errors[0]).toContain("off_ghost");
+  });
+
+  it("deduplicates a repeated request", () => {
+    const result = authorizeOfferings({
+      campaignNodeId: CSE,
+      campaignSemesterId: SPRING,
+      ownTeacherIds: ["t_meron"],
+      requestedOfferingIds: ["off_cse_own", "off_cse_own"],
+      knownOfferings: [ownOffering],
+    });
+    expect(result.ok).toEqual(["off_cse_own"]);
+  });
+});
+
+describe("authorizeBareStudentGroups", () => {
+  it("accepts only the department's own groups", () => {
+    const result = authorizeBareStudentGroups("node_cse", [
+      { id: "g_own", nodeId: "node_cse" },
+      { id: "g_other", nodeId: "node_swe" },
+    ]);
+    expect(result.ok).toEqual(["g_own"]);
+    expect(result.errors[0]).toContain("assign it through a course offering instead");
   });
 });

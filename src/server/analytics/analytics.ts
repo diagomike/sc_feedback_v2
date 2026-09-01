@@ -183,6 +183,88 @@ export async function getDashboard(params: { campaignId: string; teacherId: stri
   };
 }
 
+export interface CourseBreakdownRow {
+  offeringId: string;
+  courseCode: string;
+  courseTitle: string;
+  sectionName: string;
+  responseCount: number;
+  asked: number;
+  /** Null when this course alone has not cleared min-N. */
+  score: number | null;
+  suppressed: boolean;
+}
+
+/**
+ * The same composite, split by the course each rating was actually about.
+ *
+ * Additive on purpose: the headline figures in getDashboard still pool every answer for a
+ * teacher regardless of offering, so composites, the DAG rollup and every anchor are byte
+ * for byte what they were before courses existed. This only ANSWERS A NEW QUESTION — a
+ * teacher scoring 62 overall may be at 71 in one course and 48 in another, and only the
+ * split says so.
+ *
+ * MIN-N APPLIES PER COURSE, not once for the teacher. A teacher clearing min-N on 30
+ * students across four courses may have a four-student elective among them; showing that
+ * course's score would hand back exactly the small-cohort inference the gate exists to
+ * prevent, so each row is suppressed on its own count.
+ */
+export async function getCourseBreakdown(params: {
+  campaignId: string;
+  teacherId: string;
+  targetGroup: TargetGroup;
+  requestingUserId: string;
+}): Promise<CourseBreakdownRow[]> {
+  const { campaignId, teacherId, targetGroup, requestingUserId } = params;
+  if (targetGroup !== "STUDENT") return []; // peer and head forms are not about a course
+
+  const campaign = await prisma.campaign.findUnique({ where: { id: campaignId } });
+  if (!campaign) throw new NotFoundError("Campaign not found");
+  await assertCanView({ campaign, teacherId, requestingUserId });
+
+  const template = await loadTemplate(campaignId, targetGroup);
+  const scoringSections = toScoringSections(template);
+
+  const offerings = await prisma.courseOffering.findMany({
+    where: { assignments: { some: { campaignId, teacherId, targetGroup: "STUDENT" } } },
+    include: { course: { select: { code: true, title: true } }, studentGroup: { select: { name: true } } },
+    orderBy: { course: { code: "asc" } },
+  });
+  if (offerings.length === 0) return [];
+
+  const rows: CourseBreakdownRow[] = [];
+  for (const offering of offerings) {
+    const where = { campaignId, teacherId, templateId: template.id, courseOfferingId: offering.id, revokedAt: null };
+    const [responseCount, asked] = await Promise.all([
+      prisma.response.count({ where }),
+      prisma.responseTask.count({ where: { campaignId, teacherId, courseOfferingId: offering.id } }),
+    ]);
+    const suppressed = isSuppressed(responseCount, campaign.minResponses);
+
+    let score: number | null = null;
+    if (!suppressed) {
+      const answers = await prisma.answer.findMany({
+        where: { response: where },
+        select: { itemId: true, pointValue: true, text: true },
+      });
+      score = computeDashboard(scoringSections, answers).overallScore;
+    }
+
+    rows.push({
+      offeringId: offering.id,
+      courseCode: offering.course.code,
+      courseTitle: offering.course.title,
+      sectionName: offering.studentGroup.name,
+      responseCount,
+      asked,
+      score,
+      suppressed,
+    });
+  }
+
+  return rows;
+}
+
 /** Campaigns whose results the caller may read, newest first. */
 export async function listAnalyticsCampaigns(requestingUserId: string) {
   const visible = await visibleNodeIds({ id: requestingUserId, roles: await rolesOf(requestingUserId) });

@@ -1,12 +1,7 @@
-import { requireUser } from "@/server/auth/session";
-import { listGraph } from "@/server/hierarchy/hierarchy";
-import StructureClient from "./StructureClient";
+import { redirect } from "next/navigation";
 
-export default async function HierarchyPage() {
-  const user = await requireUser();
-  if (!user.roles.includes("ADMIN")) {
-    return <div className="p-24 text-11.5 text-bad">Only a system administrator can edit the org structure.</div>;
-  }
-  const nodes = await listGraph();
-  return <StructureClient allNodes={nodes} />;
+/** The five admin structure screens became one (see manage/structure). Kept as a redirect
+ *  so bookmarks and any link written before the merge still land somewhere useful. */
+export default function HierarchyPage() {
+  redirect("/manage/structure");
 }

@@ -34,6 +34,10 @@ model User {
   id           String     @id @default(cuid())
   email        String     @unique
   emailLower   String     @unique
+  /// The registry's own identifier - a student's ERP id number ("UGR/36321/17"). Nullable
+  /// because staff created by hand or by the people CSV have none; unique so re-importing
+  /// the same roster updates rather than duplicates.
+  externalId   String?    @unique
   name         String
   phone        String?
   passwordHash String?
@@ -47,6 +51,9 @@ model User {
   groupMemberships StudentGroupMember[]
 
   hierarchyNode HierarchyNode?
+
+  offeringsAsTeacher      CourseOffering[]     @relation("OfferingTeacher")
+  courseEnrollments       CourseEnrollment[]
 
   assignmentsAsTeacher    CampaignAssignment[] @relation("AssignmentTeacher")
   assignmentsAsRespondent CampaignAssignment[] @relation("AssignmentRespondent")
@@ -124,6 +131,7 @@ model HierarchyNode {
 
   memberships   Membership[]
   studentGroups StudentGroup[]
+  courses       Course[]
   likertScales  LikertScale[]
   templates     Template[]
   campaigns     Campaign[]
@@ -182,13 +190,87 @@ model StudentGroup {
   nodeId    String
   name      String
   program   StudentProgram @default(REGULAR)
+  /// The registry's own section coordinates ("Third Year" + "Section 4"). Nullable because
+  /// a hand-made group need not be a registry section; together with nodeId they are what a
+  /// roster re-import matches on, so loading the same file twice updates one group.
+  classYear    String?
+  sectionLabel String?
   createdAt DateTime       @default(now())
 
   node        HierarchyNode        @relation(fields: [nodeId], references: [id], onDelete: Cascade)
   members     StudentGroupMember[]
   assignments CampaignAssignment[]
+  offerings   CourseOffering[]
+
+  @@unique([nodeId, classYear, sectionLabel])
+  @@index([nodeId])
+}
+
+// -------------------------------------------------------------------------
+// Courses - who actually taught what, to which section, in which semester.
+//
+// The ASTU paper form asks for "Course Title and Code" in its header: a student rates a
+// teacher FOR A COURSE, not in the abstract. Before this existed a CampaignAssignment could
+// only say "these students rate this teacher", so a teacher taking one section for two
+// courses collapsed into a single form and no answer knew which course it was about.
+//
+// A CourseOffering is the unit the registry actually exports (its `course_id` lands in
+// externalId), and it is also the authorisation for a cross-department campaign: see
+// campaigns.ts - a department may reach another department's section precisely when one of
+// its own teachers has an offering against it.
+// -------------------------------------------------------------------------
+
+model Course {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  title     String
+  /// The department that owns the subject, inferred from the code prefix on import (CSEG ->
+  /// Computer Science & Engineering, MATH -> Applied Mathematics, ...). Nullable because a
+  /// prefix the map does not know must still import rather than fail the whole file.
+  nodeId    String?
+  createdAt DateTime @default(now())
+
+  node      HierarchyNode?   @relation(fields: [nodeId], references: [id])
+  offerings CourseOffering[]
 
   @@index([nodeId])
+}
+
+model CourseOffering {
+  id             String   @id @default(cuid())
+  semesterId     String
+  courseId       String
+  teacherId      String
+  studentGroupId String
+  /// The registry's own id for this offering. Unique, so re-importing a semester updates
+  /// the existing rows instead of duplicating every section.
+  externalId     String?  @unique
+  createdAt      DateTime @default(now())
+
+  semester     Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  course       Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher      User         @relation("OfferingTeacher", fields: [teacherId], references: [id])
+  studentGroup StudentGroup @relation(fields: [studentGroupId], references: [id], onDelete: Cascade)
+
+  enrollments CourseEnrollment[]
+  assignments CampaignAssignment[]
+  tasks       ResponseTask[]
+  responses   Response[]
+
+  @@unique([semesterId, courseId, teacherId, studentGroupId])
+  @@index([semesterId, teacherId])
+  @@index([studentGroupId])
+}
+
+model CourseEnrollment {
+  offeringId String
+  userId     String
+
+  offering CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([offeringId, userId])
+  @@index([userId])
 }
 
 model StudentGroupMember {
@@ -279,6 +361,11 @@ model TemplateSection {
   scaleId     String?
   weight      Float       @default(1)
   isOverall   Boolean     @default(false)
+  /// The ASTU forms all carry a "not applicable" column ("If the teacher does not apply,
+  /// put a check"). An N/A answer stores a null pointValue with notApplicable true, so
+  /// scoring.ts skips it exactly as it already skips an unanswered item - it must never be
+  /// normalised as if it were the bottom of the scale.
+  allowNotApplicable Boolean @default(false)
   order       Int
 
   template Template       @relation(fields: [templateId], references: [id], onDelete: Cascade)
@@ -332,6 +419,7 @@ model Semester {
   createdAt    DateTime @default(now())
 
   campaigns Campaign[]
+  offerings CourseOffering[]
 
   @@unique([academicYear, term])
   @@index([startsAt])
@@ -405,34 +493,43 @@ model CampaignAssignment {
   teacherId        String
   targetGroup      TargetGroup
   studentGroupId   String?
+  courseOfferingId String?
   respondentUserId String?
 
-  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  teacher      User          @relation("AssignmentTeacher", fields: [teacherId], references: [id])
-  studentGroup StudentGroup? @relation(fields: [studentGroupId], references: [id])
-  respondent   User?         @relation("AssignmentRespondent", fields: [respondentUserId], references: [id])
+  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  teacher      User            @relation("AssignmentTeacher", fields: [teacherId], references: [id])
+  studentGroup StudentGroup?   @relation(fields: [studentGroupId], references: [id])
+  offering     CourseOffering? @relation(fields: [courseOfferingId], references: [id])
+  respondent   User?           @relation("AssignmentRespondent", fields: [respondentUserId], references: [id])
 
   @@index([campaignId, teacherId])
 }
 
 model ResponseTask {
-  id            String      @id @default(cuid())
-  campaignId    String
-  teacherId     String
-  respondentId  String
-  targetGroup   TargetGroup
-  templateId    String
-  tokenHash     String      @unique
-  completedAt   DateTime?
-  lastEmailedAt DateTime?
-  createdAt     DateTime    @default(now())
+  id               String      @id @default(cuid())
+  campaignId       String
+  teacherId        String
+  respondentId     String
+  targetGroup      TargetGroup
+  templateId       String
+  courseOfferingId String?
+  /// courseOfferingId as a NON-NULL discriminator, "" when there is no course (peer, head,
+  /// guest). Postgres treats NULLs in a unique constraint as distinct, so keying the
+  /// constraint on the nullable FK itself would silently stop deduplicating peer and head
+  /// tasks - exactly the rows that most need it.
+  offeringKey      String      @default("")
+  tokenHash        String      @unique
+  completedAt      DateTime?
+  lastEmailedAt    DateTime?
+  createdAt        DateTime    @default(now())
 
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  teacher    User     @relation("TaskTeacher", fields: [teacherId], references: [id])
-  respondent User     @relation("TaskRespondent", fields: [respondentId], references: [id])
-  template   Template @relation(fields: [templateId], references: [id])
+  campaign   Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  teacher    User            @relation("TaskTeacher", fields: [teacherId], references: [id])
+  respondent User            @relation("TaskRespondent", fields: [respondentId], references: [id])
+  template   Template        @relation(fields: [templateId], references: [id])
+  offering   CourseOffering? @relation(fields: [courseOfferingId], references: [id])
 
-  @@unique([campaignId, teacherId, respondentId])
+  @@unique([campaignId, teacherId, respondentId, offeringKey])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -453,27 +550,36 @@ model Response {
   templateId       String
   respondentKind   RespondentKind
   respondentUserId String?
+  courseOfferingId String?
+  /// See ResponseTask.offeringKey - same non-null discriminator, same reason.
+  offeringKey      String         @default("")
   ballotId         String?        @unique
   submittedAt      DateTime       @default(now())
   revokedAt        DateTime?
 
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-  teacher    User     @relation("ResponseTeacher", fields: [teacherId], references: [id])
-  template   Template @relation(fields: [templateId], references: [id])
-  respondent User?    @relation("ResponseRespondent", fields: [respondentUserId], references: [id])
-  ballot     Ballot?  @relation(fields: [ballotId], references: [id])
+  campaign   Campaign        @relation(fields: [campaignId], references: [id])
+  teacher    User            @relation("ResponseTeacher", fields: [teacherId], references: [id])
+  template   Template        @relation(fields: [templateId], references: [id])
+  respondent User?           @relation("ResponseRespondent", fields: [respondentUserId], references: [id])
+  offering   CourseOffering? @relation(fields: [courseOfferingId], references: [id])
+  ballot     Ballot?         @relation(fields: [ballotId], references: [id])
   answers    Answer[]
 
-  @@unique([campaignId, teacherId, respondentUserId])
+  @@unique([campaignId, teacherId, respondentUserId, offeringKey])
   @@index([teacherId, campaignId])
+  @@index([courseOfferingId])
 }
 
 model Answer {
-  id         String  @id @default(cuid())
-  responseId String
-  itemId     String
-  pointValue Int?
-  text       String?
+  id            String  @id @default(cuid())
+  responseId    String
+  itemId        String
+  pointValue    Int?
+  /// True when the respondent ticked "not applicable". pointValue stays null, so every
+  /// existing scoring path already excludes it; this flag exists so a required item can be
+  /// satisfied by N/A, and so "how often was this item N/A" stays answerable.
+  notApplicable Boolean @default(false)
+  text          String?
 
   response Response     @relation(fields: [responseId], references: [id], onDelete: Cascade)
   item     TemplateItem @relation(fields: [itemId], references: [id])

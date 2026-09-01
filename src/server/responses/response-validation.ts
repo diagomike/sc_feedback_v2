@@ -16,6 +16,7 @@ export function validateAnswers(
   sections: {
     id: string;
     type: string;
+    allowNotApplicable?: boolean;
     items: { id: string; required: boolean }[];
     scale: { points: { value: number }[] } | null;
   }[],
@@ -32,6 +33,18 @@ export function validateAnswers(
         continue;
       }
       if (section.type === "LIKERT_GRID") {
+        // N/A is an answer, not a blank: it satisfies a required item, but only where the
+        // section actually offers the column. A client claiming N/A on a section without
+        // it would otherwise be a way to skip every required question.
+        if (answer.notApplicable) {
+          if (!section.allowNotApplicable) {
+            throw new ValidationError(`Item ${item.id} cannot be marked not applicable`);
+          }
+          if (answer.pointValue != null) {
+            throw new ValidationError(`Item ${item.id} cannot be both rated and not applicable`);
+          }
+          continue;
+        }
         if (answer.pointValue == null || !validValues?.has(answer.pointValue)) {
           throw new ValidationError(`Invalid scale value for item ${item.id}`);
         }

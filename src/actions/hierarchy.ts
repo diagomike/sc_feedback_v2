@@ -24,9 +24,7 @@ async function requireAdmin() {
 }
 
 function revalidateStructure() {
-  for (const p of ["/manage/personnel", "/manage/offices", "/manage/colleges", "/manage/departments", "/manage/hierarchy"]) {
-    revalidatePath(p);
-  }
+  revalidatePath("/manage/structure");
 }
 
 export async function createNodeAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {

@@ -10,6 +10,7 @@ export interface FormRenderableSection {
   description: string | null;
   type: "LIKERT_GRID" | "FREE_TEXT";
   isOverall: boolean;
+  allowNotApplicable?: boolean;
   order: number;
   scale: { id: string; label: string; value: number; order: number }[] | null;
   items: { id: string; text: string; required: boolean; order: number }[];
@@ -19,6 +20,11 @@ export interface FormRenderable {
   campaignName: string;
   teacherName: string;
   targetGroup: "STUDENT" | "PEER" | "MANAGER";
+  /** The ASTU paper form's header line. Absent on peer and head forms, and on guest
+   *  ballots, which are about the person rather than a particular course. */
+  courseCode?: string | null;
+  courseTitle?: string | null;
+  sectionName?: string | null;
   sections: FormRenderableSection[];
 }
 
@@ -31,6 +37,7 @@ export default function FormBody({
   form,
   answers,
   onLikert,
+  onNotApplicable,
   onText,
   onSubmit,
   submitting,
@@ -41,6 +48,7 @@ export default function FormBody({
   form: FormRenderable;
   answers: Record<string, AnswerInput>;
   onLikert: (itemId: string, pointValue: number) => void;
+  onNotApplicable: (itemId: string) => void;
   onText: (itemId: string, text: string) => void;
   onSubmit: () => void;
   submitting: boolean;
@@ -51,7 +59,10 @@ export default function FormBody({
   const requiredItems = useMemo(() => form.sections.flatMap((s) => s.items.filter((i) => i.required)), [form]);
   const answeredRequired = requiredItems.filter((i) => {
     const a = answers[i.id];
-    return a && (a.pointValue != null || (a.text ?? "").trim().length > 0);
+    // notApplicable counts: "does not apply to this teacher" is a deliberate answer, and
+    // the form would otherwise be unsubmittable whenever a required item genuinely does
+    // not apply — which is exactly what the paper form's tick box exists for.
+    return a && (a.pointValue != null || a.notApplicable === true || (a.text ?? "").trim().length > 0);
   }).length;
   const remaining = requiredItems.length - answeredRequired;
   const pct = requiredItems.length === 0 ? 100 : Math.round((answeredRequired / requiredItems.length) * 100);
@@ -68,6 +79,13 @@ export default function FormBody({
       <div className="px-14 pt-12 pb-10 border-b border-border">
         <div className="text-11 text-dim">You are giving feedback on</div>
         <div className="text-17 font-semibold leading-snug mt-1">{form.teacherName}</div>
+        {form.courseTitle && (
+          <div className="text-11.5 text-dim mt-4 leading-snug">
+            {form.courseTitle}
+            {form.courseCode && <span className="font-mono text-10.5 text-faint"> · {form.courseCode}</span>}
+            {form.sectionName && <span className="text-faint"> · {form.sectionName}</span>}
+          </div>
+        )}
       </div>
 
       <TrustBanner targetGroup={form.targetGroup} teacherName={form.teacherName} minResponses={minResponses} isGuest={isGuest} />
@@ -96,6 +114,11 @@ export default function FormBody({
                         {p.label}
                       </th>
                     ))}
+                    {section.allowNotApplicable && (
+                      <th className="px-4 py-5 font-medium text-10.5 text-faint text-center w-88 leading-tight border-l border-border">
+                        Not applicable
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -117,6 +140,18 @@ export default function FormBody({
                           />
                         </td>
                       ))}
+                      {section.allowNotApplicable && (
+                        <td className="text-center px-4 py-8 border-l border-border">
+                          <input
+                            type="radio"
+                            name={item.id}
+                            checked={answers[item.id]?.notApplicable === true}
+                            onChange={() => onNotApplicable(item.id)}
+                            aria-label={`${item.text}: not applicable`}
+                            style={{ width: 15, height: 15, accentColor: "var(--faint)" }}
+                          />
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -129,7 +164,10 @@ export default function FormBody({
                       {item.text}
                       {item.required && <span className="text-bad"> *</span>}
                     </div>
-                    <div className="grid grid-cols-5 gap-4">
+                    <div
+                      className="grid gap-4"
+                      style={{ gridTemplateColumns: `repeat(${section.scale!.length}, minmax(0, 1fr))` }}
+                    >
                       {section.scale!.map((p) => {
                         const on = answers[item.id]?.pointValue === p.value;
                         return (
@@ -154,6 +192,21 @@ export default function FormBody({
                         );
                       })}
                     </div>
+                    {section.allowNotApplicable && (
+                      <button
+                        type="button"
+                        onClick={() => onNotApplicable(item.id)}
+                        aria-pressed={answers[item.id]?.notApplicable === true}
+                        aria-label={`${item.text}: not applicable`}
+                        style={{
+                          borderColor: answers[item.id]?.notApplicable ? "var(--accent)" : "var(--border2)",
+                          background: answers[item.id]?.notApplicable ? "var(--soft)" : "var(--panel)",
+                        }}
+                        className="mt-4 w-full border rounded-3 px-2 py-6 text-10.5 text-dim"
+                      >
+                        Not applicable
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

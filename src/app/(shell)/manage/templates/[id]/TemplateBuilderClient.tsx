@@ -26,6 +26,7 @@ interface SectionState {
   scaleId: string | null;
   weight: number;
   isOverall: boolean;
+  allowNotApplicable: boolean;
   items: ItemState[];
 }
 
@@ -37,6 +38,7 @@ function toSectionState(s: Detail["sections"][number]): SectionState {
     scaleId: s.scaleId,
     weight: s.weight,
     isOverall: s.isOverall,
+    allowNotApplicable: s.allowNotApplicable,
     items: s.items.map((it) => ({ text: it.text, weight: it.weight, required: it.required })),
   };
 }
@@ -65,7 +67,19 @@ export default function TemplateBuilderClient({ template, scales }: { template: 
   function addSection() {
     setSections((prev) => [
       ...prev,
-      { title: "Untitled section", description: null, type: "LIKERT_GRID", scaleId: scales[0]?.id ?? null, weight: 1, isOverall: false, items: [{ text: "Untitled statement", weight: 1, required: true }] },
+      {
+        title: "Untitled section",
+        description: null,
+        type: "LIKERT_GRID",
+        scaleId: scales[0]?.id ?? null,
+        weight: 1,
+        isOverall: false,
+        // On by default: every ASTU questionnaire carries the column, and a section that
+        // silently lacks it makes a required item unanswerable when it genuinely does not
+        // apply to the teacher being rated.
+        allowNotApplicable: true,
+        items: [{ text: "Untitled statement", weight: 1, required: true }],
+      },
     ]);
   }
   function removeSection(i: number) {
@@ -190,6 +204,16 @@ export default function TemplateBuilderClient({ template, scales }: { template: 
                   <label className="flex items-center gap-4 text-10.5">
                     <Checkbox checked={s.isOverall} disabled={!editable} onChange={(e) => update(i, { isOverall: e.target.checked })} />
                     holistic (excluded from composite)
+                  </label>
+                )}
+                {s.type === "LIKERT_GRID" && (
+                  <label className="flex items-center gap-4 text-10.5">
+                    <Checkbox
+                      checked={s.allowNotApplicable}
+                      disabled={!editable}
+                      onChange={(e) => update(i, { allowNotApplicable: e.target.checked })}
+                    />
+                    offer &ldquo;not applicable&rdquo;
                   </label>
                 )}
                 {contributing && <Badge variant="accent">contributes to composite</Badge>}

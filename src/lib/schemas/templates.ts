@@ -19,6 +19,7 @@ export const templateSectionSchema = z.object({
   scaleId: z.string().nullable(),
   weight: z.number().min(0),
   isOverall: z.boolean(),
+  allowNotApplicable: z.boolean(),
   items: z.array(templateItemSchema).min(1),
 });
 

@@ -1,11 +1,11 @@
 import "server-only";
 import { headers } from "next/headers";
 
-// Local-dev fallback values, used only when neither an incoming request nor the
-// corresponding env var (WEB_ORIGIN / SMTP_PORT) supplies one. Keep in sync with
-// package.json's dev script port and .claude/launch.json.
-export const DEFAULT_WEB_ORIGIN = "http://localhost:4300";
-export const DEFAULT_SMTP_PORT = 4025;
+// Re-exported from constants.ts so existing imports keep working. The values live there
+// because this module cannot be loaded outside Next (server-only + next/headers), and the
+// seed script needs them.
+export { DEFAULT_WEB_ORIGIN, DEFAULT_SMTP_PORT } from "./constants";
+import { DEFAULT_WEB_ORIGIN } from "./constants";
 
 /**
  * The origin to build absolute links against (invite/registration emails, campaign

@@ -5,9 +5,15 @@
  *
  * Builds the ASTU dataset the Claude Design screens were drawn against: a 3-level DAG with
  * two multi-parent departments, six leaf departments, ~350 students (plus two summer
- * Weekend/Extension cohorts), four Likert scales, nine templates across all three statuses,
- * and campaigns across five real semesters (four historical closed rounds plus current
- * OPEN Fall 2026/27, and one SUMMER round against Weekend/Extension groups only).
+ * Weekend/Extension cohorts), and campaigns across five real semesters (four historical
+ * closed rounds plus current OPEN Fall 2026/27, and one SUMMER round against
+ * Weekend/Extension groups only).
+ *
+ * Templates are NOT invented here. The university publishes exactly three staff-evaluation
+ * questionnaires - students, colleagues, head of department - and this seed creates those
+ * three, owned by the ASTU root node and PUBLISHED, so every department inherits them by
+ * the ancestor-visibility rule in template-logic.ts. A department that wants its own
+ * variant clones one; it does not get a pre-invented alternative from the seed.
  *
  * Response generation is SEEDED and deterministic — reseeding gives the same numbers, so a
  * dashboard screenshot stays meaningful and a failing assertion is reproducible.
@@ -23,7 +29,7 @@ import { PrismaClient, type Prisma } from "@prisma/client";
 import * as argon2 from "argon2";
 import { randomBytes, createHash } from "node:crypto";
 import { computeClosureRows } from "../src/server/hierarchy/closure-algorithm";
-import { DEFAULT_WEB_ORIGIN } from "../src/lib/config";
+import { DEFAULT_WEB_ORIGIN } from "../src/lib/constants";
 import * as F from "./fixtures";
 
 const prisma = new PrismaClient();
@@ -307,6 +313,7 @@ async function main() {
             scaleId: sec.scaleKey ? scaleIdByKey.get(sec.scaleKey)! : null,
             weight: sec.weight,
             isOverall: sec.isOverall ?? false,
+            allowNotApplicable: sec.allowNotApplicable ?? false,
             order: i + 1,
             items: {
               create: sec.items.map((it, j) => ({
@@ -322,30 +329,22 @@ async function main() {
     });
   }
 
-  const stu2024 = await createTemplate({ title: "Student Evaluation 2024", targetGroup: "STUDENT", status: "ARCHIVED", ownerNodeKey: "cse", sections: F.STUDENT_SECTIONS });
-  const stu2025 = await createTemplate({ title: "Student Evaluation 2025", targetGroup: "STUDENT", status: "ARCHIVED", ownerNodeKey: "cse", sections: F.STUDENT_SECTIONS, clonedFromId: stu2024.id });
-  const stu2026 = await createTemplate({ title: "Student Evaluation 2026", targetGroup: "STUDENT", status: "PUBLISHED", ownerNodeKey: "cse", sections: F.STUDENT_SECTIONS, clonedFromId: stu2025.id });
-  const peer2026 = await createTemplate({ title: "Peer Teaching Review 2026", targetGroup: "PEER", status: "PUBLISHED", ownerNodeKey: "cse", sections: F.PEER_SECTIONS });
-  const mgr2026 = await createTemplate({ title: "Head's Assessment 2026", targetGroup: "MANAGER", status: "PUBLISHED", ownerNodeKey: "cse", sections: F.MANAGER_SECTIONS });
-
-  await createTemplate({ title: "University Core Student Template v3", targetGroup: "STUDENT", status: "PUBLISHED", ownerNodeKey: "astu", sections: F.STUDENT_SECTIONS });
-  await createTemplate({ title: "University Peer Observation v2", targetGroup: "PEER", status: "PUBLISHED", ownerNodeKey: "astu", sections: F.PEER_SECTIONS });
-
-  await createTemplate({ title: "Student Evaluation 2027", targetGroup: "STUDENT", status: "DRAFT", ownerNodeKey: "cse", sections: F.STUDENT_SECTIONS, clonedFromId: stu2026.id });
-  await createTemplate({ title: "Peer Review 2027 — pilot", targetGroup: "PEER", status: "DRAFT", ownerNodeKey: "cse", sections: F.PEER_SECTIONS.slice(0, 2) });
-
-  const deptStudentTemplates = new Map<string, string>();
-  deptStudentTemplates.set("cse", stu2026.id);
-  for (const nodeKey of Object.keys(F.OTHER_DEPT_TEACHERS)) {
-    const t = await createTemplate({
-      title: `Student Evaluation 2026 — ${nodeKey.toUpperCase()}`,
-      targetGroup: "STUDENT",
+  // Owned by the ASTU root (level 0), so every department below inherits them published
+  // rather than each getting its own copy - see isTemplateVisible in template-logic.ts.
+  const officialTemplateIds = new Map<"STUDENT" | "PEER" | "MANAGER", string>();
+  for (const t of F.OFFICIAL_TEMPLATES) {
+    const created = await createTemplate({
+      title: t.title,
+      targetGroup: t.targetGroup,
       status: "PUBLISHED",
-      ownerNodeKey: nodeKey,
-      sections: F.STUDENT_SECTIONS,
+      ownerNodeKey: "astu",
+      sections: t.sections,
     });
-    deptStudentTemplates.set(nodeKey, t.id);
+    officialTemplateIds.set(t.targetGroup, created.id);
   }
+  const studentTemplateId = officialTemplateIds.get("STUDENT")!;
+  const peerTemplateId = officialTemplateIds.get("PEER")!;
+  const managerTemplateId = officialTemplateIds.get("MANAGER")!;
 
   // ── Response generation ──────────────────────────────────────────────────
   const templateCache = new Map<string, LoadedTemplate>();
@@ -493,7 +492,7 @@ async function main() {
         opensAt: new Date(h.opensAt),
         closesAt: new Date(h.closesAt),
         minResponses: 5,
-        campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: stu2026.id }] },
+        campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: studentTemplateId }] },
       },
     });
 
@@ -514,13 +513,13 @@ async function main() {
           teacherId,
           respondentId,
           targetGroup: "STUDENT" as const,
-          templateId: stu2026.id,
+          templateId: studentTemplateId,
           tokenHash: hashToken(rawToken()),
         })),
       });
       await generateResponses({
         campaignId: campaign.id,
-        templateId: stu2026.id,
+        templateId: studentTemplateId,
         teacherId,
         teacherStrength: t.strength,
         respondentIds: students,
@@ -547,7 +546,7 @@ async function main() {
       opensAt: new Date("2025-07-01"),
       closesAt: new Date("2025-07-21"),
       minResponses: 5,
-      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: stu2026.id }] },
+      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: studentTemplateId }] },
     },
   });
   for (const [email, groupKeys] of Object.entries(F.SUMMER_TEACHING)) {
@@ -567,14 +566,14 @@ async function main() {
         teacherId,
         respondentId,
         targetGroup: "STUDENT" as const,
-        templateId: stu2026.id,
+        templateId: studentTemplateId,
         tokenHash: hashToken(rawToken()),
       })),
     });
     const t = F.CSE_TEACHERS.find((x) => x.email === email)!;
     await generateResponses({
       campaignId: summerCampaign.id,
-      templateId: stu2026.id,
+      templateId: studentTemplateId,
       teacherId,
       teacherStrength: t.strength,
       respondentIds: students,
@@ -598,7 +597,7 @@ async function main() {
       opensAt: new Date("2026-09-01"),
       closesAt: new Date("2026-09-21"),
       minResponses: 5,
-      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: stu2026.id }] },
+      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: studentTemplateId }] },
     },
   });
 
@@ -625,7 +624,7 @@ async function main() {
           teacherId,
           respondentId,
           targetGroup: "STUDENT",
-          templateId: stu2026.id,
+          templateId: studentTemplateId,
           tokenHash: hashToken(raw),
         },
       });
@@ -635,7 +634,7 @@ async function main() {
     const rate = t.email === "bekele.dinku@astu.edu.et" ? 0.06 : t.email === "yonas.tesfaye@astu.edu.et" ? 0.2 : 0.62;
     const n = await generateResponses({
       campaignId: fall2026.id,
-      templateId: stu2026.id,
+      templateId: studentTemplateId,
       teacherId,
       teacherStrength: t.strength,
       respondentIds: students,
@@ -659,7 +658,7 @@ async function main() {
       opensAt: new Date("2026-09-01"),
       closesAt: new Date("2026-09-30"),
       minResponses: 3,
-      campaignTemplates: { create: [{ targetGroup: "PEER", templateId: peer2026.id }] },
+      campaignTemplates: { create: [{ targetGroup: "PEER", templateId: peerTemplateId }] },
     },
   });
   for (const t of F.CSE_TEACHERS) {
@@ -679,13 +678,13 @@ async function main() {
         teacherId,
         respondentId,
         targetGroup: "PEER" as const,
-        templateId: peer2026.id,
+        templateId: peerTemplateId,
         tokenHash: hashToken(rawToken()),
       })),
     });
     await generateResponses({
       campaignId: peerCampaign.id,
-      templateId: peer2026.id,
+      templateId: peerTemplateId,
       teacherId,
       teacherStrength: t.strength + 0.08,
       respondentIds: peers,
@@ -707,7 +706,7 @@ async function main() {
       opensAt: new Date("2026-09-01"),
       closesAt: new Date("2026-09-30"),
       minResponses: 1,
-      campaignTemplates: { create: [{ targetGroup: "MANAGER", templateId: mgr2026.id }] },
+      campaignTemplates: { create: [{ targetGroup: "MANAGER", templateId: managerTemplateId }] },
     },
   });
   for (const t of F.CSE_TEACHERS) {
@@ -721,14 +720,14 @@ async function main() {
         teacherId,
         respondentId: cseHeadId,
         targetGroup: "MANAGER",
-        templateId: mgr2026.id,
+        templateId: managerTemplateId,
         tokenHash: hashToken(rawToken()),
       },
     });
     if (t.strength > 0.4) {
       await generateResponses({
         campaignId: headCampaign.id,
-        templateId: mgr2026.id,
+        templateId: managerTemplateId,
         teacherId,
         teacherStrength: t.strength,
         respondentIds: [cseHeadId],
@@ -754,7 +753,7 @@ async function main() {
       opensAt: new Date("2026-09-05"),
       maxResponses: 120,
       minResponses: 5,
-      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: stu2026.id }] },
+      campaignTemplates: { create: [{ targetGroup: "STUDENT", templateId: studentTemplateId }] },
       assignments: {
         create: guestTeachers.map((t) => ({ teacherId: teacherIdByEmail.get(t.email)!, targetGroup: "STUDENT" as const })),
       },
@@ -763,7 +762,7 @@ async function main() {
   for (const t of guestTeachers) {
     await generateGuestResponses({
       campaignId: guestCampaign.id,
-      templateId: stu2026.id,
+      templateId: studentTemplateId,
       teacherId: teacherIdByEmail.get(t.email)!,
       teacherStrength: t.strength,
       count: 15 + Math.floor(rnd() * 20),
@@ -773,7 +772,7 @@ async function main() {
 
   // -- Sibling departments, so the scope overview heatmap has rows --
   for (const [nodeKey, list] of Object.entries(F.OTHER_DEPT_TEACHERS)) {
-    const templateId = deptStudentTemplates.get(nodeKey)!;
+    const templateId = studentTemplateId;
     const campaign = await prisma.campaign.create({
       data: {
         nodeId: nodeIdByKey.get(nodeKey)!,

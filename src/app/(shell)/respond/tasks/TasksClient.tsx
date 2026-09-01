@@ -13,6 +13,8 @@ interface PendingTask {
   taskId: string;
   teacherName: string;
   campaignName: string;
+  courseCode: string | null;
+  courseTitle: string | null;
   targetGroup: "STUDENT" | "PEER" | "MANAGER";
   itemCount: number;
   estimatedMinutes: number;
@@ -22,6 +24,8 @@ interface CompletedTask {
   taskId: string;
   teacherName: string;
   campaignName: string;
+  courseCode: string | null;
+  courseTitle: string | null;
   targetGroup: "STUDENT" | "PEER" | "MANAGER";
   completedAt: Date;
 }
@@ -55,7 +59,11 @@ export default function TasksClient({ pending, completed }: { pending: PendingTa
             <div className="w-3 h-30 rounded-2 flex-none" style={{ background: urgencyColor(t.closesAt?.toISOString() ?? null) }} />
             <div className="flex-1 min-w-0">
               <div className="text-12.5 font-medium truncate text-text">{t.teacherName}</div>
-              <div className="text-11 text-faint truncate">{t.campaignName}</div>
+              {/* Without the course, a student with six pending forms sees the same teacher
+                  name twice and cannot tell the rows apart. */}
+              <div className="text-11 text-faint truncate">
+                {t.courseTitle ? `${t.courseTitle} · ${t.courseCode ?? ""}` : t.campaignName}
+              </div>
             </div>
             <div className="text-11 text-dim w-130 hidden sm:block flex-none">{ROLE_LABEL[t.targetGroup]}</div>
             <div className="text-11 text-dim w-96 hidden md:block font-mono flex-none">
@@ -83,7 +91,9 @@ export default function TasksClient({ pending, completed }: { pending: PendingTa
             <div className="w-3 h-22 bg-border2 rounded-2 flex-none" />
             <div className="flex-1 min-w-0">
               <div className="text-12 truncate">{t.teacherName}</div>
-              <div className="text-10.5 text-faint truncate">{t.campaignName}</div>
+              <div className="text-10.5 text-faint truncate">
+                {t.courseTitle ? `${t.courseTitle} · ${t.courseCode ?? ""}` : t.campaignName}
+              </div>
             </div>
             <div className="text-11 text-dim w-130 hidden sm:block flex-none">{ROLE_LABEL[t.targetGroup]}</div>
             <div className="text-11 text-good flex-none whitespace-nowrap">✓ submitted {shortDate(t.completedAt.toISOString())}</div>
