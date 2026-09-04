@@ -2,7 +2,14 @@ node_modules
 .next
 .env
 .env.local
+.env.test
 global.env
 dist
 *.log
 .DS_Store
+prisma/real-data-private/
+test-results/
+playwright-report/
+blob-report/
+tsconfig.tsbuildinfo
+.claude/scheduled_tasks.lock
