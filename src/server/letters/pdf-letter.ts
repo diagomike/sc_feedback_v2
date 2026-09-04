@@ -1,15 +1,36 @@
 import PDFDocument from "pdfkit";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { letterParagraphs, UNIVERSITY_NAME_AMHARIC, UNIVERSITY_NAME_ENGLISH, type LetterContent } from "./letter-content";
 
-/** Ported verbatim from v1's letters/pdf-letter.ts. A PDF has to have its glyphs
- *  actually embedded at generation time; this looks for a system Ethiopic font rather
- *  than bundling one (licensing) — if absent, the Amharic line is skipped. */
+/** Ported from v1's letters/pdf-letter.ts. A PDF has to have its glyphs actually
+ *  embedded at generation time; this looks for an Ethiopic font rather than bundling
+ *  one (licensing) - if absent, the Amharic line is skipped and the letter stays valid.
+ *
+ *  v1's lookup only searched the Windows font directory, so it always returned null on a
+ *  Linux deploy container (Vercel included) and silently dropped the Amharic university
+ *  name from every production letter. ETHIOPIC_FONT_PATH is the deploy-time escape
+ *  hatch: commit an OFL font (e.g. Noto Sans Ethiopic) and point this at it. */
 function findEthiopicFont(): string | null {
-  const fontsDir = process.env.WINDIR ? join(process.env.WINDIR, "Fonts") : "C:\\Windows\\Fonts";
-  for (const name of ["nyala.ttf", "ebrima.ttf"]) {
-    const candidate = join(fontsDir, name);
+  const configured = process.env.ETHIOPIC_FONT_PATH?.trim();
+  if (configured) {
+    const resolved = isAbsolute(configured) ? configured : join(process.cwd(), configured);
+    if (existsSync(resolved)) return resolved;
+    // Configured but missing is a deploy mistake, not a silent fallback.
+    console.warn(`ETHIOPIC_FONT_PATH is set to "${configured}" but no file exists there; skipping the Amharic line.`);
+  }
+
+  const windowsDir = process.env.WINDIR ? join(process.env.WINDIR, "Fonts") : "C:\Windows\Fonts";
+  const candidates = [
+    join(windowsDir, "nyala.ttf"),
+    join(windowsDir, "ebrima.ttf"),
+    // Common Linux locations, for a self-hosted container with a font package installed.
+    "/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-Regular.ttf",
+    "/usr/share/fonts/truetype/noto/NotoSansEthiopic-Regular.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansEthiopic-Regular.ttf",
+    "/usr/share/fonts/noto/NotoSansEthiopic-Regular.ttf",
+  ];
+  for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
   }
   return null;

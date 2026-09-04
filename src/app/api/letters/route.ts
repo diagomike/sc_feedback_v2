@@ -3,6 +3,10 @@ import { requireUser } from "@/server/auth/session";
 import { generateLettersDocx, generateLettersPdf } from "@/server/letters/letters";
 import { letterRequestSchema } from "@/lib/schemas/letters";
 
+// Letter generation renders every teacher's page into one document; a large department
+// takes well past the default serverless limit.
+export const maxDuration = 300;
+
 /** Binary letter downloads — a route handler rather than a server action, since a
  *  server action can't stream a non-JSON response. Recomputes rows itself rather than
  *  trusting a client-supplied preview, exactly like CSV commit re-validates. */
