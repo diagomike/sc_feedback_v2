@@ -296,6 +296,7 @@ async function main() {
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     ownerNodeKey: string;
     sections: F.SectionFixture[];
+    isDefault?: boolean;
     clonedFromId?: string;
   }) {
     return prisma.template.create({
@@ -303,6 +304,7 @@ async function main() {
         title: params.title,
         targetGroup: params.targetGroup,
         status: params.status,
+        isDefault: params.isDefault ?? false,
         publishedAt: params.status === "PUBLISHED" ? new Date() : null,
         ownerNodeId: nodeIdByKey.get(params.ownerNodeKey)!,
         clonedFromId: params.clonedFromId ?? null,
@@ -339,6 +341,7 @@ async function main() {
       status: "PUBLISHED",
       ownerNodeKey: "astu",
       sections: t.sections,
+      isDefault: true,
     });
     officialTemplateIds.set(t.targetGroup, created.id);
   }

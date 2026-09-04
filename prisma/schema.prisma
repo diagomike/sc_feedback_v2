@@ -333,6 +333,9 @@ model Template {
   title        String
   targetGroup  TargetGroup
   status       TemplateStatus @default(DRAFT)
+  /// The university's official form for this audience. New campaigns attach the three
+  /// defaults automatically; a cloned departmental variant is deliberately not a default.
+  isDefault    Boolean        @default(false)
   ownerNodeId  String
   clonedFromId String?
   publishedAt  DateTime?

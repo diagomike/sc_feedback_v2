@@ -17,7 +17,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   commitEnrollmentsCore,
   commitOfferingsCore,
@@ -36,7 +36,8 @@ const DEPARTMENTS = [
 ];
 
 function read(dir: string, file: string): string {
-  return readFileSync(join(__dirname, dir, file), "utf8");
+  const root = resolve(process.env.REGISTRY_FIXTURE_ROOT ?? join(__dirname, "..", "..", "tests", "fixtures", "registry-full"));
+  return readFileSync(join(root, dir, file), "utf8");
 }
 
 async function main(): Promise<void> {

@@ -1,18 +1,19 @@
 /**
  * Converts the raw ASTU registry export into the four CSVs the department importer reads.
  *
- *   npx tsx prisma/real-data/convert-erp.ts [pathToExport] [semesterKeyword]
+ *   npm run registry:convert -- [pathToExport] [semesterKeyword|all]
  *
  * Source (default D:\py_yaddessa\real_data — not vendored here, it is ~2.4 MB of JSON):
  *   feedback_en/all_students.json               every enrolled student, with real emails
  *   grades/<sem>/courses_cache.json             one entry per course x teacher x section
  *   grades/<sem>/grades_cache.json              keyed by course_id -> the enrolled roster
  *
- * Output, split per department because the importer is department-scoped (a head loads
- * their own file):
- *   prisma/real-data/<dept>/students.csv
- *   prisma/real-data/<dept>/offerings.csv
- *   prisma/real-data/<dept>/enrollments.csv
+ * Output is private and split first by source semester, then by department because a
+ * department head loads their own four-file package:
+ *   prisma/real-data-private/<sem>/<dept>/staff.csv
+ *   prisma/real-data-private/<sem>/<dept>/students.csv
+ *   prisma/real-data-private/<sem>/<dept>/offerings.csv
+ *   prisma/real-data-private/<sem>/<dept>/enrollments.csv
  *
  * Three decisions worth knowing:
  *
@@ -21,17 +22,17 @@
  *    Year 2 lands in cse/offerings.csv; the importer then puts the instructor into Applied
  *    Mathematics via the course-code prefix, which is what keeps "your own department
  *    evaluates you" true.
- *  - instructor_email IS LEFT BLANK on purpose. The export contains no staff address
- *    anywhere, so the importer proposes first.last@astu.edu.et and shows every proposal in
- *    the dry-run for review. Filling them in here would bypass exactly the check that
- *    exists because these addresses are guesses.
+ *  - The source contains no staff addresses. Staff emails are therefore proposed with the
+ *    same deriveStaffEmail() rule the importer uses and written consistently into both
+ *    staff.csv and offerings.csv. These are proposals, not authoritative addresses: the
+ *    operator must review them before uploading either file.
  *  - OFFERINGS WITH NO MATCHING SECTION ARE DROPPED, with a count reported. The export
  *    carries postgraduate, PhD and Extension offerings whose student rosters are not in
  *    all_students.json; importing them would create offerings that reach nobody.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { parseRegistryProgram, subjectShortCode } from "../../src/server/courses/course-logic";
+import { deriveStaffEmail, parseRegistryProgram, subjectShortCode } from "../../src/server/courses/course-logic";
 
 interface RawStudent {
   id_number: string;
@@ -90,12 +91,20 @@ function sectionKeyOf(classYear: string, section: string): string {
   return `${classYear.trim().toLowerCase()}||${section.trim().toLowerCase()}`;
 }
 
-function main(): void {
-  const sourceRoot = resolve(process.argv[2] ?? "D:/py_yaddessa/real_data");
-  const semesterDir = process.argv[3] ?? "second_sem";
-  const outRoot = resolve(join(__dirname));
+interface ConversionSummary {
+  students: number;
+  sections: number;
+  staff: number;
+  offerings: number;
+  enrollments: number;
+}
 
-  const students: RawStudent[] = JSON.parse(readFileSync(join(sourceRoot, "feedback_en/all_students.json"), "utf8"));
+function convertSemester(
+  sourceRoot: string,
+  outRoot: string,
+  semesterDir: string,
+  students: RawStudent[],
+): Record<string, ConversionSummary> {
   const offerings: RawOffering[] = JSON.parse(
     readFileSync(join(sourceRoot, "grades", semesterDir, "courses_cache.json"), "utf8"),
   );
@@ -103,7 +112,7 @@ function main(): void {
     readFileSync(join(sourceRoot, "grades", semesterDir, "grades_cache.json"), "utf8"),
   );
 
-  console.log(`Source: ${sourceRoot} (${semesterDir})`);
+  console.log(`Semester: ${semesterDir}`);
   console.log(`  ${students.length} students · ${offerings.length} offerings · ${Object.keys(grades).length} rosters`);
 
   // ── students, per department ───────────────────────────────────────────
@@ -112,7 +121,11 @@ function main(): void {
   const studentIdsByDept = new Map<string, Set<string>>();
   let unmappedStudents = 0;
 
+  const seenStudentIds = new Set<string>();
   for (const s of students) {
+    if (!s.id_number?.trim()) throw new Error(`A student in ${semesterDir} has no id_number`);
+    if (seenStudentIds.has(s.id_number)) throw new Error(`Duplicate student id '${s.id_number}' in all_students.json`);
+    seenStudentIds.add(s.id_number);
     const dir = departmentDirFor(s.program);
     if (!dir) {
       unmappedStudents++;
@@ -208,10 +221,40 @@ function main(): void {
     enrollmentsByDept.set(dir, pairs);
   }
 
+  // ── staff + cross-file validation ─────────────────────────────────────
+  const staffByDept = new Map<string, Map<string, { name: string; email: string }>>();
+  for (const [dir, deptOfferings] of offeringsByDept) {
+    const staffByEmail = new Map<string, { name: string; email: string }>();
+    for (const offering of deptOfferings) {
+      const email = deriveStaffEmail(offering.instructor);
+      if (!email) throw new Error(`Could not propose an instructor email for '${offering.instructor}'`);
+      const existing = staffByEmail.get(email);
+      if (existing && existing.name !== offering.instructor) {
+        throw new Error(`Proposed instructor email collision: '${existing.name}' and '${offering.instructor}' -> ${email}`);
+      }
+      staffByEmail.set(email, { name: offering.instructor, email });
+    }
+    staffByDept.set(dir, staffByEmail);
+
+    const offeringIds = new Set(deptOfferings.map((offering) => offering.course_id));
+    for (const [offeringId, studentId] of enrollmentsByDept.get(dir) ?? []) {
+      if (!offeringIds.has(offeringId)) throw new Error(`Enrolment references unknown offering '${offeringId}'`);
+      if (!studentIdsByDept.get(dir)?.has(studentId)) throw new Error(`Enrolment references unknown student '${studentId}'`);
+    }
+  }
+
   // ── write ──────────────────────────────────────────────────────────────
+  const summary: Record<string, ConversionSummary> = {};
   for (const [dir, deptStudents] of studentsByDept) {
-    const dirPath = join(outRoot, dir);
+    const dirPath = join(outRoot, semesterDir, dir);
     mkdirSync(dirPath, { recursive: true });
+
+    const staff = [...(staffByDept.get(dir)?.values() ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+    writeCsv(
+      join(dirPath, "staff.csv"),
+      ["name", "email", "phone", "type"],
+      staff.map((person) => [person.name, person.email, "", "teacher"]),
+    );
 
     writeCsv(
       join(dirPath, "students.csv"),
@@ -236,7 +279,7 @@ function main(): void {
         o.course_code,
         o.course_name,
         o.instructor,
-        "", // deliberately blank — see the header comment
+        deriveStaffEmail(o.instructor),
         o.class_year,
         o.section,
       ]),
@@ -245,10 +288,16 @@ function main(): void {
     const deptEnrollments = enrollmentsByDept.get(dir) ?? [];
     writeCsv(join(dirPath, "enrollments.csv"), ["offering_id", "student_id"], deptEnrollments.map(([a, b]) => [a, b]));
 
-    console.log(
-      `  ${dir}: ${deptStudents.length} students · ${sectionsByDept.get(dir)!.size} sections · ` +
-        `${deptOfferings.length} offerings · ${deptEnrollments.length} enrolments`,
-    );
+    summary[dir] = {
+      students: deptStudents.length,
+      sections: sectionsByDept.get(dir)!.size,
+      staff: staff.length,
+      offerings: deptOfferings.length,
+      enrollments: deptEnrollments.length,
+    };
+    console.log(`  ${dir}: ${staff.length} proposed staff emails · ${deptStudents.length} students · ` +
+      `${sectionsByDept.get(dir)!.size} sections · ${deptOfferings.length} offerings · ` +
+      `${deptEnrollments.length} enrolments`);
   }
 
   console.log(
@@ -258,6 +307,29 @@ function main(): void {
       `${mergedDuplicates} duplicate offering(s) merged, ` +
       `${droppedUnknownStudent} enrolments for students not in the roster.`,
   );
+  console.log("  REVIEW REQUIRED: instructor emails are derived proposals; verify them before uploading staff.csv or offerings.csv.");
+  return summary;
+}
+
+function main(): void {
+  const sourceRoot = resolve(process.argv[2] ?? "D:/py_yaddessa/real_data");
+  const requested = process.argv[3] ?? "all";
+  const semesterDirs = requested === "all" ? ["first_sem", "second_sem"] : [requested];
+  const outRoot = resolve(join(__dirname, "..", "real-data-private"));
+  const students: RawStudent[] = JSON.parse(readFileSync(join(sourceRoot, "feedback_en/all_students.json"), "utf8"));
+
+  console.log(`Source: ${sourceRoot}`);
+  console.log(`Private output: ${outRoot}`);
+  const summaries: Record<string, Record<string, ConversionSummary>> = {};
+  for (const semesterDir of semesterDirs) {
+    summaries[semesterDir] = convertSemester(sourceRoot, outRoot, semesterDir, students);
+  }
+  writeFileSync(
+    join(outRoot, "manifest.json"),
+    `${JSON.stringify({ sourceSemesters: semesterDirs, departments: summaries }, null, 2)}\n`,
+    "utf8",
+  );
+  console.log(`Manifest: ${join(outRoot, "manifest.json")}`);
 }
 
 main();
