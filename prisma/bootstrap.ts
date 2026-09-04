@@ -116,6 +116,11 @@ export async function bootstrapProduction(prisma: PrismaClient, input: Bootstrap
   const emailLower = input.adminEmail.trim().toLowerCase();
   const passwordHash = await argon2.hash(input.adminPassword);
 
+  // The whole bootstrap is one transaction so a partial setup can never be left behind.
+  // Prisma's default interactive-transaction timeout is 5s, which is ample against a local
+  // Postgres but not against a managed database in another region: this does ~40 sequential
+  // round-trips (scales, three templates, their sections and items), and at Neon's latency
+  // that overran 5s and rolled the whole thing back with P2028.
   return prisma.$transaction(async (tx) => {
     let admin: BootstrapResult["admin"] = "existing";
     const admins = await tx.user.findMany({
@@ -254,7 +259,7 @@ export async function bootstrapProduction(prisma: PrismaClient, input: Bootstrap
     }
 
     return { admin, root, scalesCreated, templatesCreated };
-  });
+  }, { maxWait: 15_000, timeout: 120_000 });
 }
 
 async function main(): Promise<void> {
