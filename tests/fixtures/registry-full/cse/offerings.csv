@@ -1,0 +1,128 @@
+offering_id,course_code,course_title,instructor_name,instructor_email,class_year,section
+CSE-OFF-0001,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 1
+CSE-OFF-0002,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 2
+CSE-OFF-0003,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 3
+CSE-OFF-0004,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 4
+CSE-OFF-0005,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 5
+CSE-OFF-0006,MATH2207,Discrete mathematics,Instructor 0010 Test,instructor.0010@example.test,Second Year,Section 6
+CSE-OFF-0007,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 1
+CSE-OFF-0008,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 2
+CSE-OFF-0009,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 3
+CSE-OFF-0010,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 4
+CSE-OFF-0011,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 5
+CSE-OFF-0012,Math2201,Linear Algebra,Instructor 0041 Test,instructor.0041@example.test,Second Year,Section 6
+CSE-OFF-0013,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 1
+CSE-OFF-0014,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 2
+CSE-OFF-0015,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 3
+CSE-OFF-0016,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 4
+CSE-OFF-0017,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 5
+CSE-OFF-0018,ECEg2204,Signals and Systems Analysis,Instructor 0011 Test,instructor.0011@example.test,Second Year,Section 6
+CSE-OFF-0019,CSEg2202,Object oriented Programming,Instructor 0017 Test,instructor.0017@example.test,Second Year,Section 1
+CSE-OFF-0020,CSEg2202,Object oriented Programming,Instructor 0017 Test,instructor.0017@example.test,Second Year,Section 2
+CSE-OFF-0021,CSEg2202,Object oriented Programming,Instructor 0040 Test,instructor.0040@example.test,Second Year,Section 3
+CSE-OFF-0022,CSEg2202,Object oriented Programming,Instructor 0040 Test,instructor.0040@example.test,Second Year,Section 4
+CSE-OFF-0023,CSEg2202,Object oriented Programming,Instructor 0044 Test,instructor.0044@example.test,Second Year,Section 5
+CSE-OFF-0024,CSEg2202,Object oriented Programming,Instructor 0044 Test,instructor.0044@example.test,Second Year,Section 6
+CSE-OFF-0025,CSEg2208,Design and Analysis of Algorithms,Instructor 0006 Test,instructor.0006@example.test,Second Year,Section 3
+CSE-OFF-0026,CSEg2208,Design and Analysis of Algorithms,Instructor 0006 Test,instructor.0006@example.test,Second Year,Section 4
+CSE-OFF-0027,CSEg2208,Design and Analysis of Algorithms,Instructor 0006 Test,instructor.0006@example.test,Second Year,Section 5
+CSE-OFF-0028,CSEg2208,Design and Analysis of Algorithms,Instructor 0006 Test,instructor.0006@example.test,Second Year,Section 6
+CSE-OFF-0029,CSEg2208,Design and Analysis of Algorithms,Instructor 0033 Test,instructor.0033@example.test,Second Year,Section 1
+CSE-OFF-0030,CSEg2208,Design and Analysis of Algorithms,Instructor 0033 Test,instructor.0033@example.test,Second Year,Section 2
+CSE-OFF-0031,SEng 2204,Database Systems,Instructor 0009 Test,instructor.0009@example.test,Second Year,Section 3
+CSE-OFF-0032,SEng 2204,Database Systems,Instructor 0009 Test,instructor.0009@example.test,Second Year,Section 4
+CSE-OFF-0033,SEng 2204,Database Systems,Instructor 0021 Test,instructor.0021@example.test,Second Year,Section 5
+CSE-OFF-0034,SEng 2204,Database Systems,Instructor 0021 Test,instructor.0021@example.test,Second Year,Section 6
+CSE-OFF-0035,SEng 2204,Database Systems,Instructor 0050 Test,instructor.0050@example.test,Second Year,Section 1
+CSE-OFF-0036,SEng 2204,Database Systems,Instructor 0050 Test,instructor.0050@example.test,Second Year,Section 2
+CSE-OFF-0037,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 1
+CSE-OFF-0038,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 2
+CSE-OFF-0039,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 3
+CSE-OFF-0040,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 4
+CSE-OFF-0041,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 5
+CSE-OFF-0042,SOSC2002,Introduction to Economics,Instructor 0038 Test,instructor.0038@example.test,Third Year,Section 6
+CSE-OFF-0043,SEng4208,Introduction to Artificial Intelligence,Instructor 0006 Test,instructor.0006@example.test,Third Year,Section 5
+CSE-OFF-0044,SEng4208,Introduction to Artificial Intelligence,Instructor 0006 Test,instructor.0006@example.test,Third Year,Section 6
+CSE-OFF-0045,SEng4208,Introduction to Artificial Intelligence,Instructor 0034 Test,instructor.0034@example.test,Third Year,Section 1
+CSE-OFF-0046,SEng4208,Introduction to Artificial Intelligence,Instructor 0034 Test,instructor.0034@example.test,Third Year,Section 2
+CSE-OFF-0047,SEng4208,Introduction to Artificial Intelligence,Instructor 0062 Test,instructor.0062@example.test,Third Year,Section 3
+CSE-OFF-0048,SEng4208,Introduction to Artificial Intelligence,Instructor 0062 Test,instructor.0062@example.test,Third Year,Section 4
+CSE-OFF-0049,CSEg3202,Computer Architecture & Organization,Instructor 0016 Test,instructor.0016@example.test,Third Year,Section 3
+CSE-OFF-0050,CSEg3202,Computer Architecture & Organization,Instructor 0016 Test,instructor.0016@example.test,Third Year,Section 4
+CSE-OFF-0051,CSEg3202,Computer Architecture & Organization,Instructor 0024 Test,instructor.0024@example.test,Third Year,Section 1
+CSE-OFF-0052,CSEg3202,Computer Architecture & Organization,Instructor 0024 Test,instructor.0024@example.test,Third Year,Section 2
+CSE-OFF-0053,CSEg3202,Computer Architecture & Organization,Instructor 0024 Test,instructor.0024@example.test,Third Year,Section 5
+CSE-OFF-0054,CSEg3202,Computer Architecture & Organization,Instructor 0024 Test,instructor.0024@example.test,Third Year,Section 6
+CSE-OFF-0055,CSEg3204,Data Communication and Computer Networks,Instructor 0002 Test,instructor.0002@example.test,Third Year,Section 5
+CSE-OFF-0056,CSEg3204,Data Communication and Computer Networks,Instructor 0002 Test,instructor.0002@example.test,Third Year,Section 6
+CSE-OFF-0057,CSEg3204,Data Communication and Computer Networks,Instructor 0036 Test,instructor.0036@example.test,Third Year,Section 1
+CSE-OFF-0058,CSEg3204,Data Communication and Computer Networks,Instructor 0036 Test,instructor.0036@example.test,Third Year,Section 2
+CSE-OFF-0059,CSEg3204,Data Communication and Computer Networks,Instructor 0069 Test,instructor.0069@example.test,Third Year,Section 3
+CSE-OFF-0060,CSEg3204,Data Communication and Computer Networks,Instructor 0069 Test,instructor.0069@example.test,Third Year,Section 4
+CSE-OFF-0061,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 1
+CSE-OFF-0062,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 2
+CSE-OFF-0063,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 3
+CSE-OFF-0064,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 4
+CSE-OFF-0065,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 5
+CSE-OFF-0066,CSEg3306,Mobile Computing and Applications,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 6
+CSE-OFF-0067,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 1
+CSE-OFF-0068,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 2
+CSE-OFF-0069,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 3
+CSE-OFF-0070,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 4
+CSE-OFF-0071,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 5
+CSE-OFF-0072,SEng3302,Information Storage and Retrieval,Instructor 0019 Test,instructor.0019@example.test,Third Year,Section 6
+CSE-OFF-0073,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 1
+CSE-OFF-0074,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 2
+CSE-OFF-0075,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 3
+CSE-OFF-0076,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 4
+CSE-OFF-0077,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 5
+CSE-OFF-0078,SEng 3301,Software Requirement Engineering,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 6
+CSE-OFF-0079,Math2201,Linear Algebra,Instructor 0053 Test,instructor.0053@example.test,Fourth Year,Section 1
+CSE-OFF-0080,Math2201,Linear Algebra,Instructor 0053 Test,instructor.0053@example.test,Fourth Year,Section 2
+CSE-OFF-0081,Math2201,Linear Algebra,Instructor 0053 Test,instructor.0053@example.test,Fourth Year,Section 3
+CSE-OFF-0082,SEng4206,Engineering Research and Development methodology,Instructor 0061 Test,instructor.0061@example.test,Fourth Year,Section 1
+CSE-OFF-0083,SEng4206,Engineering Research and Development methodology,Instructor 0023 Test,instructor.0023@example.test,Fourth Year,Section 2
+CSE-OFF-0084,SEng4206,Engineering Research and Development methodology,Instructor 0020 Test,instructor.0020@example.test,Fourth Year,Section 3
+CSE-OFF-0085,SEng4304,Human Computer Interaction,Instructor 0058 Test,instructor.0058@example.test,Fourth Year,Section 1
+CSE-OFF-0086,SEng4304,Human Computer Interaction,Instructor 0058 Test,instructor.0058@example.test,Fourth Year,Section 2
+CSE-OFF-0087,SEng4304,Human Computer Interaction,Instructor 0058 Test,instructor.0058@example.test,Fourth Year,Section 3
+CSE-OFF-0088,SEng5305,Introduction to Machine Learning,Instructor 0037 Test,instructor.0037@example.test,Fourth Year,Section 1
+CSE-OFF-0089,SEng5305,Introduction to Machine Learning,Instructor 0037 Test,instructor.0037@example.test,Fourth Year,Section 2
+CSE-OFF-0090,SEng5305,Introduction to Machine Learning,Instructor 0037 Test,instructor.0037@example.test,Fourth Year,Section 3
+CSE-OFF-0091,CSEg4204,Web Programming,Instructor 0015 Test,instructor.0015@example.test,Fourth Year,Section 3
+CSE-OFF-0092,CSEg4204,Web Programming,Instructor 0047 Test,instructor.0047@example.test,Fourth Year,Section 1
+CSE-OFF-0093,CSEg4204,Web Programming,Instructor 0047 Test,instructor.0047@example.test,Fourth Year,Section 2
+CSE-OFF-0094,CSEg4302,Image Processing,Instructor 0001 Test,instructor.0001@example.test,Fourth Year,Section 1
+CSE-OFF-0095,CSEg4302,Image Processing,Instructor 0001 Test,instructor.0001@example.test,Fourth Year,Section 2
+CSE-OFF-0096,CSEg4302,Image Processing,Instructor 0001 Test,instructor.0001@example.test,Fourth Year,Section 3
+CSE-OFF-0097,CSEg4304,Complexity Theory,Instructor 0050 Test,instructor.0050@example.test,Fourth Year,Section 1
+CSE-OFF-0098,CSEg4304,Complexity Theory,Instructor 0050 Test,instructor.0050@example.test,Fourth Year,Section 2
+CSE-OFF-0099,CSEg4304,Complexity Theory,Instructor 0050 Test,instructor.0050@example.test,Fourth Year,Section 3
+CSE-OFF-0100,CSEg4306,Programming languages,Instructor 0035 Test,instructor.0035@example.test,Fourth Year,Section 1
+CSE-OFF-0101,CSEg4306,Programming languages,Instructor 0035 Test,instructor.0035@example.test,Fourth Year,Section 2
+CSE-OFF-0102,CSEg4306,Programming languages,Instructor 0035 Test,instructor.0035@example.test,Fourth Year,Section 3
+CSE-OFF-0103,IETP4202,Integrated Engineering Team Project,Instructor 0044 Test,instructor.0044@example.test,Fourth Year,Section 1
+CSE-OFF-0104,IETP4202,Integrated Engineering Team Project,Instructor 0064 Test,instructor.0064@example.test,Fourth Year,Section 2
+CSE-OFF-0105,IETP4202,Integrated Engineering Team Project,Instructor 0071 Test,instructor.0071@example.test,Fourth Year,Section 3
+CSE-OFF-0106,CSEg 4206,Special Topics in CSE,Instructor 0021 Test,instructor.0021@example.test,Fourth Year,Section 3
+CSE-OFF-0107,CSEg 4206,Special Topics in CSE,Instructor 0046 Test,instructor.0046@example.test,Fourth Year,Section 1
+CSE-OFF-0108,CSEg 4206,Special Topics in CSE,Instructor 0047 Test,instructor.0047@example.test,Fourth Year,Section 2
+CSE-OFF-0109,SEng5301,Introduction to Computer Vision and Image Processing,Instructor 0039 Test,instructor.0039@example.test,Fifth Year,Section 1
+CSE-OFF-0110,SEng5301,Introduction to Computer Vision and Image Processing,Instructor 0039 Test,instructor.0039@example.test,Fifth Year,Section 2
+CSE-OFF-0111,SEng5301,Introduction to Computer Vision and Image Processing,Instructor 0039 Test,instructor.0039@example.test,Fifth Year,Section 3
+CSE-OFF-0112,CSEg5204,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 1
+CSE-OFF-0113,CSEg5204,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 2
+CSE-OFF-0114,CSEg5204,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 3
+CSE-OFF-0115,CSEg5206,Computer Ethics and Social Issues,Instructor 0066 Test,instructor.0066@example.test,Fifth Year,Section 1
+CSE-OFF-0116,CSEg5206,Computer Ethics and Social Issues,Instructor 0066 Test,instructor.0066@example.test,Fifth Year,Section 2
+CSE-OFF-0117,CSEg5206,Computer Ethics and Social Issues,Instructor 0066 Test,instructor.0066@example.test,Fifth Year,Section 3
+CSE-OFF-0118,CSEg5304,Introduction to Block Chain,Instructor 0072 Test,instructor.0072@example.test,Fifth Year,Section 1
+CSE-OFF-0119,CSEg5304,Introduction to Block Chain,Instructor 0072 Test,instructor.0072@example.test,Fifth Year,Section 2
+CSE-OFF-0120,CSEg5304,Introduction to Block Chain,Instructor 0072 Test,instructor.0072@example.test,Fifth Year,Section 3
+CSE-OFF-0121,CSEg5306,Introduction to Natural Language Processing,Instructor 0059 Test,instructor.0059@example.test,Fifth Year,Section 1
+CSE-OFF-0122,CSEg5306,Introduction to Natural Language Processing,Instructor 0059 Test,instructor.0059@example.test,Fifth Year,Section 2
+CSE-OFF-0123,CSEg5306,Introduction to Natural Language Processing,Instructor 0059 Test,instructor.0059@example.test,Fifth Year,Section 3
+CSE-OFF-0124,PCE3201,Electrical Network Analysis and synthesis,Instructor 0027 Test,instructor.0027@example.test,Fifth Year,Section 1
+CSE-OFF-0125,PCE3201,Electrical Network Analysis and synthesis,Instructor 0027 Test,instructor.0027@example.test,Fifth Year,Section 2
+CSE-OFF-0126,PCE3201,Electrical Network Analysis and synthesis,Instructor 0027 Test,instructor.0027@example.test,Fifth Year,Section 3
+CSE-OFF-0127,ECEg2204,Signals and Systems Analysis,Instructor 0012 Test,instructor.0012@example.test,Third Year,Section 1

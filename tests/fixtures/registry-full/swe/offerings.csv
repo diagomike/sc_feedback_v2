@@ -1,0 +1,139 @@
+offering_id,course_code,course_title,instructor_name,instructor_email,class_year,section
+SWE-OFF-0001,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 1
+SWE-OFF-0002,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 2
+SWE-OFF-0003,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 3
+SWE-OFF-0004,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 4
+SWE-OFF-0005,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 5
+SWE-OFF-0006,MATH2207,Discrete mathematics,Instructor 0018 Test,instructor.0018@example.test,Second Year,Section 6
+SWE-OFF-0007,ECEg3201,Digital Logic Design,Instructor 0029 Test,instructor.0029@example.test,Second Year,Section 1
+SWE-OFF-0008,ECEg3201,Digital Logic Design,Instructor 0029 Test,instructor.0029@example.test,Second Year,Section 2
+SWE-OFF-0009,ECEg3201,Digital Logic Design,Instructor 0029 Test,instructor.0029@example.test,Second Year,Section 3
+SWE-OFF-0010,ECEg3201,Digital Logic Design,Instructor 0029 Test,instructor.0029@example.test,Second Year,Section 4
+SWE-OFF-0011,ECEg3201,Digital Logic Design,Instructor 0065 Test,instructor.0065@example.test,Second Year,Section 5
+SWE-OFF-0012,ECEg3201,Digital Logic Design,Instructor 0065 Test,instructor.0065@example.test,Second Year,Section 6
+SWE-OFF-0013,CSEg2202,Object oriented Programming,Instructor 0054 Test,instructor.0054@example.test,Second Year,Section 5
+SWE-OFF-0014,CSEg2202,Object oriented Programming,Instructor 0054 Test,instructor.0054@example.test,Second Year,Section 6
+SWE-OFF-0015,CSEg2202,Object oriented Programming,Instructor 0071 Test,instructor.0071@example.test,Second Year,Section 1
+SWE-OFF-0016,CSEg2202,Object oriented Programming,Instructor 0071 Test,instructor.0071@example.test,Second Year,Section 2
+SWE-OFF-0017,CSEg2202,Object oriented Programming,Instructor 0071 Test,instructor.0071@example.test,Second Year,Section 3
+SWE-OFF-0018,CSEg2202,Object oriented Programming,Instructor 0071 Test,instructor.0071@example.test,Second Year,Section 4
+SWE-OFF-0019,SEng2206,Fundamentals of Software Engineering,Instructor 0042 Test,instructor.0042@example.test,Second Year,Section 1
+SWE-OFF-0020,SEng2206,Fundamentals of Software Engineering,Instructor 0042 Test,instructor.0042@example.test,Second Year,Section 2
+SWE-OFF-0021,SEng2206,Fundamentals of Software Engineering,Instructor 0042 Test,instructor.0042@example.test,Second Year,Section 5
+SWE-OFF-0022,SEng2206,Fundamentals of Software Engineering,Instructor 0042 Test,instructor.0042@example.test,Second Year,Section 6
+SWE-OFF-0023,SEng2206,Fundamentals of Software Engineering,Instructor 0073 Test,instructor.0073@example.test,Second Year,Section 3
+SWE-OFF-0024,SEng2206,Fundamentals of Software Engineering,Instructor 0073 Test,instructor.0073@example.test,Second Year,Section 4
+SWE-OFF-0025,SEng 2204,Database Systems,Instructor 0004 Test,instructor.0004@example.test,Second Year,Section 1
+SWE-OFF-0026,SEng 2204,Database Systems,Instructor 0004 Test,instructor.0004@example.test,Second Year,Section 2
+SWE-OFF-0027,SEng 2204,Database Systems,Instructor 0004 Test,instructor.0004@example.test,Second Year,Section 5
+SWE-OFF-0028,SEng 2204,Database Systems,Instructor 0004 Test,instructor.0004@example.test,Second Year,Section 6
+SWE-OFF-0029,SEng 2204,Database Systems,Instructor 0021 Test,instructor.0021@example.test,Second Year,Section 3
+SWE-OFF-0030,SEng 2204,Database Systems,Instructor 0021 Test,instructor.0021@example.test,Second Year,Section 4
+SWE-OFF-0031,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 1
+SWE-OFF-0032,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 2
+SWE-OFF-0033,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 3
+SWE-OFF-0034,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 4
+SWE-OFF-0035,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 5
+SWE-OFF-0036,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Second Year,Section 6
+SWE-OFF-0037,SEng3202,Engineering Web Based System,Instructor 0004 Test,instructor.0004@example.test,Third Year,Section 1
+SWE-OFF-0038,SEng3202,Engineering Web Based System,Instructor 0004 Test,instructor.0004@example.test,Third Year,Section 2
+SWE-OFF-0039,SEng3202,Engineering Web Based System,Instructor 0046 Test,instructor.0046@example.test,Third Year,Section 3
+SWE-OFF-0040,SEng3202,Engineering Web Based System,Instructor 0046 Test,instructor.0046@example.test,Third Year,Section 4
+SWE-OFF-0041,SEng3202,Engineering Web Based System,Instructor 0046 Test,instructor.0046@example.test,Third Year,Section 5
+SWE-OFF-0042,SEng3202,Engineering Web Based System,Instructor 0046 Test,instructor.0046@example.test,Third Year,Section 6
+SWE-OFF-0043,SEng3204,Software Architecture and Design,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 5
+SWE-OFF-0044,SEng3204,Software Architecture and Design,Instructor 0048 Test,instructor.0048@example.test,Third Year,Section 6
+SWE-OFF-0045,SEng3204,Software Architecture and Design,Instructor 0064 Test,instructor.0064@example.test,Third Year,Section 1
+SWE-OFF-0046,SEng3204,Software Architecture and Design,Instructor 0064 Test,instructor.0064@example.test,Third Year,Section 2
+SWE-OFF-0047,SEng3204,Software Architecture and Design,Instructor 0064 Test,instructor.0064@example.test,Third Year,Section 3
+SWE-OFF-0048,SEng3204,Software Architecture and Design,Instructor 0064 Test,instructor.0064@example.test,Third Year,Section 4
+SWE-OFF-0049,SEng3206,Mobile Application Design and Development,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 1
+SWE-OFF-0050,SEng3206,Mobile Application Design and Development,Instructor 0007 Test,instructor.0007@example.test,Third Year,Section 2
+SWE-OFF-0051,SEng3206,Mobile Application Design and Development,Instructor 0055 Test,instructor.0055@example.test,Third Year,Section 3
+SWE-OFF-0052,SEng3206,Mobile Application Design and Development,Instructor 0055 Test,instructor.0055@example.test,Third Year,Section 4
+SWE-OFF-0053,SEng3206,Mobile Application Design and Development,Instructor 0055 Test,instructor.0055@example.test,Third Year,Section 5
+SWE-OFF-0054,SEng3206,Mobile Application Design and Development,Instructor 0055 Test,instructor.0055@example.test,Third Year,Section 6
+SWE-OFF-0055,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 1
+SWE-OFF-0056,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 2
+SWE-OFF-0057,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 3
+SWE-OFF-0058,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 4
+SWE-OFF-0059,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 5
+SWE-OFF-0060,CSEg2208,Design and Analysis of Algorithms,Instructor 0063 Test,instructor.0063@example.test,Third Year,Section 6
+SWE-OFF-0061,CSEg4201,Operating Systems,Instructor 0013 Test,instructor.0013@example.test,Third Year,Section 3
+SWE-OFF-0062,CSEg4201,Operating Systems,Instructor 0013 Test,instructor.0013@example.test,Third Year,Section 4
+SWE-OFF-0063,CSEg4201,Operating Systems,Instructor 0032 Test,instructor.0032@example.test,Third Year,Section 1
+SWE-OFF-0064,CSEg4201,Operating Systems,Instructor 0032 Test,instructor.0032@example.test,Third Year,Section 2
+SWE-OFF-0065,CSEg4201,Operating Systems,Instructor 0032 Test,instructor.0032@example.test,Third Year,Section 5
+SWE-OFF-0066,CSEg4201,Operating Systems,Instructor 0032 Test,instructor.0032@example.test,Third Year,Section 6
+SWE-OFF-0067,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 1
+SWE-OFF-0068,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 2
+SWE-OFF-0069,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 3
+SWE-OFF-0070,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 4
+SWE-OFF-0071,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 5
+SWE-OFF-0072,CSEg3301,Computer Graphics,Instructor 0070 Test,instructor.0070@example.test,Third Year,Section 6
+SWE-OFF-0073,Math 3201,Numerical Analysis I,Instructor 0049 Test,instructor.0049@example.test,Third Year,Section 3
+SWE-OFF-0074,Math 3201,Numerical Analysis I,Instructor 0049 Test,instructor.0049@example.test,Third Year,Section 4
+SWE-OFF-0075,Math 3201,Numerical Analysis I,Instructor 0031 Test,instructor.0031@example.test,Third Year,Section 1
+SWE-OFF-0076,Math 3201,Numerical Analysis I,Instructor 0031 Test,instructor.0031@example.test,Third Year,Section 2
+SWE-OFF-0077,Math 3201,Numerical Analysis I,Instructor 0022 Test,instructor.0022@example.test,Third Year,Section 5
+SWE-OFF-0078,Math 3201,Numerical Analysis I,Instructor 0022 Test,instructor.0022@example.test,Third Year,Section 6
+SWE-OFF-0079,SEng3302,Information Storage and Retrieval,Instructor 0051 Test,instructor.0051@example.test,Third Year,Section 1
+SWE-OFF-0080,SEng3302,Information Storage and Retrieval,Instructor 0051 Test,instructor.0051@example.test,Third Year,Section 2
+SWE-OFF-0081,SEng3302,Information Storage and Retrieval,Instructor 0025 Test,instructor.0025@example.test,Third Year,Section 3
+SWE-OFF-0082,SEng3302,Information Storage and Retrieval,Instructor 0025 Test,instructor.0025@example.test,Third Year,Section 4
+SWE-OFF-0083,SEng3302,Information Storage and Retrieval,Instructor 0025 Test,instructor.0025@example.test,Third Year,Section 5
+SWE-OFF-0084,SEng3302,Information Storage and Retrieval,Instructor 0025 Test,instructor.0025@example.test,Third Year,Section 6
+SWE-OFF-0085,Math2201,Linear Algebra,Instructor 0068 Test,instructor.0068@example.test,Fourth Year,Section 1
+SWE-OFF-0086,Math2201,Linear Algebra,Instructor 0068 Test,instructor.0068@example.test,Fourth Year,Section 2
+SWE-OFF-0087,Math2201,Linear Algebra,Instructor 0068 Test,instructor.0068@example.test,Fourth Year,Section 3
+SWE-OFF-0088,SEng4206,Engineering Research and Development methodology,Instructor 0028 Test,instructor.0028@example.test,Fourth Year,Section 2
+SWE-OFF-0089,SEng4206,Engineering Research and Development methodology,Instructor 0052 Test,instructor.0052@example.test,Fourth Year,Section 1
+SWE-OFF-0090,SEng4206,Engineering Research and Development methodology,Instructor 0045 Test,instructor.0045@example.test,Fourth Year,Section 3
+SWE-OFF-0091,SEng4208,Introduction to Artificial Intelligence,Instructor 0006 Test,instructor.0006@example.test,Fourth Year,Section 1
+SWE-OFF-0092,SEng4208,Introduction to Artificial Intelligence,Instructor 0057 Test,instructor.0057@example.test,Fourth Year,Section 2
+SWE-OFF-0093,SEng4208,Introduction to Artificial Intelligence,Instructor 0058 Test,instructor.0058@example.test,Fourth Year,Section 3
+SWE-OFF-0094,SEng4304,Human Computer Interaction,Instructor 0015 Test,instructor.0015@example.test,Fourth Year,Section 1
+SWE-OFF-0095,SEng4304,Human Computer Interaction,Instructor 0015 Test,instructor.0015@example.test,Fourth Year,Section 2
+SWE-OFF-0096,SEng4304,Human Computer Interaction,Instructor 0058 Test,instructor.0058@example.test,Fourth Year,Section 3
+SWE-OFF-0097,SEng4306,Blockchain and Cryptocurrency,Instructor 0072 Test,instructor.0072@example.test,Fourth Year,Section 1
+SWE-OFF-0098,SEng4306,Blockchain and Cryptocurrency,Instructor 0072 Test,instructor.0072@example.test,Fourth Year,Section 2
+SWE-OFF-0099,SEng4306,Blockchain and Cryptocurrency,Instructor 0072 Test,instructor.0072@example.test,Fourth Year,Section 3
+SWE-OFF-0100,IETP4202,Integrated Engineering Team Project,Instructor 0002 Test,instructor.0002@example.test,Fourth Year,Section 3
+SWE-OFF-0101,IETP4202,Integrated Engineering Team Project,Instructor 0008 Test,instructor.0008@example.test,Fourth Year,Section 1
+SWE-OFF-0102,IETP4202,Integrated Engineering Team Project,Instructor 0009 Test,instructor.0009@example.test,Fourth Year,Section 2
+SWE-OFF-0103,SEng 4302,Digital Forensics,Instructor 0014 Test,instructor.0014@example.test,Fourth Year,Section 1
+SWE-OFF-0104,SEng 4302,Digital Forensics,Instructor 0014 Test,instructor.0014@example.test,Fourth Year,Section 2
+SWE-OFF-0105,SEng 4302,Digital Forensics,Instructor 0014 Test,instructor.0014@example.test,Fourth Year,Section 3
+SWE-OFF-0106,SEng 4308,Distributed Software Systems,Instructor 0060 Test,instructor.0060@example.test,Fourth Year,Section 1
+SWE-OFF-0107,SEng 4308,Distributed Software Systems,Instructor 0060 Test,instructor.0060@example.test,Fourth Year,Section 2
+SWE-OFF-0108,SEng 4308,Distributed Software Systems,Instructor 0060 Test,instructor.0060@example.test,Fourth Year,Section 3
+SWE-OFF-0109,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Fourth Year,Section 1
+SWE-OFF-0110,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Fourth Year,Section 2
+SWE-OFF-0111,SEng 2208,Programming Under Unix/Linux Lab,Instructor 0013 Test,instructor.0013@example.test,Fourth Year,Section 3
+SWE-OFF-0112,SOSC2002,Introduction to Economics,Instructor 0003 Test,instructor.0003@example.test,Fifth Year,Section 1
+SWE-OFF-0113,SOSC2002,Introduction to Economics,Instructor 0005 Test,instructor.0005@example.test,Fifth Year,Section 2
+SWE-OFF-0114,SOSC2002,Introduction to Economics,Instructor 0056 Test,instructor.0056@example.test,Fifth Year,Section 3
+SWE-OFF-0115,SEng5202,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 1
+SWE-OFF-0116,SEng5202,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 2
+SWE-OFF-0117,SEng5202,Senior Project II,Instructor 0008 Test,instructor.0008@example.test,Fifth Year,Section 3
+SWE-OFF-0118,SEng5306,Component Based Software Development,Instructor 0014 Test,instructor.0014@example.test,Fifth Year,Section 1
+SWE-OFF-0119,SEng5306,Component Based Software Development,Instructor 0014 Test,instructor.0014@example.test,Fifth Year,Section 2
+SWE-OFF-0120,SEng5306,Component Based Software Development,Instructor 0014 Test,instructor.0014@example.test,Fifth Year,Section 3
+SWE-OFF-0121,SEng5310,Introduction to Cyber security,Instructor 0067 Test,instructor.0067@example.test,Fifth Year,Section 1
+SWE-OFF-0122,SEng5310,Introduction to Cyber security,Instructor 0067 Test,instructor.0067@example.test,Fifth Year,Section 2
+SWE-OFF-0123,SEng5310,Introduction to Cyber security,Instructor 0067 Test,instructor.0067@example.test,Fifth Year,Section 3
+SWE-OFF-0124,SEng5304,Agile and Test Driven Development,Instructor 0016 Test,instructor.0016@example.test,Fifth Year,Section 1
+SWE-OFF-0125,SEng5304,Agile and Test Driven Development,Instructor 0016 Test,instructor.0016@example.test,Fifth Year,Section 2
+SWE-OFF-0126,SEng5304,Agile and Test Driven Development,Instructor 0016 Test,instructor.0016@example.test,Fifth Year,Section 3
+SWE-OFF-0127,SEng5312,Fundamental of Cloud and Edge Computing,Instructor 0040 Test,instructor.0040@example.test,Fifth Year,Section 1
+SWE-OFF-0128,SEng5312,Fundamental of Cloud and Edge Computing,Instructor 0040 Test,instructor.0040@example.test,Fifth Year,Section 2
+SWE-OFF-0129,SEng5312,Fundamental of Cloud and Edge Computing,Instructor 0040 Test,instructor.0040@example.test,Fifth Year,Section 3
+SWE-OFF-0130,SEng5314,Introduction to Softwate Integration and Engineering,Instructor 0026 Test,instructor.0026@example.test,Fifth Year,Section 1
+SWE-OFF-0131,SEng5314,Introduction to Softwate Integration and Engineering,Instructor 0026 Test,instructor.0026@example.test,Fifth Year,Section 2
+SWE-OFF-0132,SEng5314,Introduction to Softwate Integration and Engineering,Instructor 0026 Test,instructor.0026@example.test,Fifth Year,Section 3
+SWE-OFF-0133,EPCE2101,Fundamentals of Electrical Engineering,Instructor 0043 Test,instructor.0043@example.test,Second Year,Section 1
+SWE-OFF-0134,SEng2206,Fundamentals of Software Engineering,Instructor 0015 Test,instructor.0015@example.test,Second Year,Section 1
+SWE-OFF-0135,ECE3201,Digital Logic Design,Instructor 0030 Test,instructor.0030@example.test,Third Year,Section 1
+SWE-OFF-0136,ECE3201,Digital Logic Design,Instructor 0029 Test,instructor.0029@example.test,Third Year,Section 2
+SWE-OFF-0137,CSEg4201,Operating Systems,Instructor 0006 Test,instructor.0006@example.test,Fourth Year,Section 1
+SWE-OFF-0138,SEng4306,Blockchain and Cryptocurrency,Instructor 0072 Test,instructor.0072@example.test,Fifth Year,Section 1

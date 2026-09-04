@@ -1,0 +1,63 @@
+{
+  "generatedAt": "deterministic",
+  "departments": {
+    "cse": {
+      "name": "Computer Science & Engineering",
+      "staffRows": 36,
+      "studentRows": 552,
+      "offeringRows": 127,
+      "enrollmentRows": 3129,
+      "sectionRows": 18,
+      "anchor": {
+        "teacherName": "Instructor 0017 Test",
+        "teacherEmail": "instructor.0017@example.test",
+        "offeringExternalId": "CSE-OFF-0019",
+        "courseCode": "CSEg2202",
+        "courseTitle": "Object oriented Programming",
+        "peerEmails": [
+          "instructor.0001@example.test",
+          "instructor.0002@example.test",
+          "instructor.0006@example.test",
+          "instructor.0007@example.test",
+          "instructor.0008@example.test"
+        ],
+        "studentEmails": [
+          "cse.student.0277@example.test",
+          "cse.student.0273@example.test",
+          "cse.student.0288@example.test",
+          "cse.student.0285@example.test",
+          "cse.student.0286@example.test"
+        ]
+      }
+    },
+    "swe": {
+      "name": "Software Engineering",
+      "staffRows": 50,
+      "studentRows": 563,
+      "offeringRows": 138,
+      "enrollmentRows": 3520,
+      "sectionRows": 18,
+      "anchor": {
+        "teacherName": "Instructor 0042 Test",
+        "teacherEmail": "instructor.0042@example.test",
+        "offeringExternalId": "SWE-OFF-0019",
+        "courseCode": "SEng2206",
+        "courseTitle": "Fundamentals of Software Engineering",
+        "peerEmails": [
+          "instructor.0002@example.test",
+          "instructor.0003@example.test",
+          "instructor.0004@example.test",
+          "instructor.0005@example.test",
+          "instructor.0006@example.test"
+        ],
+        "studentEmails": [
+          "swe.student.0270@example.test",
+          "swe.student.0286@example.test",
+          "swe.student.0269@example.test",
+          "swe.student.0281@example.test",
+          "swe.student.0276@example.test"
+        ]
+      }
+    }
+  }
+}

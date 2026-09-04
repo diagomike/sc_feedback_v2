@@ -1,0 +1,110 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+  TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/astu_feedback_v2_test?schema=public
+  DEVELOPMENT_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/astu_feedback_v2?schema=public
+  DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/astu_feedback_v2_test?schema=public
+  E2E_TEST_MODE: "1"
+  WEB_ORIGIN: http://127.0.0.1:4300
+
+jobs:
+  pull-request-gates:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: astu_feedback_v2_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d astu_feedback_v2_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npx tsc --noEmit --incremental false
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e:smoke
+        env:
+          E2E_USE_PRODUCTION_BUILD: "1"
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-browser-failure
+          path: |
+            playwright-report
+            test-results/artifacts
+          retention-days: 7
+          if-no-files-found: ignore
+
+  nightly-full-workflow:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: astu_feedback_v2_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d astu_feedback_v2_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run test:unit
+      - run: npx tsc --noEmit --incremental false
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e:full
+        env:
+          E2E_USE_PRODUCTION_BUILD: "1"
+      - name: Upload full-workflow failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-browser-failure
+          path: |
+            playwright-report
+            test-results/artifacts
+          retention-days: 7
+          if-no-files-found: ignore

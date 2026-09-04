@@ -3,11 +3,25 @@ import {
   authorizeBareStudentGroups,
   authorizeOfferings,
   campaignMinNGate,
+  effectiveMinResponses,
   teacherMinNGate,
   validateAudienceMinimums,
   validateWindow,
+  templateSlotsForAssignedGroups,
   type AssignableOffering,
 } from "./campaign-logic";
+import { validateSemesterUniqueness } from "./semester-logic";
+
+describe("effectiveMinResponses", () => {
+  it("uses the shared campaign threshold for anonymous student and peer feedback", () => {
+    expect(effectiveMinResponses("STUDENT", 5)).toBe(5);
+    expect(effectiveMinResponses("PEER", 5)).toBe(5);
+  });
+
+  it("makes identified manager feedback visible after its one response", () => {
+    expect(effectiveMinResponses("MANAGER", 5)).toBe(1);
+  });
+});
 
 describe("campaignMinNGate", () => {
   it("is n/a when the only target group is MANAGER — a teacher has exactly one direct manager", () => {
@@ -211,5 +225,39 @@ describe("authorizeBareStudentGroups", () => {
     ]);
     expect(result.ok).toEqual(["g_own"]);
     expect(result.errors[0]).toContain("assign it through a course offering instead");
+  });
+});
+
+describe("templateSlotsForAssignedGroups", () => {
+  const allThree = [
+    { targetGroup: "STUDENT", templateId: "t_student" },
+    { targetGroup: "PEER", templateId: "t_peer" },
+    { targetGroup: "MANAGER", templateId: "t_manager" },
+  ];
+
+  it("keeps only the audiences the campaign actually asks", () => {
+    expect(templateSlotsForAssignedGroups(allThree, ["STUDENT"])).toEqual([
+      { targetGroup: "STUDENT", templateId: "t_student" },
+    ]);
+  });
+
+  it("leaves a head-only campaign with a MANAGER slot alone — which is what keeps its min-N exemption", () => {
+    const kept = templateSlotsForAssignedGroups(allThree, ["MANAGER"]);
+    expect(kept.map((k) => k.targetGroup)).toEqual(["MANAGER"]);
+    // The exemption is the whole point: with STUDENT/PEER slots attached it would be false.
+    expect(teacherMinNGate(new Map([["MANAGER", 1]]), kept.map((k) => k.targetGroup) as never, 5).ok).toBe(true);
+  });
+
+  it("does not block a later peer round in the same semester", () => {
+    const studentRound = templateSlotsForAssignedGroups(allThree, ["STUDENT"]).map((k) => k.targetGroup);
+    expect(validateSemesterUniqueness(["PEER"], studentRound, "Fall 2026/27")).toBeNull();
+  });
+
+  it("keeps every slot when the campaign really does ask all three", () => {
+    expect(templateSlotsForAssignedGroups(allThree, ["STUDENT", "PEER", "MANAGER"])).toHaveLength(3);
+  });
+
+  it("drops everything when nothing is assigned yet", () => {
+    expect(templateSlotsForAssignedGroups(allThree, [])).toEqual([]);
   });
 });
