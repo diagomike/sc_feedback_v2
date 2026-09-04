@@ -31,18 +31,18 @@ export default function NewCampaignClient({ semesters }: { semesters: SemesterOp
       <form action={formAction} className="border border-border rounded-3 bg-panel p-16 flex flex-col gap-12">
         <div>
           <Label>Campaign name</Label>
-          <Input name="name" required placeholder="Fall 2026/27 Student Evaluation — CSE" className="mt-3" />
+          <Input aria-label="Campaign name" name="name" required placeholder="Fall 2026/27 Student Evaluation — CSE" className="mt-3" />
         </div>
         <div>
           <Label>Type</Label>
-          <Select name="type" value={type} onChange={(e) => setType(e.target.value as "EMAIL" | "INSTANT")} className="mt-3">
+          <Select aria-label="Campaign type" name="type" value={type} onChange={(e) => setType(e.target.value as "EMAIL" | "INSTANT")} className="mt-3">
             <option value="EMAIL">Email — private links to a fixed audience</option>
             <option value="INSTANT">Instant — public link, optionally guest-allowed</option>
           </Select>
         </div>
         <div>
           <Label>Semester</Label>
-          <Select name="semesterId" value={semesterId} onChange={(e) => setSemesterId(e.target.value)} className="mt-3">
+          <Select aria-label="Campaign semester" name="semesterId" value={semesterId} onChange={(e) => setSemesterId(e.target.value)} className="mt-3">
             {semesters.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.label}

@@ -82,7 +82,7 @@ export default function FormTerminalState({
           AS
         </div>
         <div className="text-12 font-semibold tracking-wide">
-          ASTU <span className="opacity-60 font-normal">Teaching Feedback</span>
+          ASTU <span className="font-normal">Teaching Feedback</span>
         </div>
       </div>
 

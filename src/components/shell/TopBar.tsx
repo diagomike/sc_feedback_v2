@@ -46,7 +46,7 @@ export default function TopBar({
           AS
         </div>
         <div className="text-12 font-semibold tracking-wide whitespace-nowrap">
-          ASTU <span className="opacity-60 font-normal hidden sm:inline">Teaching Feedback</span>
+          ASTU <span className="font-normal hidden sm:inline">Teaching Feedback</span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function TopBar({
                 className="border-0 text-11.5 font-medium px-11 py-3 rounded-2 tracking-wide whitespace-nowrap"
               >
                 {m.label}
-                {badge && <span className="opacity-55 ml-6 text-10">{badge}</span>}
+                {badge && <span className="ml-6 text-10">{badge}</span>}
               </button>
             );
           })}
@@ -72,12 +72,13 @@ export default function TopBar({
 
       <div className="flex-1 min-w-0 hidden md:flex justify-center px-8">
         <div className="w-full min-w-0 max-w-[380px] relative flex items-center bg-topfill border border-topline rounded-3 h-24 px-8 gap-6">
-          <span className="text-10 opacity-60">⌕</span>
+          <span aria-hidden="true" className="text-10">⌕</span>
           <input
+            aria-label="Go to a screen"
             placeholder="Go to campaign, teacher, template…"
             className="flex-1 bg-transparent border-0 outline-none text-11.5 text-current min-w-0"
           />
-          <span className="text-9.5 opacity-45 font-mono border border-topline2 rounded-2 px-4 flex-none">⌘K</span>
+          <span aria-hidden="true" className="text-9.5 font-mono border border-topline2 rounded-2 px-4 flex-none">⌘K</span>
         </div>
       </div>
 
@@ -90,7 +91,7 @@ export default function TopBar({
         className="border border-topline2 bg-topfill2 text-current h-26 md:h-24 px-8 md:px-9 rounded-3 text-11 flex items-center gap-5 flex-none"
       >
         {theme === "light" ? "◐" : "◑"}
-        <span className="opacity-70 hidden lg:inline">{theme === "light" ? "Light" : "Dark"}</span>
+        <span className="hidden lg:inline">{theme === "light" ? "Light" : "Dark"}</span>
       </button>
 
       <div className="flex items-center gap-7 md:pl-8 md:border-l border-topline flex-none">
@@ -99,7 +100,7 @@ export default function TopBar({
         </div>
         <div className="leading-tight pr-4 hidden lg:block">
           <div className="text-11 font-medium whitespace-nowrap">{user.name}</div>
-          <div className="text-9.5 opacity-60 whitespace-nowrap">{roles.map((r) => r.toLowerCase()).join(" · ")}</div>
+          <div className="text-9.5 whitespace-nowrap">{roles.map((r) => r.toLowerCase()).join(" · ")}</div>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/server/db";
 import { visibleNodeIds } from "@/server/scope";
 import { semesterLabel } from "@/lib/semester";
+import { effectiveMinResponses } from "@/server/campaigns/campaign-logic";
 import {
   computeDashboard,
   isSuppressed,
@@ -136,7 +137,8 @@ export async function getDashboard(params: { campaignId: string; teacherId: stri
   const template = await loadTemplate(campaignId, targetGroup);
   const responseCount = await countResponses(campaignId, teacherId, template.id);
   const asked = await prisma.responseTask.count({ where: { campaignId, teacherId, targetGroup } });
-  const suppressed = isSuppressed(responseCount, campaign.minResponses);
+  const minResponses = effectiveMinResponses(targetGroup, campaign.minResponses);
+  const suppressed = isSuppressed(responseCount, minResponses);
 
   const base = {
     teacherId,
@@ -145,7 +147,7 @@ export async function getDashboard(params: { campaignId: string; teacherId: stri
     campaignName: campaign.name,
     campaignStatus: campaign.status,
     responseCount,
-    minResponses: campaign.minResponses,
+    minResponses,
     responseRate: { responded: responseCount, asked },
   };
 
@@ -315,13 +317,14 @@ export async function listTeachers(params: { campaignId: string; requestingUserI
       const asked = await prisma.responseTask.count({ where: { campaignId: campaign.id, teacherId: teacher.id, targetGroup: ct.targetGroup } });
       if (asked === 0 && responded === 0) continue;
 
-      const suppressed = isSuppressed(responded, campaign.minResponses);
+      const minResponses = effectiveMinResponses(ct.targetGroup, campaign.minResponses);
+      const suppressed = isSuppressed(responded, minResponses);
       let score: number | null = null;
       if (!suppressed) {
         const template = await loadTemplateById(ct.templateId);
         score = computeDashboard(toScoringSections(template), await loadAnswers(campaign.id, teacher.id, ct.templateId)).overallScore;
       }
-      groups.push({ targetGroup: ct.targetGroup, responded, asked, minResponses: campaign.minResponses, suppressed, score });
+      groups.push({ targetGroup: ct.targetGroup, responded, asked, minResponses, suppressed, score });
     }
     rows.push({ teacherId: teacher.id, name: teacher.name, groups });
   }
@@ -348,7 +351,7 @@ export async function getHistory(params: { teacherId: string; targetGroup: Targe
     if (!ct) continue;
 
     const responseCount = await countResponses(campaign.id, teacherId, ct.templateId);
-    const suppressed = isSuppressed(responseCount, campaign.minResponses);
+    const suppressed = isSuppressed(responseCount, effectiveMinResponses(targetGroup, campaign.minResponses));
 
     let score: number | null = null;
     if (!suppressed) {
@@ -456,7 +459,7 @@ async function colleagueComposites(campaign: { id: string; minResponses: number 
   const scores: number[] = [];
   for (const tid of teacherIds) {
     const responseCount = await countResponses(campaign.id, tid, template.id);
-    if (isSuppressed(responseCount, campaign.minResponses)) continue;
+    if (isSuppressed(responseCount, effectiveMinResponses(targetGroup, campaign.minResponses))) continue;
     const computed = computeDashboard(scoringSections, await loadAnswers(campaign.id, tid, template.id));
     if (computed.overallScore != null) scores.push(computed.overallScore);
   }
@@ -472,6 +475,7 @@ async function colleagueComposites(campaign: { id: string; minResponses: number 
  */
 async function computeAnchors(params: { campaign: { id: string; nodeId: string; semesterId: string; minResponses: number }; template: LoadedTemplate; targetGroup: TargetGroup }) {
   const { campaign, template, targetGroup } = params;
+  const minResponses = effectiveMinResponses(targetGroup, campaign.minResponses);
 
   const peerTeacherIds = (await prisma.responseTask.findMany({ where: { campaignId: campaign.id, targetGroup }, select: { teacherId: true }, distinct: ["teacherId"] })).map((t) => t.teacherId);
   const scoringSections = toScoringSections(template);
@@ -490,7 +494,7 @@ async function computeAnchors(params: { campaign: { id: string; nodeId: string; 
   }
 
   const perSection = new Map<string, number | null>();
-  for (const [sectionId, entries] of perSectionScores) perSection.set(sectionId, cohortAverage(entries, campaign.minResponses));
+  for (const [sectionId, entries] of perSectionScores) perSection.set(sectionId, cohortAverage(entries, minResponses));
 
   const ancestorIds = (await prisma.hierarchyClosure.findMany({ where: { descendantId: campaign.nodeId, depth: { gt: 0 } }, select: { ancestorId: true } })).map((a) => a.ancestorId);
 
@@ -505,7 +509,7 @@ async function computeAnchors(params: { campaign: { id: string; nodeId: string; 
     if (contributors.length > 0) facultyAverage = { value: contributors.reduce((sum, c) => sum + c.score, 0) / contributors.length, contributors };
   }
 
-  return { departmentAverage: cohortAverage(composites, campaign.minResponses), facultyAverage, perSection };
+  return { departmentAverage: cohortAverage(composites, minResponses), facultyAverage, perSection };
 }
 
 /**
@@ -532,6 +536,7 @@ async function loadNodeStanding(params: { node: { id: string; name: string; leve
 
   const template = await loadTemplateById(ct.templateId);
   const sections = toScoringSections(template);
+  const minResponses = effectiveMinResponses(targetGroup, campaign.minResponses);
 
   const teacherIds = (await prisma.responseTask.findMany({ where: { campaignId: campaign.id, targetGroup }, select: { teacherId: true }, distinct: ["teacherId"] })).map((t) => t.teacherId);
   if (teacherIds.length === 0) return { ...empty, campaignName: campaign.name };
@@ -546,7 +551,7 @@ async function loadNodeStanding(params: { node: { id: string; name: string; leve
   for (const teacherId of teacherIds) {
     const responseCount = await countResponses(campaign.id, teacherId, template.id);
     const computed = computeDashboard(sections, await loadAnswers(campaign.id, teacherId, template.id));
-    const suppressed = isSuppressed(responseCount, campaign.minResponses);
+    const suppressed = isSuppressed(responseCount, minResponses);
     perTeacher.push({ teacherId, responseCount, suppressed, computed });
 
     composites.push({ score: computed.overallScore, responseCount });
@@ -558,7 +563,7 @@ async function loadNodeStanding(params: { node: { id: string; name: string; leve
     }
   }
 
-  const nodeComposite = cohortAverage(composites, campaign.minResponses);
+  const nodeComposite = cohortAverage(composites, minResponses);
 
   const candidates: OutlierCandidate[] = [];
   const gaps: (number | null)[] = [];
@@ -580,9 +585,9 @@ async function loadNodeStanding(params: { node: { id: string; name: string; leve
   }
 
   const cells = new Map<string, number | null>();
-  for (const [title, entries] of perSectionScores) cells.set(title, cohortAverage(entries, campaign.minResponses));
+  for (const [title, entries] of perSectionScores) cells.set(title, cohortAverage(entries, minResponses));
   const n = composites.reduce((sum, c) => sum + c.responseCount, 0);
-  const composite = cohortAverage(composites, campaign.minResponses);
+  const composite = cohortAverage(composites, minResponses);
 
   return {
     own: {
@@ -610,6 +615,7 @@ async function computeNodeSemesterComposite(nodeId: string, nodeName: string, ta
 
   const template = await loadTemplateById(ct.templateId);
   const sections = toScoringSections(template);
+  const minResponses = effectiveMinResponses(targetGroup, campaign.minResponses);
 
   const teacherIds = (await prisma.responseTask.findMany({ where: { campaignId: campaign.id, targetGroup }, select: { teacherId: true }, distinct: ["teacherId"] })).map((t) => t.teacherId);
   if (teacherIds.length === 0) return null;
@@ -620,7 +626,7 @@ async function computeNodeSemesterComposite(nodeId: string, nodeName: string, ta
     const computed = computeDashboard(sections, await loadAnswers(campaign.id, teacherId, template.id));
     composites.push({ score: computed.overallScore, responseCount });
   }
-  const score = cohortAverage(composites, campaign.minResponses);
+  const score = cohortAverage(composites, minResponses);
   if (score == null) return null;
 
   return { nodeId, name: nodeName, templateTitle: template.title, campaignName: campaign.name, score };

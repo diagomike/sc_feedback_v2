@@ -15,6 +15,12 @@ export interface GateResult {
   label: string;
 }
 
+/** Student and peer feedback is anonymous and uses the configured gate. A manager is
+ * identified by design and there is exactly one direct manager response per teacher. */
+export function effectiveMinResponses(targetGroup: TargetGroup, configuredMinResponses: number): number {
+  return targetGroup === "MANAGER" ? 1 : configuredMinResponses;
+}
+
 /** The list-row gate — one figure per campaign, pooling every teacher's completed count
  *  across whichever groups they're asked in (list rows don't have per-group detail;
  *  minNGateForTeacher below computes the precise version monitor() shows). */
@@ -165,4 +171,29 @@ export function authorizeBareStudentGroups(
     else errors.push(`Student group ${g.id} is not in your department — assign it through a course offering instead`);
   }
   return { ok, errors };
+}
+
+/**
+ * Which template slots a campaign should actually persist.
+ *
+ * `campaignTemplates` is not a scratchpad of "forms this campaign might use" — three
+ * separate consumers read it as the campaign's AUDIENCE SET:
+ *
+ *   - validateSemesterUniqueness: one round per node + semester + audience;
+ *   - campaignMinNGate / teacherMinNGate: a head-only campaign is exempt from min-N,
+ *     because a teacher has exactly one manager and that feedback is identified by design;
+ *   - resolveNodeCampaign (analytics.ts): which campaign IS this node's peer round.
+ *
+ * The builder shows all three selects pre-filled with the university's official forms, so
+ * it always submits three ids. Persisting all three on a student-only campaign would make
+ * a head's-assessment campaign permanently "below min-N", block launching a genuine peer
+ * round later in the same semester, and let a student campaign shadow a real peer one in
+ * Analyse. So a slot is kept only where that audience is actually assigned.
+ */
+export function templateSlotsForAssignedGroups<T extends { targetGroup: string }>(
+  chosen: T[],
+  assignedGroups: Iterable<string>,
+): T[] {
+  const assigned = new Set(assignedGroups);
+  return chosen.filter((row) => assigned.has(row.targetGroup));
 }

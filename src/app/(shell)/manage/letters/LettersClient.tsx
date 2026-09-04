@@ -83,7 +83,7 @@ export default function LettersClient({ options }: { options: Options }) {
       <div className="grid grid-cols-2 gap-10 max-w-640">
         <div>
           <Label>Student campaign</Label>
-          <Select value={studentCampaignId} onChange={(e) => setStudentCampaignId(e.target.value)} className="mt-3">
+          <Select aria-label="Student campaign" value={studentCampaignId} onChange={(e) => setStudentCampaignId(e.target.value)} className="mt-3">
             {options.student.length === 0 && <option value="">— none closed yet —</option>}
             {options.student.map((c) => (
               <option key={c.id} value={c.id}>
@@ -94,7 +94,7 @@ export default function LettersClient({ options }: { options: Options }) {
         </div>
         <div>
           <Label>Peer campaign</Label>
-          <Select value={peerCampaignId} onChange={(e) => setPeerCampaignId(e.target.value)} className="mt-3">
+          <Select aria-label="Peer campaign" value={peerCampaignId} onChange={(e) => setPeerCampaignId(e.target.value)} className="mt-3">
             {options.peer.length === 0 && <option value="">— none closed yet —</option>}
             {options.peer.map((c) => (
               <option key={c.id} value={c.id}>
@@ -105,7 +105,7 @@ export default function LettersClient({ options }: { options: Options }) {
         </div>
         <div>
           <Label>Head campaign</Label>
-          <Select value={managerCampaignId} onChange={(e) => setManagerCampaignId(e.target.value)} className="mt-3">
+          <Select aria-label="Head campaign" value={managerCampaignId} onChange={(e) => setManagerCampaignId(e.target.value)} className="mt-3">
             {options.manager.length === 0 && <option value="">— none closed yet —</option>}
             {options.manager.map((c) => (
               <option key={c.id} value={c.id}>
@@ -116,7 +116,7 @@ export default function LettersClient({ options }: { options: Options }) {
         </div>
         <div>
           <Label>Round label (letter subject line)</Label>
-          <Input value={roundLabel} onChange={(e) => setRoundLabel(e.target.value)} placeholder="1st Semester 2018 Academic Year" className="mt-3" />
+          <Input aria-label="Round label" value={roundLabel} onChange={(e) => setRoundLabel(e.target.value)} placeholder="1st Semester 2018 Academic Year" className="mt-3" />
         </div>
       </div>
 

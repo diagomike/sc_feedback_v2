@@ -36,7 +36,7 @@ export default function ResponseFormClient({ token, form }: { token: string; for
       <div className="h-38 bg-top text-topfg flex items-center gap-8 px-10 flex-none">
         <div className="w-18 h-18 bg-white text-top text-9.5 font-bold flex items-center justify-center rounded-2">AS</div>
         <div className="text-12 font-semibold tracking-wide">
-          ASTU <span className="opacity-60 font-normal">Teaching Feedback</span>
+          ASTU <span className="font-normal">Teaching Feedback</span>
         </div>
       </div>
 

@@ -19,7 +19,14 @@ export function closeLabel(iso: string | null): string {
 /** "21 Sep 2026" */
 export function shortDate(iso: string | null): string {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  // Server-rendered task rows hydrate in a browser that may use a different OS locale.
+  // Pin both locale and zone so "02 Oct" cannot become "Oct 02" during hydration.
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 /** Warn inside the last 5 days, matching the urgency threshold used elsewhere. */

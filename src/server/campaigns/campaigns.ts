@@ -12,6 +12,7 @@ import {
   authorizeOfferings,
   campaignMinNGate,
   teacherMinNGate,
+  templateSlotsForAssignedGroups,
   validateWindow,
   validateAudienceMinimums,
 } from "./campaign-logic";
@@ -193,6 +194,15 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
   // Everything this department's teachers actually taught in this campaign's semester —
   // the builder's checkbox list, and the only student reach that needs no further
   // authorisation (see authorizeOfferings in campaign-logic.ts).
+  const defaultTemplateIds = await defaultTemplateIdsFor(node.id);
+  const defaultTitles = defaultTemplateIds.size
+    ? await prisma.template.findMany({
+        where: { id: { in: [...defaultTemplateIds.values()] } },
+        select: { id: true, title: true },
+      })
+    : [];
+  const defaultTitleById = new Map(defaultTitles.map((t) => [t.id, t.title]));
+
   const departmentTeachers = await prisma.membership.findMany({
     where: { nodeId: node.id, kind: "TEACHER" },
     select: { userId: true, user: { select: { name: true } } },
@@ -225,7 +235,15 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
     availableOfferings,
     templates: TARGET_GROUPS.map((targetGroup) => {
       const ct = campaign.campaignTemplates.find((c) => c.targetGroup === targetGroup);
-      return { targetGroup, templateId: ct?.templateId ?? null, templateTitle: ct?.template.title ?? null };
+      if (ct) return { targetGroup, templateId: ct.templateId, templateTitle: ct.template.title, isDefault: false };
+      // Nothing chosen yet: offer the official form so the builder opens ready to save.
+      const suggested = defaultTemplateIds.get(targetGroup) ?? null;
+      return {
+        targetGroup,
+        templateId: suggested,
+        templateTitle: suggested ? (defaultTitleById.get(suggested) ?? null) : null,
+        isDefault: suggested != null,
+      };
     }),
     assignments,
     editable: campaign.status === "DRAFT",
@@ -235,6 +253,7 @@ export async function getCampaignDetail(requestingUserId: string, campaignId: st
 export async function createCampaign(requestingUserId: string, input: { name: string; type: "EMAIL" | "INSTANT"; semesterId: string }) {
   const node = await ownDepartmentNode(requestingUserId);
   const semester = await prisma.semester.findUniqueOrThrow({ where: { id: input.semesterId } });
+
   const campaign = await prisma.campaign.create({
     data: {
       nodeId: node.id,
@@ -248,6 +267,39 @@ export async function createCampaign(requestingUserId: string, input: { name: st
     },
   });
   return getCampaignDetail(requestingUserId, campaign.id);
+}
+
+/**
+ * The university's official questionnaire per audience, as visible from `nodeId` — its own
+ * or any ancestor's, published, flagged isDefault (see Template.isDefault). This is what a
+ * new campaign's builder opens pre-filled with, so a manager does not re-find the same
+ * three forms every round.
+ *
+ * Deliberately a SUGGESTION rather than a persisted CampaignTemplate row. Those rows are
+ * read by three separate consumers as "which audiences this campaign covers":
+ * validateSemesterUniqueness (one round per node+semester+audience),
+ * campaignMinNGate/teacherMinNGate (a head-only campaign is exempt from min-N, since a
+ * teacher has exactly one manager) and resolveNodeCampaign in analytics.ts (which campaign
+ * IS this node's peer round). Writing a slot for an audience nobody is asked would make a
+ * head's-assessment campaign permanently "below min-N", and would block launching a
+ * genuine peer round later in the same semester.
+ */
+async function defaultTemplateIdsFor(nodeId: string): Promise<Map<TargetGroup, string>> {
+  const ancestorIds = (
+    await prisma.hierarchyClosure.findMany({ where: { descendantId: nodeId }, select: { ancestorId: true } })
+  ).map((row) => row.ancestorId);
+
+  const defaults = await prisma.template.findMany({
+    where: { isDefault: true, status: "PUBLISHED", ownerNodeId: { in: ancestorIds } },
+    select: { id: true, targetGroup: true },
+    orderBy: { publishedAt: "desc" },
+  });
+
+  const byTarget = new Map<TargetGroup, string>();
+  for (const template of defaults) {
+    if (!byTarget.has(template.targetGroup)) byTarget.set(template.targetGroup, template.id);
+  }
+  return byTarget;
 }
 
 export interface AssignmentInput {
@@ -359,6 +411,10 @@ export async function updateCampaign(requestingUserId: string, campaignId: strin
     }
   }
 
+  // The builder always shows all three selects, pre-filled with the official defaults, so
+  // it sends three template ids whatever the audience is. Persist only the ones this
+  // campaign actually asks — campaignTemplates is read elsewhere as the campaign's
+  // audience set, so an unused slot is not inert (see defaultTemplateIdsFor above).
   const assignmentRows = input.assignments.flatMap((a) => [
     ...a.studentGroupIds.map((studentGroupId) => ({ campaignId, teacherId: a.teacherId, targetGroup: "STUDENT" as const, studentGroupId })),
     ...(a.offeringIds ?? []).map((courseOfferingId) => ({
@@ -371,6 +427,13 @@ export async function updateCampaign(requestingUserId: string, campaignId: strin
     ...a.peerIds.map((respondentUserId) => ({ campaignId, teacherId: a.teacherId, targetGroup: "PEER" as const, respondentUserId })),
     ...(a.headIncluded && node.userId ? [{ campaignId, teacherId: a.teacherId, targetGroup: "MANAGER" as const, respondentUserId: node.userId }] : []),
   ]);
+
+  const templateRows = templateSlotsForAssignedGroups(
+    Object.entries(input.templates)
+      .filter((e): e is [string, string] => !!e[1])
+      .map(([targetGroup, templateId]) => ({ campaignId, targetGroup: targetGroup as TargetGroup, templateId })),
+    assignmentRows.map((r) => r.targetGroup),
+  );
 
   await prisma.$transaction([
     prisma.campaign.update({
@@ -387,15 +450,7 @@ export async function updateCampaign(requestingUserId: string, campaignId: strin
       },
     }),
     prisma.campaignTemplate.deleteMany({ where: { campaignId } }),
-    ...(templateIds.length > 0
-      ? [
-          prisma.campaignTemplate.createMany({
-            data: Object.entries(input.templates)
-              .filter((e): e is [string, string] => !!e[1])
-              .map(([targetGroup, templateId]) => ({ campaignId, targetGroup: targetGroup as TargetGroup, templateId })),
-          }),
-        ]
-      : []),
+    ...(templateRows.length > 0 ? [prisma.campaignTemplate.createMany({ data: templateRows })] : []),
     prisma.campaignAssignment.deleteMany({ where: { campaignId } }),
     ...(assignmentRows.length > 0 ? [prisma.campaignAssignment.createMany({ data: assignmentRows })] : []),
   ]);

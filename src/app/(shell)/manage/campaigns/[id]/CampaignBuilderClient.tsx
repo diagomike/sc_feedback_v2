@@ -228,41 +228,41 @@ export default function CampaignBuilderClient({
       <div className="grid grid-cols-2 gap-10 max-w-640">
         <div>
           <Label>Name</Label>
-          <Input value={name} disabled={!editable} onChange={(e) => setName(e.target.value)} className="mt-3" />
+          <Input aria-label="Campaign name" value={name} disabled={!editable} onChange={(e) => setName(e.target.value)} className="mt-3" />
         </div>
         <div>
           <Label>Audience mode</Label>
-          <Select value={audienceMode} disabled={!editable} onChange={(e) => setAudienceMode(e.target.value as typeof audienceMode)} className="mt-3">
+          <Select aria-label="Audience mode" value={audienceMode} disabled={!editable} onChange={(e) => setAudienceMode(e.target.value as typeof audienceMode)} className="mt-3">
             <option value="REGISTERED_ONLY">Registered only</option>
             <option value="GUEST_ALLOWED">Guest allowed</option>
           </Select>
         </div>
         <div>
           <Label>Opens</Label>
-          <Input type="date" value={opensAt} disabled={!editable} onChange={(e) => setOpensAt(e.target.value)} className="mt-3" />
+          <Input aria-label="Opens" type="date" value={opensAt} disabled={!editable} onChange={(e) => setOpensAt(e.target.value)} className="mt-3" />
         </div>
         <div>
           <Label>Closes</Label>
-          <Input type="date" value={closesAt} disabled={!editable} onChange={(e) => setClosesAt(e.target.value)} className="mt-3" />
+          <Input aria-label="Closes" type="date" value={closesAt} disabled={!editable} onChange={(e) => setClosesAt(e.target.value)} className="mt-3" />
         </div>
         {isInstant && (
           <div>
             <Label>Max responses (cap)</Label>
-            <Input type="number" value={maxResponses} disabled={!editable} onChange={(e) => setMaxResponses(e.target.value)} className="mt-3" />
+            <Input aria-label="Maximum responses" type="number" value={maxResponses} disabled={!editable} onChange={(e) => setMaxResponses(e.target.value)} className="mt-3" />
           </div>
         )}
         <div>
           <Label>Min-N (anonymity gate)</Label>
-          <Input type="number" value={minResponses} disabled={!editable} onChange={(e) => setMinResponses(Number(e.target.value))} className="mt-3" />
+          <Input aria-label="Minimum responses" type="number" value={minResponses} disabled={!editable} onChange={(e) => setMinResponses(Number(e.target.value))} className="mt-3" />
         </div>
         <div>
           <Label>Min teachers (launch guard)</Label>
-          <Input type="number" value={minTeachers} disabled={!editable} onChange={(e) => setMinTeachers(Number(e.target.value))} className="mt-3" />
+          <Input aria-label="Minimum teachers" type="number" value={minTeachers} disabled={!editable} onChange={(e) => setMinTeachers(Number(e.target.value))} className="mt-3" />
         </div>
         {!isInstant && (
           <div>
             <Label>Min students (launch guard)</Label>
-            <Input type="number" value={minStudents} disabled={!editable} onChange={(e) => setMinStudents(Number(e.target.value))} className="mt-3" />
+          <Input aria-label="Minimum students" type="number" value={minStudents} disabled={!editable} onChange={(e) => setMinStudents(Number(e.target.value))} className="mt-3" />
           </div>
         )}
       </div>
@@ -272,7 +272,7 @@ export default function CampaignBuilderClient({
         <div className="flex gap-16 flex-wrap">
           <div>
             <Label>Student</Label>
-            <Select value={templates.STUDENT ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, STUDENT: e.target.value || null }))} className="mt-3 w-220">
+            <Select aria-label="Student template" value={templates.STUDENT ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, STUDENT: e.target.value || null }))} className="mt-3 w-220">
               <option value="">—</option>
               {templatesFor("STUDENT").map((t) => (
                 <option key={t.id} value={t.id}>
@@ -285,7 +285,7 @@ export default function CampaignBuilderClient({
             <>
               <div>
                 <Label>Peer</Label>
-                <Select value={templates.PEER ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, PEER: e.target.value || null }))} className="mt-3 w-220">
+                <Select aria-label="Peer template" value={templates.PEER ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, PEER: e.target.value || null }))} className="mt-3 w-220">
                   <option value="">—</option>
                   {templatesFor("PEER").map((t) => (
                     <option key={t.id} value={t.id}>
@@ -296,7 +296,7 @@ export default function CampaignBuilderClient({
               </div>
               <div>
                 <Label>Manager (head)</Label>
-                <Select value={templates.MANAGER ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, MANAGER: e.target.value || null }))} className="mt-3 w-220">
+                <Select aria-label="Manager template" value={templates.MANAGER ?? ""} disabled={!editable} onChange={(e) => setTemplates((p) => ({ ...p, MANAGER: e.target.value || null }))} className="mt-3 w-220">
                   <option value="">—</option>
                   {templatesFor("MANAGER").map((t) => (
                     <option key={t.id} value={t.id}>
@@ -332,7 +332,7 @@ export default function CampaignBuilderClient({
         )}
         {editable && (
           <div className="flex items-center gap-8">
-            <Select value={addTeacherId} onChange={(e) => setAddTeacherId(e.target.value)} className="w-260">
+            <Select aria-label="Add teacher" value={addTeacherId} onChange={(e) => setAddTeacherId(e.target.value)} className="w-260">
               <option value="">— add a teacher —</option>
               {unassignedTeachers.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -347,7 +347,7 @@ export default function CampaignBuilderClient({
         )}
 
         {rows.map((r) => (
-          <div key={r.teacherId} className="border border-border rounded-3 bg-panel px-12 py-9">
+          <div key={r.teacherId} data-testid={`campaign-teacher-${r.teacherId}`} className="border border-border rounded-3 bg-panel px-12 py-9">
             <div className="flex items-center gap-8">
               <span className="text-12 font-medium flex-1">{teacherName(r.teacherId)}</span>
               {editable && (

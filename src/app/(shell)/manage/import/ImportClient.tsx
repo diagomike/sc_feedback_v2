@@ -257,7 +257,7 @@ export default function ImportClient({
       {spec.needsSemester && (
         <div className="flex items-center gap-8">
           <span className="text-10.5 text-dim">Semester</span>
-          <Select value={semesterId} onChange={(e) => setSemesterId(e.target.value)} className="w-260">
+          <Select aria-label="Import semester" value={semesterId} onChange={(e) => setSemesterId(e.target.value)} className="w-260">
             {semesters.length === 0 && <option value="">— no semesters defined —</option>}
             {semesters.map((s) => (
               <option key={s.id} value={s.id}>
@@ -273,7 +273,7 @@ export default function ImportClient({
         <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
           Choose CSV file
         </Button>
-        <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onFile} />
+        <input ref={fileRef} aria-label="CSV file" type="file" accept=".csv,text/csv" className="hidden" onChange={onFile} />
         <button className="text-10.5 text-accent underline" onClick={() => setCsv(spec.sample)}>
           Load sample
         </button>

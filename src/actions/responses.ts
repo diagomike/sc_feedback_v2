@@ -2,6 +2,7 @@
 
 import { requireUser } from "@/server/auth/session";
 import * as responses from "@/server/responses/responses";
+import { ClosedError } from "@/server/responses/response-validation";
 import { submitResponseSchema } from "@/lib/schemas/responses";
 
 export interface SubmitResult {
@@ -35,8 +36,10 @@ export async function submitByTaskIdAction(taskId: string, answers: unknown): Pr
 
 function mapError(e: unknown): SubmitResult {
   const err = e as Error;
-  if (err.constructor.name === "NotFoundError") return { ok: false, terminal: "invalid", error: err.message };
-  if (err.constructor.name === "ConflictError") return { ok: false, terminal: "already", error: err.message };
-  if (err.constructor.name === "ClosedError") return { ok: false, terminal: "closed", error: err.message };
+  // Production minification is allowed to rename class constructors, so comparing
+  // constructor.name turns terminal states into ordinary inline errors after `next build`.
+  if (e instanceof responses.NotFoundError) return { ok: false, terminal: "invalid", error: err.message };
+  if (e instanceof responses.ConflictError) return { ok: false, terminal: "already", error: err.message };
+  if (e instanceof ClosedError) return { ok: false, terminal: "closed", error: err.message };
   return { ok: false, error: err.message ?? "Could not submit your feedback" };
 }

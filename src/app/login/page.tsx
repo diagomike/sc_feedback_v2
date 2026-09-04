@@ -18,7 +18,7 @@ export default function LoginPage() {
             AS
           </div>
           <div className="text-12 font-semibold tracking-wide">
-            ASTU <span className="opacity-60 font-normal">Teaching Feedback</span>
+            ASTU <span className="font-normal">Teaching Feedback</span>
           </div>
         </div>
         <div className="flex-1" />
@@ -28,7 +28,7 @@ export default function LoginPage() {
           className="border border-topline2 bg-topfill2 text-current h-24 px-9 rounded-3 text-11 flex items-center gap-5"
         >
           {theme === "light" ? "◐" : "◑"}
-          <span className="opacity-70">{theme === "light" ? "Light" : "Dark"}</span>
+          <span>{theme === "light" ? "Light" : "Dark"}</span>
         </button>
       </div>
 

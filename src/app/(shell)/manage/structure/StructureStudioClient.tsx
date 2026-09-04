@@ -191,13 +191,13 @@ export default function StructureStudioClient({ allNodes }: { allNodes: Hierarch
         <Button size="sm" variant="outline" onClick={() => setShowNewForm((v) => !v)}>
           {showNewForm ? "Cancel" : "+ New node"}
         </Button>
-        <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)} className="w-130 h-22">
+        <Select aria-label="Filter by node type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)} className="w-130 h-22">
           <option value="ALL">All types</option>
           <option value="OFFICE">Offices</option>
           <option value="COLLEGE">Colleges</option>
           <option value="DEPARTMENT">Departments</option>
         </Select>
-        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search node or head…" className="w-190 h-22" />
+          <Input aria-label="Search node or head" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search node or head…" className="w-190 h-22" />
         <label className="flex items-center gap-4 text-10.5 text-dim">
           <Checkbox checked={vacantOnly} onChange={(e) => setVacantOnly(e.target.checked)} />
           vacant only
@@ -391,6 +391,7 @@ function Inspector({
       <div>
         <div className="text-9.5 uppercase tracking-caps text-faint font-semibold mb-5">Type</div>
         <Select
+          aria-label="Node type"
           value={node.type}
           disabled={pending}
           onChange={(e) => run(() => changeTypeAction(node.id, e.target.value as "OFFICE" | "COLLEGE" | "DEPARTMENT"))}

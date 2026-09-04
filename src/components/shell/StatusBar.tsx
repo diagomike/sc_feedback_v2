@@ -23,18 +23,18 @@ export default function StatusBar({
               {scope.isLeaf ? " · leaf" : ""}
             </span>
           </span>
-          <span className="opacity-45 whitespace-nowrap flex-none">|</span>
+          <span aria-hidden="true" className="whitespace-nowrap flex-none">|</span>
         </>
       )}
       <span className="opacity-85 whitespace-nowrap flex-none">min-N {minN}</span>
       {campaign && (
         <>
-          <span className="opacity-45 whitespace-nowrap flex-none hidden lg:inline">|</span>
+          <span aria-hidden="true" className="whitespace-nowrap flex-none hidden lg:inline">|</span>
           <span className="opacity-85 whitespace-nowrap flex-none hidden lg:inline">{campaign}</span>
         </>
       )}
       <div className="flex-1 min-w-8" />
-      <span className="opacity-70 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+      <span className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
         <span className="hidden lg:inline">
           Responses are anonymous to every viewer · identities stored only for de-duplication
         </span>
